@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basamak GYS | İnfografik — Genel Esaslar (Madde 1-11)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#4C1D95; --purple-2:#6D28D9; --magenta:#DB2777;
+    --amber:#F59E0B; --amber-dark:#D97706; --teal:#06B6D4; --teal-dark:#0E7490;
+    --bg:#F7F5FF; --card:#FFFFFF; --ink:#241547; --muted:#6B6285; --border:#EAE2FB;
+    font-family:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); padding:20px;}
+  h1,h2,h3{font-family:'Poppins',sans-serif;}
+  .sheet{max-width:1200px; margin:0 auto; background:var(--card); border-radius:22px; overflow:hidden; box-shadow:0 20px 50px -20px rgba(76,29,149,0.25);}
+
+  .top{display:flex; align-items:center; justify-content:space-between; background:linear-gradient(120deg,var(--purple) 0%,var(--purple-2) 55%,var(--magenta) 130%); color:#fff; padding:22px 30px;}
+  .top-left{display:flex; align-items:center; gap:16px;}
+  .kicker{background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.3); padding:8px 16px; border-radius:12px; font-weight:800; font-size:0.95rem; font-family:'Poppins',sans-serif; white-space:nowrap;}
+  .top h1{font-size:1.35rem; line-height:1.25;}
+  .top-icons{display:flex; gap:10px; font-size:1.5rem;}
+
+  .sub{display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#F1EBFF; padding:14px 30px; border-bottom:2px solid var(--border);}
+  .sub h2{font-size:1.05rem; color:var(--purple);}
+  .sub .badge{background:var(--magenta); color:#fff; font-weight:800; font-size:0.8rem; padding:6px 14px; border-radius:999px; font-family:'Poppins',sans-serif;}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; padding:14px 30px 0; font-size:0.72rem; font-weight:700; color:var(--muted);}
+  .legend .lg{display:flex; align-items:center; gap:6px;}
+  .legend .dot{width:9px; height:9px; border-radius:50%;}
+
+  .body{display:grid; grid-template-columns:1.2fr 1fr; gap:0;}
+  @media (max-width:960px){.body{grid-template-columns:1fr;}}
+
+  .left-col{padding:20px 26px; display:flex; flex-direction:column; gap:13px;}
+  .item{display:flex; gap:14px; align-items:flex-start; border-radius:14px; padding:14px 16px; border:1px solid var(--border); background:#FBF9FF;}
+  .num{flex-shrink:0; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:800; color:#fff; font-size:0.88rem;}
+  .item h4{font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:4px;}
+  .item p{font-size:0.8rem; line-height:1.58; color:var(--ink);}
+  .item p b{color:var(--purple); font-weight:700;}
+  .item p .hl{color:var(--magenta); font-weight:700;}
+
+  .g-a{border-left:4px solid var(--amber-dark);} .g-a .num{background:var(--amber-dark);}
+  .g-b{border-left:4px solid var(--purple-2);} .g-b .num{background:var(--purple-2);}
+  .g-c{border-left:4px solid var(--teal-dark);} .g-c .num{background:var(--teal-dark);}
+  .g-d{border-left:4px solid var(--magenta);} .g-d .num{background:var(--magenta);}
+
+  .right-col{background:linear-gradient(180deg,#FCFAFF,#F6F1FE); padding:20px 24px; display:flex; flex-direction:column; gap:18px;}
+  .panel{background:#fff; border:1px solid var(--border); border-radius:16px; padding:17px;}
+  .panel h3{text-align:center; font-size:0.8rem; color:#fff; font-weight:700; background:linear-gradient(90deg,var(--purple-2),var(--magenta)); padding:8px; border-radius:10px; margin-bottom:14px; letter-spacing:0.02em;}
+
+  .flow{display:flex; align-items:center; justify-content:space-between; gap:4px;}
+  .flow-step{display:flex; flex-direction:column; align-items:center; gap:5px; flex:1;}
+  .flow-step .circle{width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:#fff;}
+  .flow-step span{font-size:0.64rem; text-align:center; font-weight:600; color:var(--muted); line-height:1.2;}
+  .flow-step small{font-size:0.6rem; color:var(--purple); font-weight:800;}
+  .arrow{color:var(--border); font-size:1rem;}
+
+  .lock-list{display:flex; flex-direction:column; gap:9px;}
+  .lock-item{display:flex; align-items:center; gap:11px; background:#FBF9FF; border:1px solid var(--border); border-radius:12px; padding:9px 13px;}
+  .lock-item .em{font-size:1.1rem;}
+  .lock-item span{font-size:0.75rem; color:var(--ink); font-weight:600;}
+  .lock-item b{color:var(--amber-dark);}
+
+  .bottom{display:flex; align-items:center; gap:16px; background:linear-gradient(120deg,var(--amber-dark),var(--amber)); color:#fff; padding:18px 30px;}
+  .bottom .em{font-size:2rem;}
+  .bottom p{font-size:0.86rem; line-height:1.5;}
+  .bottom p b{color:#FFF3D6;}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <div class="top">
+    <div class="top-left">
+      <div class="kicker">BİRİNCİ KISIM</div>
+      <h1>GENEL ESASLAR</h1>
+    </div>
+    <div class="top-icons">🏛️ ⚖️ 📜</div>
+  </div>
+
+  <div class="sub">
+    <h2>1982 TÜRKİYE CUMHURİYETİ ANAYASASI</h2>
+    <span class="badge">MADDE 1–11</span>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><span class="dot" style="background:var(--amber-dark)"></span>Değiştirilemez Temel Hükümler</div>
+    <div class="lg"><span class="dot" style="background:var(--purple-2)"></span>Devletin Amacı ve Egemenlik</div>
+    <div class="lg"><span class="dot" style="background:var(--teal-dark)"></span>Kuvvetler Ayrılığı</div>
+    <div class="lg"><span class="dot" style="background:var(--magenta)"></span>Eşitlik ve Anayasanın Üstünlüğü</div>
+  </div>
+
+  <div class="body">
+    <div class="left-col">
+
+      <div class="item g-a">
+        <div class="num">1</div>
+        <div><h4>Devletin Şekli</h4>
+          <p>Türkiye Devleti bir <b>Cumhuriyet</b>tir. Anayasanın en kısa maddesi olmasına rağmen en güvenceli maddesidir — <span class="hl">Madde 4</span> gereği bu hüküm değiştirilemez ve değiştirilmesi teklif dahi edilemez.</p>
+        </div>
+      </div>
+
+      <div class="item g-a">
+        <div class="num">2</div>
+        <div><h4>Cumhuriyetin Nitelikleri</h4>
+          <p>Türkiye Cumhuriyeti; toplumun huzuru, milli dayanışma ve adalet anlayışı içinde, <b>insan haklarına saygılı</b>, Atatürk milliyetçiliğine bağlı, başlangıçta belirtilen temel ilkelere dayanan, <span class="hl">demokratik, laik ve sosyal</span> bir hukuk devletidir. Bu altı nitelik GYS'de sıkça tek tek sorulur.</p>
+        </div>
+      </div>
+
+      <div class="item g-a">
+        <div class="num">3</div>
+        <div><h4>Bütünlük, Resmî Dil, Bayrak, Millî Marş ve Başkent</h4>
+          <p>Türkiye Devleti, ülkesi ve milletiyle <b>bölünmez bir bütündür</b>. Dili Türkçedir. Bayrağı, şekli kanununda belirtilen beyaz ay yıldızlı al bayraktır. Millî marşı <b>"İstiklal Marşı"</b>dır. Başkenti <span class="hl">Ankara</span>'dır.</p>
+        </div>
+      </div>
+
+      <div class="item g-a">
+        <div class="num">4</div>
+        <div><h4>Değiştirilemeyecek Hükümler</h4>
+          <p>Anayasanın <b>1'inci maddesindeki</b> Cumhuriyet hükmü ile <b>2'nci maddesindeki</b> Cumhuriyetin nitelikleri ve <b>3'üncü madde</b> hükümleri değiştirilemez ve <span class="hl">değiştirilmesi teklif edilemez</span>. Dikkat: Madde 4'ün kendisi değiştirilebilir, sadece 1-2-3'ü koruma altına alır.</p>
+        </div>
+      </div>
+
+      <div class="item g-b">
+        <div class="num">5</div>
+        <div><h4>Devletin Temel Amaç ve Görevleri</h4>
+          <p>Devletin temel amaç ve görevleri; Türk milletinin bağımsızlığını ve bütünlüğünü, ülkenin bölünmezliğini, <b>Cumhuriyeti ve demokrasiyi korumak</b>; kişilerin ve toplumun refah, huzur ve mutluluğunu sağlamak; kişinin temel hak ve hürriyetlerini sosyal hukuk devleti ilkeleriyle bağdaşmayacak şekilde sınırlayan <span class="hl">engelleri kaldırmaya</span> çalışmaktır.</p>
+        </div>
+      </div>
+
+      <div class="item g-b">
+        <div class="num">6</div>
+        <div><h4>Egemenlik</h4>
+          <p>Egemenlik, <b>kayıtsız şartsız Milletindir</b>. Türk Milleti egemenliğini Anayasanın koyduğu esaslara göre yetkili organları eliyle kullanır. Egemenliğin kullanılması <span class="hl">hiçbir kişiye, zümreye veya sınıfa bırakılamaz</span>; hiçbir kimse veya organ kaynağını Anayasadan almayan bir devlet yetkisi kullanamaz.</p>
+        </div>
+      </div>
+
+      <div class="item g-c">
+        <div class="num">7</div>
+        <div><h4>Yasama Yetkisi</h4>
+          <p>Yasama yetkisi Türk Milleti adına <b>Türkiye Büyük Millet Meclisi</b>'nindir. Bu yetki <span class="hl">devredilemez</span> — TBMM dışında hiçbir organ kanun yapamaz.</p>
+        </div>
+      </div>
+
+      <div class="item g-c">
+        <div class="num">8</div>
+        <div><h4>Yürütme Yetkisi ve Görevi</h4>
+          <p>Yürütme yetkisi ve görevi, <b>Cumhurbaşkanı</b> tarafından, Anayasaya ve kanunlara uygun olarak <span class="hl">kullanılır ve yerine getirilir</span>.</p>
+        </div>
+      </div>
+
+      <div class="item g-c">
+        <div class="num">9</div>
+        <div><h4>Yargı Yetkisi</h4>
+          <p>Yargı yetkisi, Türk Milleti adına <b>bağımsız ve tarafsız mahkemelerce</b> kullanılır. Bağımsızlık ve tarafsızlık, yargı için Anayasada birlikte sayılan iki temel güvencedir.</p>
+        </div>
+      </div>
+
+      <div class="item g-d">
+        <div class="num">10</div>
+        <div><h4>Kanun Önünde Eşitlik</h4>
+          <p>Herkes, dil, ırk, renk, cinsiyet, siyasi düşünce, felsefi inanç, din, mezhep ve benzeri sebeplerle ayırım gözetilmeksizin <b>kanun önünde eşit</b>tir. Kadın ve erkekler eşit haklara sahiptir; devlet bu eşitliğin yaşama geçmesini sağlamakla yükümlüdür. Çocuklar, yaşlılar, engelliler, şehit yakınları ile malul ve gaziler için alınacak tedbirler <span class="hl">eşitlik ilkesine aykırı sayılmaz</span>. Hiçbir kişiye, aileye, zümreye veya sınıfa imtiyaz tanınamaz; devlet organları bu ilkeye uygun hareket etmek zorundadır.</p>
+        </div>
+      </div>
+
+      <div class="item g-d">
+        <div class="num">11</div>
+        <div><h4>Anayasanın Bağlayıcılığı ve Üstünlüğü</h4>
+          <p>Anayasa hükümleri, yasama, yürütme ve yargı organlarını, idare makamlarını ve diğer kuruluş ve kişileri bağlayan <b>temel hukuk kurallarıdır</b>. <span class="hl">Kanunlar Anayasaya aykırı olamaz</span> — normlar hiyerarşisinin en tepesinde Anayasa yer alır.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="right-col">
+
+      <div class="panel">
+        <h3>KUVVETLER AYRILIĞI (MADDE 7-8-9)</h3>
+        <div class="flow">
+          <div class="flow-step"><div class="circle" style="background:var(--teal-dark)">🏛️</div><small>Md.7</small><span>Yasama<br>TBMM</span></div>
+          <span class="arrow">›</span>
+          <div class="flow-step"><div class="circle" style="background:var(--purple-2)">🖋️</div><small>Md.8</small><span>Yürütme<br>Cumhurbaşkanı</span></div>
+          <span class="arrow">›</span>
+          <div class="flow-step"><div class="circle" style="background:var(--magenta)">⚖️</div><small>Md.9</small><span>Yargı<br>Bağımsız Mahkemeler</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>DEĞİŞTİRİLEMEZ 3 TEMEL HÜKÜM (MADDE 4)</h3>
+        <div class="lock-list">
+          <div class="lock-item"><span class="em">🔒</span><span><b>Madde 1</b> — Devletin şekli: Cumhuriyet</span></div>
+          <div class="lock-item"><span class="em">🔒</span><span><b>Madde 2</b> — Cumhuriyetin nitelikleri (demokratik, laik, sosyal...)</span></div>
+          <div class="lock-item"><span class="em">🔒</span><span><b>Madde 3</b> — Bütünlük, dil, bayrak, marş, başkent</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>MADDE 10 — EŞİTLİĞİN İSTİSNASI DEĞİL, GEREĞİ</h3>
+        <div class="lock-list">
+          <div class="lock-item"><span class="em">👩</span><span>Kadın-erkek eşitliğini <b>sağlamak devlet yükümlülüğü</b></span></div>
+          <div class="lock-item"><span class="em">🧒</span><span>Çocuk, yaşlı, engelli, gazi için tedbirler <b>eşitliğe aykırı sayılmaz</b></span></div>
+          <div class="lock-item"><span class="em">🚫</span><span>Hiçbir gruba <b>imtiyaz tanınamaz</b></span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="em">🔑</span>
+    <p>GYS'de en çok sorulan nokta: <b>Madde 4</b>, Madde 1-2-3'ü korur ama <b>kendisi değiştirilebilir</b> — Anayasa değişiklik teklifleri yalnızca bu üç maddeye yönelik olamaz.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
