@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soru Çöz — Saymanlık — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
+    --coral:#FF6B5D; --violet:#8B6BF2; --pink:#EC6FA0;
+    --green:#22C55E; --green-bg:#E9FBF0; --red:#EF4444; --red-bg:#FEECEC;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186;
+    --radius-lg:22px; --radius-md:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',system-ui,-apple-system,sans-serif;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.86rem;color:var(--slate);font-weight:600;flex-wrap:wrap;}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+  .score-chip{display:flex;align-items:center;gap:16px;font-family:'IBM Plex Mono';font-size:0.85rem;font-weight:600;}
+  .score-chip .ok{color:var(--green);}
+  .score-chip .no{color:var(--red);}
+
+  .wrap{max-width:760px;margin:0 auto;padding:28px 6vw 90px;}
+
+  /* Setup screen */
+  .setup-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:28px;}
+  .setup-card h1{font-size:1.4rem;margin:0 0 6px;}
+  .setup-card p{color:var(--slate);margin:0 0 24px;font-size:0.92rem;}
+  .setup-group{margin-bottom:22px;}
+  .setup-group h4{font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--slate);margin:0 0 10px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);
+    font-size:0.85rem;font-weight:600;color:var(--ink);background:var(--white);
+  }
+  .chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+  .start-btn{
+    width:100%;margin-top:8px;padding:15px;border-radius:100px;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;
+    font-weight:700;font-size:1rem;text-align:center;
+  }
+  .setup-note{font-size:0.8rem;color:var(--slate);text-align:center;margin-top:12px;}
+
+  /* Question screen */
+  .q-progress{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .q-bar{flex-grow:1;height:6px;background:var(--mist);border-radius:10px;overflow:hidden;}
+  .q-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:10px;transition:width .3s ease;}
+  .q-progress-label{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--slate);white-space:nowrap;}
+
+  .q-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:26px;}
+  .q-tags{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .q-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.03em;padding:4px 11px;border-radius:100px;}
+  .q-tag.madde{background:rgba(14,158,151,0.12);color:var(--teal-dark);}
+  .q-tag.diff-1{background:rgba(34,197,94,0.12);color:#16803C;}
+  .q-tag.diff-2{background:rgba(245,166,35,0.14);color:#B0740F;}
+  .q-tag.diff-3{background:rgba(255,107,93,0.12);color:#C0392B;}
+  .q-tag.type{background:var(--cloud);color:var(--slate);}
+  .q-tag.trap{background:rgba(139,107,242,0.12);color:var(--violet);}
+
+  .q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:20px;white-space:pre-line;}
+
+  .opt{
+    display:flex;align-items:center;gap:12px;
+    width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;
+    border:1.5px solid var(--mist);border-radius:14px;background:var(--white);
+    font-size:0.96rem;font-weight:500;transition:all .15s ease;
+  }
+  .opt:hover:not(.disabled){border-color:var(--teal);background:rgba(14,158,151,0.04);}
+  .opt-letter{
+    width:28px;height:28px;border-radius:8px;background:var(--cloud);color:var(--slate);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;
+  }
+  .opt.correct{background:var(--green-bg);border-color:var(--green);}
+  .opt.correct .opt-letter{background:var(--green);color:white;}
+  .opt.wrong{background:var(--red-bg);border-color:var(--red);}
+  .opt.wrong .opt-letter{background:var(--red);color:white;}
+  .opt.disabled{cursor:default;}
+  .opt.dim{opacity:0.55;}
+
+  .solution-toggle{
+    margin-top:16px;display:none;align-items:center;gap:8px;
+    font-weight:700;font-size:0.88rem;color:var(--violet);
+  }
+  .solution-toggle.show{display:inline-flex;}
+  .solution-box{
+    display:none;margin-top:12px;padding:16px 18px;border-radius:14px;
+    background:rgba(139,107,242,0.06);border:1px solid rgba(139,107,242,0.25);
+    font-size:0.9rem;line-height:1.6;color:var(--ink);
+  }
+  .solution-box.show{display:block;}
+
+  .nav-row{display:flex;justify-content:flex-end;margin-top:20px;}
+  .next-btn{
+    padding:12px 24px;border-radius:100px;background:var(--ink);color:white;
+    font-weight:700;font-size:0.92rem;display:none;align-items:center;gap:8px;
+  }
+  .next-btn.show{display:inline-flex;}
+
+  /* Results screen */
+  .result-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:34px;text-align:center;}
+  .result-card .big-score{font-family:'Sora';font-weight:800;font-size:2.6rem;margin:6px 0;}
+  .result-card p{color:var(--slate);}
+  .result-actions{display:flex;gap:10px;margin-top:20px;justify-content:center;flex-wrap:wrap;}
+  .result-btn{padding:12px 22px;border-radius:100px;font-weight:700;font-size:0.9rem;}
+  .result-btn.primary{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .result-btn.secondary{background:var(--cloud);color:var(--ink);}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span>
+    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <span class="cur">Soru Çöz</span>
+  </div>
+  <div class="score-chip" id="liveScore" style="display:none;">
+    <span class="ok">✓ <span id="okCount">0</span></span>
+    <span class="no">✕ <span id="noCount">0</span></span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- SETUP -->
+  <div id="setupScreen">
+    <div class="setup-card">
+      <h1>Soru Çöz</h1>
+      <p>Zorluk ve soru sayısını seç, hemen başla. Doğru cevap yeşil, yanlış kırmızı renkte gösterilir; istersen çözümü de görebilirsin.</p>
+
+      <div class="setup-group">
+        <h4>Zorluk</h4>
+        <div class="chip-row" id="diffChips">
+          <button class="chip active" data-val="all">Hepsi (Kolaydan Zora)</button>
+          <button class="chip" data-val="1">Kolay</button>
+          <button class="chip" data-val="2">Orta</button>
+          <button class="chip" data-val="3">Zor</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <h4>Soru Sayısı</h4>
+        <div class="chip-row" id="countChips">
+          <button class="chip" data-val="10">10 Soru</button>
+          <button class="chip active" data-val="20">20 Soru</button>
+          <button class="chip" data-val="40">40 Soru</button>
+          <button class="chip" data-val="999">Tümü (<span id="totalCount">0</span>)</button>
+        </div>
+      </div>
+
+      <button class="start-btn" id="startBtn">Başla</button>
+      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut — banka her hafta büyüyecek.</div>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="quizScreen" class="hidden">
+    <div class="q-progress">
+      <div class="q-bar"><div class="q-bar-fill" id="qBarFill" style="width:0%"></div></div>
+      <div class="q-progress-label mono"><span id="qIndex">1</span>/<span id="qTotal">0</span></div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-tags" id="qTags"></div>
+      <div class="q-text" id="qText"></div>
+      <div id="qOptions"></div>
+
+      <button class="solution-toggle" id="solutionToggle">💡 Çözümü Gör</button>
+      <div class="solution-box" id="solutionBox"></div>
+
+      <div class="nav-row">
+        <button class="next-btn" id="nextBtn">Sonraki Soru →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="resultScreen" class="hidden">
+    <div class="result-card">
+      <div style="font-size:2.2rem;">🎯</div>
+      <div class="big-score" id="finalScore">0 / 0</div>
+      <p id="finalMsg">Tamamladın!</p>
+      <div class="result-actions">
+        <button class="result-btn primary" id="retryBtn">Tekrar Çöz</button>
+        <a class="result-btn secondary" href="saymanlik.html">Saymanlık'a Dön</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="soru/questions.js"></script>
+<script>
+  const TYPE_LABELS = {
+    bilgi: "Doğrudan Bilgi", olumsuz: "Olumsuz Kök", sayma: "Çoklu Önerme",
+    bosluk: "Boşluk Tamamlama", senaryo: "Durum/Senaryo", karsilastirma: "Karşılaştırma"
+  };
+  const DIFF_LABELS = { 1: "Kolay", 2: "Orta", 3: "Zor" };
+  const LETTERS = ["A","B","C","D"];
+  const STORE_KEY = "basamak-gys-saymanlik-stats";
+
+  let selectedDiff = "all";
+  let selectedCount = 20;
+  let quiz = [];
+  let qIdx = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let answered = false;
+
+  document.getElementById('totalCount').textContent = QUESTION_BANK.length;
+  document.getElementById('bankInfo').textContent = QUESTION_BANK.length;
+
+  document.querySelectorAll('#diffChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      selectedDiff = c.dataset.val;
+    });
+  });
+  document.querySelectorAll('#countChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#countChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      selectedCount = parseInt(c.dataset.val);
+    });
+  });
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    let pool = QUESTION_BANK.slice();
+    if(selectedDiff !== "all"){
+      pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
+    } else {
+      // kolaydan zora sırala
+      pool = pool.slice().sort((a,b) => a.difficulty - b.difficulty);
+    }
+    if(selectedDiff === "all"){
+      // aynı zorluk seviyesi içinde karıştır ama zorluk sırasını koru
+      const groups = {1:[],2:[],3:[]};
+      pool.forEach(q => groups[q.difficulty].push(q));
+      pool = [...shuffle(groups[1]), ...shuffle(groups[2]), ...shuffle(groups[3])];
+    } else {
+      pool = shuffle(pool);
+    }
+    quiz = pool.slice(0, Math.min(selectedCount, pool.length));
+    if(quiz.length === 0){
+      alert("Bu filtrelerle eşleşen soru bulunamadı.");
+      return;
+    }
+    qIdx = 0; correctCount = 0; wrongCount = 0;
+    document.getElementById('setupScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.add('hidden');
+    document.getElementById('quizScreen').classList.remove('hidden');
+    document.getElementById('liveScore').style.display = 'flex';
+    document.getElementById('qTotal').textContent = quiz.length;
+    renderQuestion();
+  });
+
+  function renderQuestion(){
+    answered = false;
+    const q = quiz[qIdx];
+    document.getElementById('qIndex').textContent = qIdx + 1;
+    document.getElementById('qBarFill').style.width = ((qIdx) / quiz.length * 100) + '%';
+
+    const tagsEl = document.getElementById('qTags');
+    tagsEl.innerHTML = `
+      <span class="q-tag madde">${q.madde}</span>
+      <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
+      <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
+      ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
+    `;
+
+    document.getElementById('qText').textContent = q.question;
+
+    const optsEl = document.getElementById('qOptions');
+    optsEl.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => selectAnswer(i, btn));
+      optsEl.appendChild(btn);
+    });
+
+    document.getElementById('solutionToggle').classList.remove('show');
+    document.getElementById('solutionToggle').textContent = '💡 Çözümü Gör';
+    document.getElementById('solutionBox').classList.remove('show');
+    document.getElementById('solutionBox').textContent = q.explanation;
+    document.getElementById('nextBtn').classList.remove('show');
+  }
+
+  function selectAnswer(i, btn){
+    if(answered) return;
+    answered = true;
+    const q = quiz[qIdx];
+    const allOpts = document.querySelectorAll('#qOptions .opt');
+    allOpts.forEach((el, idx) => {
+      el.classList.add('disabled');
+      if(idx === q.correct) el.classList.add('correct');
+      if(idx !== q.correct) el.classList.add('dim');
+    });
+    if(i === q.correct){
+      correctCount++;
+    } else {
+      btn.classList.remove('dim');
+      btn.classList.add('wrong');
+      wrongCount++;
+    }
+    document.getElementById('okCount').textContent = correctCount;
+    document.getElementById('noCount').textContent = wrongCount;
+    document.getElementById('solutionToggle').classList.add('show');
+    document.getElementById('nextBtn').classList.add('show');
+    saveProgress(i === q.correct);
+  }
+
+  document.getElementById('solutionToggle').addEventListener('click', () => {
+    const box = document.getElementById('solutionBox');
+    const btn = document.getElementById('solutionToggle');
+    box.classList.toggle('show');
+    btn.textContent = box.classList.contains('show') ? '💡 Çözümü Gizle' : '💡 Çözümü Gör';
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    qIdx++;
+    if(qIdx >= quiz.length){
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  });
+
+  function showResults(){
+    document.getElementById('quizScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.remove('hidden');
+    document.getElementById('qBarFill').style.width = '100%';
+    const total = quiz.length;
+    document.getElementById('finalScore').textContent = `${correctCount} / ${total}`;
+    const pct = Math.round((correctCount/total)*100);
+    let msg = "İyi iş çıkardın!";
+    if(pct === 100) msg = "Mükemmel! Hepsini doğru bildin. 🎉";
+    else if(pct >= 70) msg = "Gayet iyi gidiyorsun, devam et!";
+    else if(pct < 40) msg = "Yanlış sorularını tekrar gözden geçir.";
+    document.getElementById('finalMsg').textContent = `${msg} (%${pct} başarı)`;
+  }
+
+  document.getElementById('retryBtn').addEventListener('click', () => {
+    document.getElementById('resultScreen').classList.add('hidden');
+    document.getElementById('liveScore').style.display = 'none';
+    document.getElementById('setupScreen').classList.remove('hidden');
+  });
+
+  function saveProgress(wasCorrect){
+    let s;
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      s = raw ? JSON.parse(raw) : { solved:0, correct:0, streak:0 };
+    }catch(e){ s = { solved:0, correct:0, streak:0 }; }
+    s.solved = (s.solved || 0) + 1;
+    if(wasCorrect) s.correct = (s.correct || 0) + 1;
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){}
+  }
+</script>
+
+</body>
+</html>
