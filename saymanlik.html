@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saymanlık — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E;
+    --teal:#0E9E97;
+    --teal-dark:#0B7F79;
+    --amber:#F5A623;
+    --coral:#FF6B5D;
+    --violet:#8B6BF2;
+    --pink:#EC6FA0;
+    --cloud:#F3F7F9;
+    --white:#FFFFFF;
+    --mist:#E1EAEE;
+    --slate:#5B7186;
+    --radius-lg:22px;
+    --radius-md:16px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.display{font-family:'Sora',system-ui,-apple-system,sans-serif;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.88rem;color:var(--slate);font-weight:600;}
+  .crumb a{color:var(--slate);}
+  .crumb a:hover{color:var(--teal-dark);}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+
+  .module-hero{padding:40px 6vw 10px;max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;}
+  .module-hero .icon{
+    width:58px;height:58px;border-radius:16px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+    display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:white;
+  }
+  .module-hero h1{font-size:clamp(1.6rem,3vw,2.1rem);margin:0 0 4px;}
+  .module-hero p{margin:0;color:var(--slate);font-size:0.95rem;}
+
+  .stats-strip{max-width:1180px;margin:28px auto 0;padding:0 6vw;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+  .stat-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-md);padding:18px 20px;display:flex;align-items:center;gap:14px;}
+  .stat-chip{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+  .stat-chip.a{background:rgba(14,158,151,0.12);}
+  .stat-chip.b{background:rgba(245,166,35,0.14);}
+  .stat-chip.c{background:rgba(255,107,93,0.12);}
+  .stat-num{font-family:'IBM Plex Mono';font-weight:600;font-size:1.3rem;line-height:1;}
+  .stat-label{font-size:0.78rem;color:var(--slate);margin-top:3px;}
+
+  .content{max-width:1180px;margin:0 auto;padding:44px 6vw 90px;}
+  .section-block{margin-bottom:48px;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;}
+  .section-head h2{font-size:1.3rem;margin:0;}
+  .section-head span{font-size:0.82rem;color:var(--slate);}
+
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
+  .feature-card{
+    background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);
+    padding:24px;display:flex;flex-direction:column;gap:14px;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .feature-card:not(.soon){cursor:pointer;}
+  .feature-card:not(.soon):hover{transform:translateY(-3px);box-shadow:0 16px 30px -16px rgba(16,36,62,0.2);}
+  .feature-card.soon{opacity:0.6;}
+  .f-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:white;}
+  .f-icon.teal{background:linear-gradient(135deg,var(--teal),var(--teal-dark));}
+  .f-icon.violet{background:linear-gradient(135deg,#A78BFA,var(--violet));}
+  .f-icon.coral{background:linear-gradient(135deg,#FF8A7A,var(--coral));}
+  .f-icon.amber{background:linear-gradient(135deg,#FFC163,var(--amber));}
+  .f-icon.pink{background:linear-gradient(135deg,#F49AC1,var(--pink));}
+  .f-icon.slate{background:var(--mist);color:var(--slate);}
+  .feature-card h3{margin:0;font-size:1rem;}
+  .feature-card p{margin:0;color:var(--slate);font-size:0.84rem;line-height:1.5;flex-grow:1;}
+  .f-action{
+    align-self:flex-start;font-weight:700;font-size:0.85rem;color:var(--teal-dark);
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .f-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.04em;padding:4px 10px;border-radius:100px;background:var(--cloud);color:var(--slate);align-self:flex-start;}
+
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:white;padding:13px 22px;border-radius:100px;
+    font-size:0.88rem;font-weight:600;opacity:0;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;box-shadow:0 12px 30px -10px rgba(16,36,62,0.4);
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span><span class="cur">Saymanlık</span>
+  </div>
+</div>
+
+<section class="module-hero">
+  <div class="icon">🧮</div>
+  <div>
+    <h1>Saymanlık Bölümü</h1>
+    <p>Soru çöz, konulara çalış ve deneme sınavlarıyla hazırlığını tamamla.</p>
+  </div>
+</section>
+
+<section class="stats-strip">
+  <div class="stat-card">
+    <div class="stat-chip a">📝</div>
+    <div><div class="stat-num mono" id="statSolved">0</div><div class="stat-label">Çözülen Soru</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-chip b">🎯</div>
+    <div><div class="stat-num mono" id="statAccuracy">%0</div><div class="stat-label">Başarı Oranı</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-chip c">🔥</div>
+    <div><div class="stat-num mono" id="statStreak">0</div><div class="stat-label">Günlük Seri</div></div>
+  </div>
+</section>
+
+<div class="content">
+
+  <div class="section-block">
+    <div class="section-head"><h2>Soru Çöz</h2><span>4 mod</span></div>
+    <div class="card-grid">
+      <div class="feature-card" data-feature="konulardan-soru-coz">
+        <div class="f-icon teal">📚</div>
+        <h3>Konulardan Soru Çöz</h3>
+        <p>İstediğin konuyu seç, o konudaki sorularla çalış.</p>
+        <span class="f-action">Soru Çöz →</span>
+      </div>
+      <a class="feature-card" href="soru-coz.html" style="text-decoration:none;">
+        <div class="f-icon violet">🔀</div>
+        <h3>Karışık Soru Çöz</h3>
+        <p>Tüm konulardan karışık sorularla genel tekrar yap.</p>
+        <span class="f-action">Soru Çöz →</span>
+      </a>
+      <div class="feature-card" data-feature="yanlis-sorularim">
+        <div class="f-icon coral">⚠️</div>
+        <h3>Yanlış Sorularımı Çöz</h3>
+        <p>Daha önce yanlış yaptığın sorulara odaklan.</p>
+        <span class="f-action">Soru Çöz →</span>
+      </div>
+      <div class="feature-card" data-feature="favori-sorularim">
+        <div class="f-icon pink">❤️</div>
+        <h3>Favori Sorularımı Çöz</h3>
+        <p>İşaretlediğin favori soruları tekrar çöz.</p>
+        <span class="f-action">Soru Çöz →</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head"><h2>Konu Çalış</h2><span>Yakında</span></div>
+    <div class="card-grid">
+      <a class="feature-card" href="infografikler.html" style="text-decoration:none;">
+        <div class="f-icon violet">🧠</div>
+        <h3>İnfografikler</h3>
+        <p>Görsel kartlarla hızlı tekrar yap — indirilebilir.</p>
+        <span class="f-action">İncele →</span>
+      </a>
+      <div class="feature-card soon">
+        <div class="f-icon slate">💬</div>
+        <h3>Bilgi Kartları</h3>
+        <p>Kısa bilgi kartlarıyla akılda kalıcı tekrar.</p>
+        <span class="f-tag">YAKINDA</span>
+      </div>
+      <div class="feature-card soon">
+        <div class="f-icon slate">🎙️</div>
+        <h3>Podcastler</h3>
+        <p>Konuları dinleyerek çalış.</p>
+        <span class="f-tag">YAKINDA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head"><h2>Deneme Sınavı</h2><span>3 mod</span></div>
+    <div class="card-grid">
+      <div class="feature-card" data-feature="otomatik-deneme-olustur">
+        <div class="f-icon amber">✨</div>
+        <h3>Otomatik Deneme Sınavı Oluştur ve Çöz</h3>
+        <p>Ayarlarını seç, sana özel bir deneme sınavı oluştur.</p>
+        <span class="f-action">Oluştur →</span>
+      </div>
+      <div class="feature-card" data-feature="sistem-deneme">
+        <div class="f-icon teal">✅</div>
+        <h3>Sistemin Oluşturduğu Deneme Sınavlarını Çöz</h3>
+        <p>Hazır deneme sınavlarından birini seç ve çöz.</p>
+        <span class="f-action">Deneme Çöz →</span>
+      </div>
+      <div class="feature-card" data-feature="otomatik-olusturduklarim">
+        <div class="f-icon violet">👤</div>
+        <h3>Otomatik Oluşturduğum Deneme Sınavlarını Çöz</h3>
+        <p>Daha önce oluşturduğun denemeleri tekrar çöz.</p>
+        <span class="f-action">Deneme Çöz →</span>
+      </div>
+      <div class="feature-card soon">
+        <div class="f-icon slate">⏰</div>
+        <h3>Türkiye Geneli Deneme Sınavlarını Çöz</h3>
+        <p>Ortak denemelere katıl, sıralamanı gör.</p>
+        <span class="f-tag">YAKINDA</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORE_KEY = 'basamak-gys-saymanlik-stats';
+
+  function loadStats(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { solved:0, correct:0, streak:0 };
+  }
+
+  function renderStats(){
+    const s = loadStats();
+    document.getElementById('statSolved').textContent = s.solved;
+    const acc = s.solved > 0 ? Math.round((s.correct / s.solved) * 100) : 0;
+    document.getElementById('statAccuracy').textContent = '%' + acc;
+    document.getElementById('statStreak').textContent = s.streak;
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+  document.querySelectorAll('.feature-card[data-feature]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      showToast('Bu özellik yapım aşamasında — yakında eklenecek.');
+    });
+  });
+
+  renderStats();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basamak GYS — Görevde Yükselme Sınavı Hazırlık Platformu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E;
+    --teal:#0E9E97;
+    --teal-dark:#0B7F79;
+    --amber:#F5A623;
+    --coral:#FF6B5D;
+    --violet:#8B6BF2;
+    --cloud:#F3F7F9;
+    --white:#FFFFFF;
+    --mist:#E1EAEE;
+    --slate:#5B7186;
+    --radius-lg:22px;
+    --radius-md:16px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cloud);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Sora',system-ui,-apple-system,sans-serif;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}
+  }
+
+  /* Topbar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 6vw;
+    background:var(--white);
+    border-bottom:1px solid var(--mist);
+    position:sticky;top:0;z-index:10;
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:800;font-size:1.15rem;}
+  .logo-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--teal),var(--amber));
+    display:flex;align-items:center;justify-content:center;
+    color:white;font-family:'Sora';font-weight:800;font-size:1rem;
+    flex-shrink:0;
+  }
+  .topbar-tag{
+    font-size:0.78rem;color:var(--slate);font-weight:600;
+    display:none;
+  }
+  @media(min-width:700px){.topbar-tag{display:block;}}
+
+  /* Hero */
+  .hero{
+    padding:64px 6vw 40px;
+    max-width:1180px;margin:0 auto;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--teal-dark);
+    background:rgba(14,158,151,0.1);
+    padding:7px 14px;border-radius:100px;
+    margin-bottom:20px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  .hero h1{
+    font-size:clamp(2.1rem,4.5vw,3.4rem);
+    font-weight:800;line-height:1.08;
+    max-width:14ch;
+    margin:0 0 18px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg,var(--teal),var(--teal-dark));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{
+    font-size:1.05rem;color:var(--slate);max-width:52ch;line-height:1.65;margin:0 0 40px;
+  }
+
+  /* Staircase */
+  .staircase{
+    display:flex;align-items:flex-end;gap:18px;
+    max-width:900px;
+    padding-top:20px;
+  }
+  .step{
+    flex:1;min-width:0;
+    border-radius:var(--radius-lg) var(--radius-lg) 10px 10px;
+    padding:22px 20px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;
+    transition:transform .25s ease;
+  }
+  .step:hover{transform:translateY(-4px);}
+  .step-1{
+    height:190px;
+    background:linear-gradient(160deg,var(--teal) 0%,var(--teal-dark) 100%);
+    color:white;
+    box-shadow:0 18px 34px -14px rgba(14,158,151,0.55);
+    z-index:3;
+  }
+  .step-2{
+    height:236px;
+    background:var(--white);
+    border:1.5px dashed var(--mist);
+    color:var(--slate);
+    z-index:2;
+  }
+  .step-3{
+    height:282px;
+    background:var(--white);
+    border:1.5px dashed var(--mist);
+    color:var(--slate);
+    z-index:1;
+  }
+  .step-num{
+    font-family:'IBM Plex Mono';font-size:0.75rem;font-weight:600;opacity:0.85;
+  }
+  .step-1 .step-num{color:rgba(255,255,255,0.85);}
+  .step-title{font-family:'Sora';font-weight:700;font-size:1.05rem;margin-top:8px;}
+  .step-status{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:0.76rem;font-weight:600;margin-top:10px;
+  }
+  .step-1 .step-status{color:rgba(255,255,255,0.92);}
+  .lock-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.6;}
+  .step-btn{
+    align-self:flex-start;
+    margin-top:14px;
+    background:white;color:var(--teal-dark);
+    font-weight:700;font-size:0.85rem;
+    padding:9px 16px;border-radius:100px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .step-btn svg{width:14px;height:14px;}
+  .step-locked-icon{
+    width:34px;height:34px;border-radius:10px;
+    background:var(--cloud);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--slate);
+  }
+
+  @media(max-width:640px){
+    .staircase{flex-direction:column;align-items:stretch;gap:12px;}
+    .step-1,.step-2,.step-3{height:auto;padding:18px;flex-direction:row;align-items:center;justify-content:space-between;}
+    .step-1>div:first-child,.step-2>div:first-child,.step-3>div:first-child{display:flex;flex-direction:column;}
+  }
+
+  /* Modules section */
+  .modules-section{padding:20px 6vw 90px;max-width:1180px;margin:0 auto;}
+  .section-head{margin-bottom:26px;}
+  .section-head h2{font-size:1.5rem;font-weight:700;margin:0 0 6px;}
+  .section-head p{color:var(--slate);margin:0;font-size:0.95rem;}
+  .module-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;
+  }
+  .module-card{
+    background:var(--white);
+    border-radius:var(--radius-lg);
+    padding:26px;
+    border:1px solid var(--mist);
+    display:flex;flex-direction:column;gap:14px;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .module-card.active{
+    border-color:transparent;
+    box-shadow:0 20px 40px -18px rgba(16,36,62,0.18);
+  }
+  .module-card.active:hover{transform:translateY(-3px);}
+  .module-icon{
+    width:48px;height:48px;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;
+  }
+  .module-card.active .module-icon{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .module-card.locked .module-icon{background:var(--cloud);color:var(--slate);}
+  .module-card h3{margin:0;font-size:1.1rem;}
+  .module-card p{margin:0;color:var(--slate);font-size:0.88rem;line-height:1.5;flex-grow:1;}
+  .module-badge{
+    align-self:flex-start;
+    font-size:0.7rem;font-weight:700;letter-spacing:0.04em;
+    padding:5px 11px;border-radius:100px;
+  }
+  .module-badge.live{background:rgba(14,158,151,0.12);color:var(--teal-dark);}
+  .module-badge.soon{background:var(--cloud);color:var(--slate);}
+  .module-cta{
+    margin-top:4px;
+    display:inline-flex;align-items:center;gap:6px;
+    font-weight:700;font-size:0.9rem;color:var(--teal-dark);
+  }
+  .module-cta.disabled{color:var(--slate);}
+
+  footer{
+    padding:26px 6vw 40px;text-align:center;color:var(--slate);font-size:0.82rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="logo-mark">B</span>Basamak GYS</div>
+  <div class="topbar-tag">Görevde Yükselme Sınavı Hazırlık Platformu</div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">CTE &amp; İnfaz Personeli · GYS Hazırlık</div>
+  <h1>Basamağını seç, <em>sınava adım adım çık.</em></h1>
+  <p>Her bölüm ayrı bir basamak. Şu an aktif olan Saymanlık bölümüyle başla; diğer bölümler sırayla eklenecek.</p>
+
+  <div class="staircase">
+    <div class="step step-1">
+      <div>
+        <div class="step-num">BASAMAK 01</div>
+        <div class="step-title">Saymanlık</div>
+        <div class="step-status">● Aktif</div>
+      </div>
+      <a href="saymanlik.html" class="step-btn">Başla
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="step step-2">
+      <div>
+        <div class="step-num">BASAMAK 02</div>
+        <div class="step-title">2. Bölüm</div>
+        <div class="step-status"><span class="lock-dot"></span>Yakında</div>
+      </div>
+      <div class="step-locked-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </div>
+    </div>
+    <div class="step step-3">
+      <div>
+        <div class="step-num">BASAMAK 03</div>
+        <div class="step-title">3. Bölüm</div>
+        <div class="step-status"><span class="lock-dot"></span>Yakında</div>
+      </div>
+      <div class="step-locked-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="modules-section">
+  <div class="section-head">
+    <h2>Bölümler</h2>
+    <p>Basamak GYS üç bağımsız bölümden oluşacak. Her bölümün kendi soru bankası, konu anlatımı ve deneme sınavları olacak.</p>
+  </div>
+  <div class="module-grid">
+    <div class="module-card active">
+      <div class="module-icon">🧮</div>
+      <span class="module-badge live">AKTİF</span>
+      <h3>Saymanlık</h3>
+      <p>Soru çöz, konulara çalış ve deneme sınavlarıyla saymanlık bölümüne hazırlan.</p>
+      <a href="saymanlik.html" class="module-cta">Bölüme git
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="module-card locked">
+      <div class="module-icon">📘</div>
+      <span class="module-badge soon">YAKINDA</span>
+      <h3>2. Bölüm</h3>
+      <p>Bu bölümün içeriği hazırlanıyor. Yakında eklenecek.</p>
+      <span class="module-cta disabled">Yakında aktif olacak</span>
+    </div>
+    <div class="module-card locked">
+      <div class="module-icon">📗</div>
+      <span class="module-badge soon">YAKINDA</span>
+      <h3>3. Bölüm</h3>
+      <p>Bu bölümün içeriği hazırlanıyor. Yakında eklenecek.</p>
+      <span class="module-cta disabled">Yakında aktif olacak</span>
+    </div>
+  </div>
+</section>
+
+<footer>Basamak GYS — kişisel kullanım için hazırlanmaktadır.</footer>
+
+</body>
+</html>
