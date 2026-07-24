@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deneme Sınavı — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
+    --coral:#FF6B5D; --violet:#8B6BF2;
+    --green:#22C55E; --green-bg:#E9FBF0; --red:#EF4444; --red-bg:#FEECEC;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186;
+    --radius-lg:22px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;}
+  h1,h2,h3{font-family:'Sora',system-ui,-apple-system,sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.86rem;color:var(--slate);font-weight:600;flex-wrap:wrap;}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:28px 6vw 90px;}
+
+  .list-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+  .list-card .icon{width:48px;height:48px;border-radius:12px;background:var(--cloud);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+  .list-card .info{flex-grow:1;}
+  .list-card h3{margin:0;font-size:1rem;}
+  .list-card p{margin:2px 0 0;color:var(--slate);font-size:0.82rem;}
+  .list-card .go{padding:10px 18px;border-radius:100px;background:var(--teal);color:white;font-weight:700;font-size:0.85rem;}
+
+  .empty-card{background:var(--white);border:1.5px dashed var(--mist);border-radius:var(--radius-lg);padding:30px;text-align:center;color:var(--slate);}
+  .empty-card a{color:var(--teal-dark);font-weight:700;}
+
+  .q-progress{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .q-bar{flex-grow:1;height:6px;background:var(--mist);border-radius:10px;overflow:hidden;}
+  .q-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:10px;transition:width .3s ease;}
+  .q-progress-label{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--slate);white-space:nowrap;}
+
+  .q-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:26px;}
+  .q-img{max-width:100%;border-radius:14px;margin-bottom:16px;}
+  .q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:20px;white-space:pre-line;}
+  .opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;border:1.5px solid var(--mist);border-radius:14px;background:var(--white);font-size:0.96rem;font-weight:500;transition:all .15s ease;}
+  .opt:hover:not(.disabled){border-color:var(--teal);background:rgba(14,158,151,0.04);}
+  .opt-letter{width:28px;height:28px;border-radius:8px;background:var(--cloud);color:var(--slate);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+  .opt.correct{background:var(--green-bg);border-color:var(--green);}
+  .opt.correct .opt-letter{background:var(--green);color:white;}
+  .opt.wrong{background:var(--red-bg);border-color:var(--red);}
+  .opt.wrong .opt-letter{background:var(--red);color:white;}
+  .opt.disabled{cursor:default;}
+  .opt.dim{opacity:0.55;}
+
+  .solution-toggle{margin-top:16px;display:none;align-items:center;gap:8px;font-weight:700;font-size:0.88rem;color:var(--violet);}
+  .solution-toggle.show{display:inline-flex;}
+  .solution-box{display:none;margin-top:12px;padding:16px 18px;border-radius:14px;background:rgba(139,107,242,0.06);border:1px solid rgba(139,107,242,0.25);font-size:0.9rem;line-height:1.6;}
+  .solution-box.show{display:block;}
+
+  .nav-row{display:flex;justify-content:flex-end;margin-top:20px;}
+  .next-btn{padding:12px 24px;border-radius:100px;background:var(--ink);color:white;font-weight:700;font-size:0.92rem;display:none;align-items:center;gap:8px;}
+  .next-btn.show{display:inline-flex;}
+
+  .result-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:34px;text-align:center;}
+  .result-card .big-score{font-family:'Sora';font-weight:800;font-size:2.6rem;margin:6px 0;}
+  .result-actions{display:flex;gap:10px;margin-top:20px;justify-content:center;flex-wrap:wrap;}
+  .result-btn{padding:12px 22px;border-radius:100px;font-weight:700;font-size:0.9rem;}
+  .result-btn.primary{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .result-btn.secondary{background:var(--cloud);color:var(--ink);}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span>
+    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <span class="cur">Deneme Sınavı</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="listScreen">
+    <h1 style="font-size:1.4rem;">Deneme Sınavları</h1>
+    <p style="color:var(--slate);margin-bottom:20px;">Eklediğin denemeler burada listelenir. Yeni deneme eklemek için <a href="icerik-ekle.html" style="color:var(--teal-dark);font-weight:700;">İçerik Ekle</a> sayfasını kullan.</p>
+    <div id="denemeListArea"></div>
+  </div>
+
+  <div id="quizScreen" class="hidden">
+    <div class="q-progress">
+      <div class="q-bar"><div class="q-bar-fill" id="qBarFill" style="width:0%"></div></div>
+      <div class="q-progress-label mono"><span id="qIndex">1</span>/<span id="qTotal">0</span></div>
+    </div>
+    <div class="q-card">
+      <div id="qImgWrap"></div>
+      <div class="q-text" id="qText"></div>
+      <div id="qOptions"></div>
+      <button class="solution-toggle" id="solutionToggle">💡 Çözümü Gör</button>
+      <div class="solution-box" id="solutionBox"></div>
+      <div class="nav-row"><button class="next-btn" id="nextBtn">Sonraki Soru →</button></div>
+    </div>
+  </div>
+
+  <div id="resultScreen" class="hidden">
+    <div class="result-card">
+      <div style="font-size:2.2rem;">🎯</div>
+      <div class="big-score" id="finalScore">0 / 0</div>
+      <p id="finalMsg"></p>
+      <div class="result-actions">
+        <a class="result-btn secondary" href="deneme-sinavi.html">Denemelere Dön</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="db.js"></script>
+<script>
+  const LETTERS = ["A","B","C","D"];
+  const params = new URLSearchParams(location.search);
+  const denemeId = params.get('id') ? parseInt(params.get('id')) : null;
+
+  let quiz = [];
+  let qIdx = 0, correctCount = 0, wrongCount = 0, answered = false;
+
+  async function init() {
+    if (denemeId === null) {
+      await showList();
+    } else {
+      await loadDeneme(denemeId);
+    }
+  }
+
+  async function showList() {
+    const denemeler = await bgysGetAll('denemeler');
+    const area = document.getElementById('denemeListArea');
+    if (denemeler.length === 0) {
+      area.innerHTML = '<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br><a href="icerik-ekle.html">İçerik Ekle</a> sayfasından ilk denemeni oluştur.</div>';
+      return;
+    }
+    area.innerHTML = denemeler.reverse().map(d => {
+      let action;
+      if (d.tip === 'metin') action = `<a class="go" href="deneme-sinavi.html?id=${d.id}">Çöz</a>`;
+      else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
+      else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
+      return `<div class="list-card">
+        <div class="icon">${d.tip === 'metin' ? '📝' : d.tip === 'pdf' ? '📄' : '🖼️'}</div>
+        <div class="info"><h3>${d.baslik}</h3><p>${d.tip === 'metin' ? d.soruSayisi + ' soru' : d.tip.toUpperCase()}</p></div>
+        ${action}
+      </div>`;
+    }).join('');
+  }
+
+  async function loadDeneme(id) {
+    const sorular = await bgysGetAll('sorular');
+    quiz = sorular.filter(s => s.denemeId === id);
+    if (quiz.length === 0) {
+      document.getElementById('listScreen').classList.remove('hidden');
+      document.getElementById('denemeListArea').innerHTML = '<div class="empty-card">Bu deneme bulunamadı veya sorusu yok.</div>';
+      return;
+    }
+    document.getElementById('listScreen').classList.add('hidden');
+    document.getElementById('quizScreen').classList.remove('hidden');
+    document.getElementById('qTotal').textContent = quiz.length;
+    qIdx = 0; correctCount = 0; wrongCount = 0;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = quiz[qIdx];
+    document.getElementById('qIndex').textContent = qIdx + 1;
+    document.getElementById('qBarFill').style.width = (qIdx / quiz.length * 100) + '%';
+    const imgWrap = document.getElementById('qImgWrap');
+    imgWrap.innerHTML = (q.tip === 'image' && q.imageDataUrl) ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
+    document.getElementById('qText').textContent = q.question;
+    const optsEl = document.getElementById('qOptions');
+    optsEl.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => selectAnswer(i, btn, q));
+      optsEl.appendChild(btn);
+    });
+    document.getElementById('solutionToggle').classList.remove('show');
+    document.getElementById('solutionToggle').textContent = '💡 Çözümü Gör';
+    document.getElementById('solutionBox').classList.remove('show');
+    document.getElementById('solutionBox').textContent = q.explanation || 'Açıklama eklenmedi.';
+    document.getElementById('nextBtn').classList.remove('show');
+  }
+
+  function selectAnswer(i, btn, q) {
+    if (answered) return;
+    answered = true;
+    document.querySelectorAll('#qOptions .opt').forEach((el, idx) => {
+      el.classList.add('disabled');
+      if (idx === q.correct) el.classList.add('correct');
+      if (idx !== q.correct) el.classList.add('dim');
+    });
+    if (i === q.correct) correctCount++; else { btn.classList.remove('dim'); btn.classList.add('wrong'); wrongCount++; }
+    document.getElementById('solutionToggle').classList.add('show');
+    document.getElementById('nextBtn').classList.add('show');
+  }
+
+  document.getElementById('solutionToggle').addEventListener('click', () => {
+    const box = document.getElementById('solutionBox');
+    box.classList.toggle('show');
+    document.getElementById('solutionToggle').textContent = box.classList.contains('show') ? '💡 Çözümü Gizle' : '💡 Çözümü Gör';
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    qIdx++;
+    if (qIdx >= quiz.length) showResults(); else renderQuestion();
+  });
+
+  function showResults() {
+    document.getElementById('quizScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.remove('hidden');
+    const total = quiz.length;
+    document.getElementById('finalScore').textContent = `${correctCount} / ${total}`;
+    const pct = Math.round((correctCount/total)*100);
+    document.getElementById('finalMsg').textContent = `%${pct} başarı`;
+  }
+
+  init();
+</script>
+
+</body>
+</html>

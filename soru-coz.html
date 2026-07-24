@@ -68,6 +68,7 @@
   .q-tag.trap{background:rgba(139,107,242,0.12);color:var(--violet);}
 
   .q-text{font-size:1.08rem;font-weight:600;line-height:1.55;margin-bottom:20px;white-space:pre-line;}
+  .q-img{max-width:100%;border-radius:14px;margin-bottom:16px;display:block;}
 
   .opt{
     display:flex;align-items:center;gap:12px;
@@ -141,6 +142,15 @@
       <p>Zorluk ve soru sayısını seç, hemen başla. Doğru cevap yeşil, yanlış kırmızı renkte gösterilir; istersen çözümü de görebilirsin.</p>
 
       <div class="setup-group">
+        <h4>Kaynak</h4>
+        <div class="chip-row" id="sourceChips">
+          <button class="chip active" data-val="all">Hepsi</button>
+          <button class="chip" data-val="hazir">Hazır Sorular</button>
+          <button class="chip" data-val="benim">Kendi Eklediklerim</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
         <h4>Zorluk</h4>
         <div class="chip-row" id="diffChips">
           <button class="chip active" data-val="all">Hepsi (Kolaydan Zora)</button>
@@ -161,7 +171,8 @@
       </div>
 
       <button class="start-btn" id="startBtn">Başla</button>
-      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut — banka her hafta büyüyecek.</div>
+      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut · <a href="icerik-ekle.html" style="color:var(--teal-dark);font-weight:700;">+ Kendi sorunu ekle</a></div>
+      <div class="setup-note" id="soruSetiNote" style="display:none;"></div>
     </div>
   </div>
 
@@ -174,6 +185,7 @@
 
     <div class="q-card">
       <div class="q-tags" id="qTags"></div>
+      <div id="qImgWrap"></div>
       <div class="q-text" id="qText"></div>
       <div id="qOptions"></div>
 
@@ -202,6 +214,7 @@
 </div>
 
 <script src="soru/questions.js"></script>
+<script src="db.js"></script>
 <script>
   const TYPE_LABELS = {
     bilgi: "Doğrudan Bilgi", olumsuz: "Olumsuz Kök", sayma: "Çoklu Önerme",
@@ -213,14 +226,47 @@
 
   let selectedDiff = "all";
   let selectedCount = 20;
+  let selectedSource = "all";
   let quiz = [];
   let qIdx = 0;
   let correctCount = 0;
   let wrongCount = 0;
   let answered = false;
+  let mergedBank = QUESTION_BANK.map(q => ({...q, source: 'hazir'}));
 
-  document.getElementById('totalCount').textContent = QUESTION_BANK.length;
-  document.getElementById('bankInfo').textContent = QUESTION_BANK.length;
+  async function loadUserQuestions() {
+    try {
+      const userQs = await bgysGetAll('sorular');
+      const genelPool = userQs.filter(q => q.denemeId === undefined || q.denemeId === null);
+      const normalized = genelPool.map(q => ({
+        id: 'u' + q.id, kisim: q.bolum, madde: q.bolum, difficulty: 2, type: 'bilgi', trap: false,
+        question: q.question, options: q.options, correct: q.correct, explanation: q.explanation,
+        imageDataUrl: q.imageDataUrl || null, source: 'benim'
+      }));
+      mergedBank = [...QUESTION_BANK.map(q => ({...q, source:'hazir'})), ...normalized];
+      document.getElementById('totalCount').textContent = mergedBank.length;
+      document.getElementById('bankInfo').textContent = mergedBank.length;
+
+      const soruSetleri = await bgysGetAll('soruSetleri');
+      if (soruSetleri.length > 0) {
+        const note = document.getElementById('soruSetiNote');
+        note.style.display = 'block';
+        note.innerHTML = '📄 PDF soru setlerin: ' + soruSetleri.map(s => `<a href="#" onclick="window.open('${s.dataUrl}','_blank');return false;" style="color:var(--teal-dark);font-weight:700;">${s.baslik}</a>`).join(' · ');
+      }
+    } catch(e) { console.warn('Kullanıcı soruları yüklenemedi', e); }
+  }
+  loadUserQuestions();
+
+  document.getElementById('totalCount').textContent = mergedBank.length;
+  document.getElementById('bankInfo').textContent = mergedBank.length;
+
+  document.querySelectorAll('#sourceChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#sourceChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      selectedSource = c.dataset.val;
+    });
+  });
 
   document.querySelectorAll('#diffChips .chip').forEach(c => {
     c.addEventListener('click', () => {
@@ -247,7 +293,8 @@
   }
 
   document.getElementById('startBtn').addEventListener('click', () => {
-    let pool = QUESTION_BANK.slice();
+    let pool = mergedBank.slice();
+    if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
     if(selectedDiff !== "all"){
       pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
     } else {
@@ -288,8 +335,10 @@
       <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
       <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
       ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
+      ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
     `;
 
+    document.getElementById('qImgWrap').innerHTML = q.imageDataUrl ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
     document.getElementById('qText').textContent = q.question;
 
     const optsEl = document.getElementById('qOptions');

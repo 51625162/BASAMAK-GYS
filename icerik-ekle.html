@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İçerik Ekle — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
+    --coral:#FF6B5D; --violet:#8B6BF2; --pink:#EC6FA0;
+    --green:#22C55E; --red:#EF4444;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186;
+    --radius-lg:22px; --radius-md:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',system-ui,-apple-system,sans-serif;letter-spacing:-0.01em;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  input,textarea,select{font-family:inherit;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.86rem;color:var(--slate);font-weight:600;flex-wrap:wrap;}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:28px 6vw 90px;}
+  h1{font-size:1.5rem;margin:0 0 6px;}
+  .lead{color:var(--slate);margin:0 0 24px;font-size:0.92rem;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  .tab-btn{
+    padding:10px 18px;border-radius:100px;background:var(--white);border:1.5px solid var(--mist);
+    font-weight:700;font-size:0.9rem;color:var(--slate);
+  }
+  .tab-btn.active{background:var(--ink);color:white;border-color:var(--ink);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;}
+  .card h3{font-size:1.05rem;margin:0 0 4px;}
+  .card .sub{color:var(--slate);font-size:0.85rem;margin:0 0 18px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:0.85rem;font-weight:700;margin-bottom:6px;color:var(--ink);}
+  .field input[type=text], .field textarea, .field select{
+    width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);
+    font-size:0.92rem;background:var(--cloud);color:var(--ink);
+  }
+  .field textarea{resize:vertical;min-height:90px;font-family:'IBM Plex Mono';font-size:0.85rem;line-height:1.5;}
+  .hint{font-size:0.78rem;color:var(--slate);margin-top:5px;}
+
+  .radio-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .radio-chip{padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;background:var(--white);}
+  .radio-chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+
+  .mode-panel{display:none;}
+  .mode-panel.active{display:block;}
+
+  .file-drop{
+    border:2px dashed var(--mist);border-radius:14px;padding:22px;text-align:center;
+    color:var(--slate);font-size:0.88rem;cursor:pointer;background:var(--cloud);
+  }
+  .file-drop:hover{border-color:var(--teal);}
+  .file-drop input{display:none;}
+  .file-list{margin-top:10px;font-size:0.82rem;color:var(--ink);}
+
+  .btn{
+    padding:12px 22px;border-radius:100px;font-weight:700;font-size:0.9rem;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn.primary{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .btn.secondary{background:var(--cloud);color:var(--ink);border:1.5px solid var(--mist);}
+  .btn.danger{background:rgba(239,68,68,0.1);color:var(--red);}
+  .btn.small{padding:8px 14px;font-size:0.8rem;}
+
+  .result-msg{margin-top:14px;padding:12px 16px;border-radius:12px;font-size:0.85rem;display:none;}
+  .result-msg.ok{display:block;background:rgba(34,197,94,0.1);color:#16803C;}
+  .result-msg.warn{display:block;background:rgba(245,166,35,0.12);color:#B0740F;}
+  .result-msg.err{display:block;background:rgba(239,68,68,0.1);color:#C0392B;}
+
+  .list-section h2{font-size:1.1rem;margin:32px 0 14px;}
+  .item-card{
+    background:var(--white);border:1px solid var(--mist);border-radius:14px;
+    padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  }
+  .item-thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--cloud);}
+  .item-icon{width:52px;height:52px;border-radius:10px;background:var(--cloud);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+  .item-info{flex-grow:1;min-width:0;}
+  .item-info .tag{font-size:0.7rem;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.03em;}
+  .item-info h4{margin:2px 0 0;font-size:0.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .item-info p{margin:2px 0 0;font-size:0.78rem;color:var(--slate);}
+  .item-actions{display:flex;gap:6px;flex-shrink:0;}
+  .empty-note{color:var(--slate);font-size:0.85rem;padding:16px 0;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span>
+    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <span class="cur">İçerik Ekle</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>İçerik Ekle</h1>
+  <p class="lead">Kendi konu anlatımlarını, sorularını ve deneme sınavlarını buradan ekle. Tüm veriler tarayıcında (bu cihazda) saklanır.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="konu">📘 Konu Anlatımı</button>
+    <button class="tab-btn" data-tab="soru">❓ Sorular</button>
+    <button class="tab-btn" data-tab="deneme">📝 Deneme Sınavı</button>
+  </div>
+
+  <!-- ===== KONU ANLATIMI ===== -->
+  <div class="panel active" id="panel-konu">
+    <div class="card">
+      <h3>Yeni Konu Notu Ekle</h3>
+      <p class="sub">İnfografik görsel ya da PDF olarak konu anlatımı ekle. <a href="infografikler.html">İnfografikler</a> sayfasında görünür.</p>
+
+      <div class="field">
+        <label>Bölüm / Kısım</label>
+        <input type="text" id="konuBolum" list="bolumListesi" placeholder="Örn. Anayasa - Genel Esaslar, İnsan Hakları ve Demokrasi, Muhasebe...">
+        <datalist id="bolumListesi"></datalist>
+      </div>
+      <div class="field">
+        <label>Başlık</label>
+        <input type="text" id="konuBaslik" placeholder="Örn. Madde 5 - Devletin Temel Amaç ve Görevleri">
+      </div>
+
+      <div class="radio-row" id="konuModeRow">
+        <button class="radio-chip active" data-mode="image">🖼️ Görsel</button>
+        <button class="radio-chip" data-mode="pdf">📄 PDF</button>
+      </div>
+
+      <div class="mode-panel active" id="konu-mode-image">
+        <div class="file-drop" onclick="document.getElementById('konuImageInput').click()">
+          🖼️ Görsel(ler) seçmek için tıkla (birden fazla seçilebilir)
+          <input type="file" id="konuImageInput" accept="image/*" multiple>
+        </div>
+        <div class="file-list" id="konuImageList"></div>
+      </div>
+      <div class="mode-panel" id="konu-mode-pdf">
+        <div class="file-drop" onclick="document.getElementById('konuPdfInput').click()">
+          📄 PDF seçmek için tıkla
+          <input type="file" id="konuPdfInput" accept="application/pdf">
+        </div>
+        <div class="file-list" id="konuPdfList"></div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button class="btn primary" id="konuKaydetBtn">Kaydet</button>
+      </div>
+      <div class="result-msg" id="konuResult"></div>
+    </div>
+
+    <div class="list-section">
+      <h2>Eklediğim Konu Notları</h2>
+      <div id="konuList"></div>
+    </div>
+  </div>
+
+  <!-- ===== SORULAR ===== -->
+  <div class="panel" id="panel-soru">
+    <div class="card">
+      <h3>Yeni Soru Ekle</h3>
+      <p class="sub">Metin olarak yapıştır, görsel soru ekle ya da PDF soru seti yükle. <a href="soru-coz.html">Soru Çöz</a> sayfasında görünür.</p>
+
+      <div class="field">
+        <label>Bölüm / Kısım</label>
+        <input type="text" id="soruBolum" list="bolumListesi" placeholder="Örn. Anayasa - Genel Esaslar, Muhasebe...">
+      </div>
+
+      <div class="radio-row" id="soruModeRow">
+        <button class="radio-chip active" data-mode="metin">✍️ Metin Yapıştır</button>
+        <button class="radio-chip" data-mode="gorsel">🖼️ Görsel Soru</button>
+        <button class="radio-chip" data-mode="pdf">📄 PDF Soru Seti</button>
+      </div>
+
+      <!-- Metin yapıştır -->
+      <div class="mode-panel active" id="soru-mode-metin">
+        <div class="field">
+          <label>Soruları Yapıştır</label>
+          <textarea id="soruMetin" rows="12" placeholder="Her soruyu bu formatta yaz, sorular arasına BOŞ SATIR koy:
+
+Türkiye Devleti'nin şekli nedir?
+A) Federasyon
+B) Cumhuriyet
+C) Monarşi
+D) Konfederasyon
+Cevap: B
+Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
+
+(İkinci soru buraya...)"></textarea>
+          <div class="hint">Format: soru satırı, ardından A) B) C) D) şıkları, "Cevap: X" ve isteğe bağlı "Açıklama: ...". Sorular arasında boş satır bırak.</div>
+        </div>
+        <button class="btn primary" id="soruMetinEkleBtn">Soruları Ekle</button>
+        <div class="result-msg" id="soruMetinResult"></div>
+      </div>
+
+      <!-- Görsel soru -->
+      <div class="mode-panel" id="soru-mode-gorsel">
+        <div class="field">
+          <label>Soru Görseli (opsiyonel — şema/tablo içeren sorular için)</label>
+          <div class="file-drop" onclick="document.getElementById('soruGorselInput').click()">
+            🖼️ Görsel seçmek için tıkla
+            <input type="file" id="soruGorselInput" accept="image/*">
+          </div>
+          <div class="file-list" id="soruGorselList"></div>
+        </div>
+        <div class="field"><label>Soru Metni</label><input type="text" id="soruGorselMetin" placeholder="Soru metnini yaz"></div>
+        <div class="field"><label>A Şıkkı</label><input type="text" id="soruGorselA"></div>
+        <div class="field"><label>B Şıkkı</label><input type="text" id="soruGorselB"></div>
+        <div class="field"><label>C Şıkkı</label><input type="text" id="soruGorselC"></div>
+        <div class="field"><label>D Şıkkı</label><input type="text" id="soruGorselD"></div>
+        <div class="field">
+          <label>Doğru Cevap</label>
+          <select id="soruGorselCevap"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+        </div>
+        <div class="field"><label>Açıklama (opsiyonel)</label><textarea id="soruGorselAciklama" rows="3"></textarea></div>
+        <button class="btn primary" id="soruGorselEkleBtn">Soruyu Ekle</button>
+        <div class="result-msg" id="soruGorselResult"></div>
+      </div>
+
+      <!-- PDF soru seti -->
+      <div class="mode-panel" id="soru-mode-pdf">
+        <div class="field"><label>Soru Setinin Adı</label><input type="text" id="soruPdfBaslik" placeholder="Örn. Muhasebe - Ünite 3 Soruları"></div>
+        <div class="file-drop" onclick="document.getElementById('soruPdfInput').click()">
+          📄 PDF seçmek için tıkla
+          <input type="file" id="soruPdfInput" accept="application/pdf">
+        </div>
+        <div class="file-list" id="soruPdfList"></div>
+        <div class="hint">PDF soru setleri interaktif çözülemez; görüntüleme/indirme için Soru Çöz sayfasında listelenir.</div>
+        <button class="btn primary" id="soruPdfEkleBtn" style="margin-top:12px;">Soru Setini Ekle</button>
+        <div class="result-msg" id="soruPdfResult"></div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <h2>Eklediğim Sorular</h2>
+      <div id="soruList"></div>
+      <h2>Eklediğim PDF Soru Setleri</h2>
+      <div id="soruSetiList"></div>
+    </div>
+  </div>
+
+  <!-- ===== DENEME SINAVI ===== -->
+  <div class="panel" id="panel-deneme">
+    <div class="card">
+      <h3>Yeni Deneme Sınavı Ekle</h3>
+      <p class="sub">Metin olarak soru seti yapıştır (sıralı, karıştırılmadan çözülür), ya da PDF/görsel deneme yükle.</p>
+
+      <div class="field"><label>Deneme Sınavı Adı</label><input type="text" id="denemeBaslik" placeholder="Örn. 1. Deneme Sınavı - Anayasa"></div>
+
+      <div class="radio-row" id="denemeModeRow">
+        <button class="radio-chip active" data-mode="metin">✍️ Metin Yapıştır</button>
+        <button class="radio-chip" data-mode="pdf">📄 PDF</button>
+        <button class="radio-chip" data-mode="gorsel">🖼️ Görsel</button>
+      </div>
+
+      <div class="mode-panel active" id="deneme-mode-metin">
+        <div class="field">
+          <label>Soruları Yapıştır</label>
+          <textarea id="denemeMetin" rows="12" placeholder="Aynı format: soru + A) B) C) D) + Cevap: X + Açıklama: (opsiyonel). Sorular arasında boş satır bırak."></textarea>
+        </div>
+        <button class="btn primary" id="denemeMetinEkleBtn">Denemeyi Ekle</button>
+        <div class="result-msg" id="denemeMetinResult"></div>
+      </div>
+      <div class="mode-panel" id="deneme-mode-pdf">
+        <div class="file-drop" onclick="document.getElementById('denemePdfInput').click()">
+          📄 PDF seçmek için tıkla
+          <input type="file" id="denemePdfInput" accept="application/pdf">
+        </div>
+        <div class="file-list" id="denemePdfList"></div>
+        <button class="btn primary" id="denemePdfEkleBtn" style="margin-top:12px;">Denemeyi Ekle</button>
+        <div class="result-msg" id="denemePdfResult"></div>
+      </div>
+      <div class="mode-panel" id="deneme-mode-gorsel">
+        <div class="file-drop" onclick="document.getElementById('denemeGorselInput').click()">
+          🖼️ Görsel(ler) seçmek için tıkla
+          <input type="file" id="denemeGorselInput" accept="image/*" multiple>
+        </div>
+        <div class="file-list" id="denemeGorselList"></div>
+        <button class="btn primary" id="denemeGorselEkleBtn" style="margin-top:12px;">Denemeyi Ekle</button>
+        <div class="result-msg" id="denemeGorselResult"></div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <h2>Eklediğim Denemeler</h2>
+      <div id="denemeList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="db.js"></script>
+<script>
+  // ---- Tab switching ----
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  function wireModeRow(rowId, panelPrefix) {
+    document.querySelectorAll(`#${rowId} .radio-chip`).forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll(`#${rowId} .radio-chip`).forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        document.querySelectorAll(`[id^="${panelPrefix}-mode-"]`).forEach(p => p.classList.remove('active'));
+        document.getElementById(`${panelPrefix}-mode-${chip.dataset.mode}`).classList.add('active');
+      });
+    });
+  }
+  wireModeRow('konuModeRow', 'konu');
+  wireModeRow('soruModeRow', 'soru');
+  wireModeRow('denemeModeRow', 'deneme');
+
+  function showMsg(elId, cls, text) {
+    const el = document.getElementById(elId);
+    el.className = 'result-msg ' + cls;
+    el.textContent = text;
+  }
+
+  function fileListLabel(files) {
+    return Array.from(files).map(f => f.name).join(', ');
+  }
+
+  // ===== KONU ANLATIMI =====
+  let konuImageFiles = [];
+  document.getElementById('konuImageInput').addEventListener('change', (e) => {
+    konuImageFiles = Array.from(e.target.files);
+    document.getElementById('konuImageList').textContent = fileListLabel(konuImageFiles);
+  });
+  let konuPdfFile = null;
+  document.getElementById('konuPdfInput').addEventListener('change', (e) => {
+    konuPdfFile = e.target.files[0] || null;
+    document.getElementById('konuPdfList').textContent = konuPdfFile ? konuPdfFile.name : '';
+  });
+
+  document.getElementById('konuKaydetBtn').addEventListener('click', async () => {
+    const bolum = document.getElementById('konuBolum').value.trim();
+    const baslik = document.getElementById('konuBaslik').value.trim();
+    const mode = document.querySelector('#konuModeRow .radio-chip.active').dataset.mode;
+    if (!bolum || !baslik) { showMsg('konuResult', 'err', 'Bölüm ve başlık gerekli.'); return; }
+    try {
+      if (mode === 'image') {
+        if (konuImageFiles.length === 0) { showMsg('konuResult', 'err', 'En az bir görsel seç.'); return; }
+        for (const file of konuImageFiles) {
+          const dataUrl = await bgysFileToDataUrl(file);
+          await bgysAdd('konular', { bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+        }
+        showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi.`);
+        konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
+      } else {
+        if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
+        const dataUrl = await bgysFileToDataUrl(konuPdfFile);
+        await bgysAdd('konular', { bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
+        showMsg('konuResult', 'ok', 'PDF eklendi.');
+        konuPdfFile = null; document.getElementById('konuPdfInput').value = ''; document.getElementById('konuPdfList').textContent = '';
+      }
+      document.getElementById('konuBaslik').value = '';
+      renderKonuList();
+      refreshBolumListesi();
+    } catch(err) {
+      showMsg('konuResult', 'err', 'Kayıt hatası: ' + err.message + ' (Dosya çok büyük olabilir.)');
+    }
+  });
+
+  async function renderKonuList() {
+    const items = await bgysGetAll('konular');
+    const el = document.getElementById('konuList');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz konu notu eklemedin.</div>'; return; }
+    el.innerHTML = items.reverse().map(it => `
+      <div class="item-card">
+        ${it.tip === 'image' ? `<img class="item-thumb" src="${it.dataUrl}">` : `<div class="item-icon">📄</div>`}
+        <div class="item-info">
+          <div class="tag">${it.bolum}</div>
+          <h4>${it.baslik}</h4>
+          <p>${it.tip === 'image' ? 'Görsel' : 'PDF'} · ${it.fileName || ''}</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>
+          <button class="btn danger small" onclick="bgysDeleteKonu(${it.id})">Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.bgysDeleteKonu = async (id) => { await bgysDelete('konular', id); renderKonuList(); };
+
+  // ===== SORULAR =====
+  document.getElementById('soruMetinEkleBtn').addEventListener('click', async () => {
+    const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
+    const text = document.getElementById('soruMetin').value;
+    if (!text.trim()) { showMsg('soruMetinResult', 'err', 'Soru metni boş.'); return; }
+    const { results, errors } = bgysParseSoruMetni(text);
+    for (const r of results) {
+      await bgysAdd('sorular', { bolum, ...r, tip: 'text' });
+    }
+    let msg = `${results.length} soru eklendi.`;
+    let cls = 'ok';
+    if (errors.length > 0) {
+      msg += ` ${errors.length} blok ayrıştırılamadı (format kontrolü yap).`;
+      cls = results.length > 0 ? 'warn' : 'err';
+    }
+    showMsg('soruMetinResult', cls, msg);
+    if (results.length > 0) document.getElementById('soruMetin').value = '';
+    renderSoruList();
+    refreshBolumListesi();
+  });
+
+  let soruGorselFile = null;
+  document.getElementById('soruGorselInput').addEventListener('change', (e) => {
+    soruGorselFile = e.target.files[0] || null;
+    document.getElementById('soruGorselList').textContent = soruGorselFile ? soruGorselFile.name : '';
+  });
+  document.getElementById('soruGorselEkleBtn').addEventListener('click', async () => {
+    const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
+    const question = document.getElementById('soruGorselMetin').value.trim();
+    const options = ['A','B','C','D'].map(l => document.getElementById('soruGorsel'+l).value.trim());
+    const correct = parseInt(document.getElementById('soruGorselCevap').value);
+    const explanation = document.getElementById('soruGorselAciklama').value.trim() || 'Açıklama eklenmedi.';
+    if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu.'); return; }
+    let imageDataUrl = null;
+    if (soruGorselFile) imageDataUrl = await bgysFileToDataUrl(soruGorselFile);
+    await bgysAdd('sorular', { bolum, question, options, correct, explanation, tip: 'image', imageDataUrl });
+    showMsg('soruGorselResult', 'ok', 'Soru eklendi.');
+    ['soruGorselMetin','soruGorselA','soruGorselB','soruGorselC','soruGorselD','soruGorselAciklama'].forEach(id => document.getElementById(id).value = '');
+    soruGorselFile = null; document.getElementById('soruGorselInput').value=''; document.getElementById('soruGorselList').textContent='';
+    renderSoruList();
+    refreshBolumListesi();
+  });
+
+  let soruPdfFile = null;
+  document.getElementById('soruPdfInput').addEventListener('change', (e) => {
+    soruPdfFile = e.target.files[0] || null;
+    document.getElementById('soruPdfList').textContent = soruPdfFile ? soruPdfFile.name : '';
+  });
+  document.getElementById('soruPdfEkleBtn').addEventListener('click', async () => {
+    const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
+    const baslik = document.getElementById('soruPdfBaslik').value.trim();
+    if (!baslik || !soruPdfFile) { showMsg('soruPdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
+    const dataUrl = await bgysFileToDataUrl(soruPdfFile);
+    await bgysAdd('soruSetleri', { bolum, baslik, tip: 'pdf', dataUrl, fileName: soruPdfFile.name });
+    showMsg('soruPdfResult', 'ok', 'Soru seti eklendi.');
+    document.getElementById('soruPdfBaslik').value='';
+    soruPdfFile = null; document.getElementById('soruPdfInput').value=''; document.getElementById('soruPdfList').textContent='';
+    renderSoruSetiList();
+    refreshBolumListesi();
+  });
+
+  async function renderSoruList() {
+    const items = await bgysGetAll('sorular');
+    const el = document.getElementById('soruList');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz soru eklemedin.</div>'; return; }
+    el.innerHTML = items.reverse().map(it => `
+      <div class="item-card">
+        ${it.tip === 'image' && it.imageDataUrl ? `<img class="item-thumb" src="${it.imageDataUrl}">` : `<div class="item-icon">❓</div>`}
+        <div class="item-info">
+          <div class="tag">${it.bolum}</div>
+          <h4>${it.question}</h4>
+          <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn danger small" onclick="bgysDeleteSoru(${it.id})">Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.bgysDeleteSoru = async (id) => { await bgysDelete('sorular', id); renderSoruList(); };
+
+  async function renderSoruSetiList() {
+    const items = await bgysGetAll('soruSetleri');
+    const el = document.getElementById('soruSetiList');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz PDF soru seti eklemedin.</div>'; return; }
+    el.innerHTML = items.reverse().map(it => `
+      <div class="item-card">
+        <div class="item-icon">📄</div>
+        <div class="item-info">
+          <div class="tag">${it.bolum}</div>
+          <h4>${it.baslik}</h4>
+          <p>${it.fileName || ''}</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>
+          <button class="btn danger small" onclick="bgysDeleteSoruSeti(${it.id})">Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.bgysDeleteSoruSeti = async (id) => { await bgysDelete('soruSetleri', id); renderSoruSetiList(); };
+
+  // ===== DENEMELER =====
+  document.getElementById('denemeMetinEkleBtn').addEventListener('click', async () => {
+    const baslik = document.getElementById('denemeBaslik').value.trim();
+    const text = document.getElementById('denemeMetin').value;
+    if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
+    const { results, errors } = bgysParseSoruMetni(text);
+    if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Hiç soru ayrıştırılamadı, formatı kontrol et.'); return; }
+    const denemeId = await bgysAdd('denemeler', { baslik, tip: 'metin', soruSayisi: results.length });
+    for (const r of results) {
+      await bgysAdd('sorular', { bolum: baslik, ...r, tip: 'text', denemeId });
+    }
+    showMsg('denemeMetinResult', 'ok', `Deneme eklendi: ${results.length} soru.` + (errors.length ? ` ${errors.length} blok atlandı.` : ''));
+    document.getElementById('denemeBaslik').value=''; document.getElementById('denemeMetin').value='';
+    renderDenemeList();
+  });
+
+  let denemePdfFile = null;
+  document.getElementById('denemePdfInput').addEventListener('change', (e) => {
+    denemePdfFile = e.target.files[0] || null;
+    document.getElementById('denemePdfList').textContent = denemePdfFile ? denemePdfFile.name : '';
+  });
+  document.getElementById('denemePdfEkleBtn').addEventListener('click', async () => {
+    const baslik = document.getElementById('denemeBaslik').value.trim();
+    if (!baslik || !denemePdfFile) { showMsg('denemePdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
+    const dataUrl = await bgysFileToDataUrl(denemePdfFile);
+    await bgysAdd('denemeler', { baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
+    showMsg('denemePdfResult', 'ok', 'Deneme eklendi.');
+    document.getElementById('denemeBaslik').value='';
+    denemePdfFile = null; document.getElementById('denemePdfInput').value=''; document.getElementById('denemePdfList').textContent='';
+    renderDenemeList();
+  });
+
+  let denemeGorselFiles = [];
+  document.getElementById('denemeGorselInput').addEventListener('change', (e) => {
+    denemeGorselFiles = Array.from(e.target.files);
+    document.getElementById('denemeGorselList').textContent = fileListLabel(denemeGorselFiles);
+  });
+  document.getElementById('denemeGorselEkleBtn').addEventListener('click', async () => {
+    const baslik = document.getElementById('denemeBaslik').value.trim();
+    if (!baslik || denemeGorselFiles.length === 0) { showMsg('denemeGorselResult', 'err', 'Başlık ve en az bir görsel gerekli.'); return; }
+    const dataUrls = [];
+    for (const f of denemeGorselFiles) dataUrls.push(await bgysFileToDataUrl(f));
+    await bgysAdd('denemeler', { baslik, tip: 'gorsel', dataUrls });
+    showMsg('denemeGorselResult', 'ok', 'Deneme eklendi.');
+    document.getElementById('denemeBaslik').value='';
+    denemeGorselFiles = []; document.getElementById('denemeGorselInput').value=''; document.getElementById('denemeGorselList').textContent='';
+    renderDenemeList();
+  });
+
+  async function renderDenemeList() {
+    const items = await bgysGetAll('denemeler');
+    const el = document.getElementById('denemeList');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz deneme sınavı eklemedin.</div>'; return; }
+    el.innerHTML = items.reverse().map(it => {
+      let actionHtml = '';
+      if (it.tip === 'metin') {
+        actionHtml = `<a class="btn secondary small" href="deneme-sinavi.html?id=${it.id}">Çöz (${it.soruSayisi} soru)</a>`;
+      } else if (it.tip === 'pdf') {
+        actionHtml = `<button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>`;
+      } else {
+        actionHtml = `<button class="btn secondary small" onclick="window.open('${it.dataUrls[0]}','_blank')">Gör</button>`;
+      }
+      return `
+      <div class="item-card">
+        <div class="item-icon">${it.tip === 'metin' ? '📝' : it.tip === 'pdf' ? '📄' : '🖼️'}</div>
+        <div class="item-info">
+          <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}</div>
+          <h4>${it.baslik}</h4>
+        </div>
+        <div class="item-actions">
+          ${actionHtml}
+          <button class="btn danger small" onclick="bgysDeleteDeneme(${it.id})">Sil</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  window.bgysDeleteDeneme = async (id) => { await bgysDelete('denemeler', id); renderDenemeList(); };
+
+  async function refreshBolumListesi() {
+    const konular = await bgysGetAll('konular');
+    const sorular = await bgysGetAll('sorular');
+    const bolumler = new Set([...konular.map(k=>k.bolum), ...sorular.map(s=>s.bolum)]);
+    document.getElementById('bolumListesi').innerHTML = Array.from(bolumler).map(b => `<option value="${b}">`).join('');
+  }
+
+  renderKonuList();
+  renderSoruList();
+  renderSoruSetiList();
+  renderDenemeList();
+  refreshBolumListesi();
+</script>
+
+</body>
+</html>
