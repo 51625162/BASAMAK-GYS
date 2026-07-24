@@ -39,6 +39,12 @@
   .empty-card a{color:var(--teal-dark);font-weight:700;}
 
   .q-progress{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .timer-row{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--ink);color:white;padding:10px;border-radius:14px;margin-bottom:14px;
+    font-weight:700;font-size:1.1rem;
+  }
+  .timer-row.warn{background:var(--coral);}
   .q-bar{flex-grow:1;height:6px;background:var(--mist);border-radius:10px;overflow:hidden;}
   .q-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:10px;transition:width .3s ease;}
   .q-progress-label{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--slate);white-space:nowrap;}
@@ -94,6 +100,10 @@
   </div>
 
   <div id="quizScreen" class="hidden">
+    <div class="timer-row" id="timerRow">
+      <span id="timerIcon">⏱️</span>
+      <span class="mono" id="timerText">00:00</span>
+    </div>
     <div class="q-progress">
       <div class="q-bar"><div class="q-bar-fill" id="qBarFill" style="width:0%"></div></div>
       <div class="q-progress-label mono"><span id="qIndex">1</span>/<span id="qTotal">0</span></div>
@@ -158,6 +168,31 @@
     }).join('');
   }
 
+  let timerInterval = null;
+  let secondsLeft = 0;
+
+  function startTimer(totalSoru) {
+    secondsLeft = totalSoru * 60; // her soru için 1 dakika
+    updateTimerDisplay();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      secondsLeft--;
+      updateTimerDisplay();
+      if (secondsLeft <= 0) {
+        clearInterval(timerInterval);
+        showResults(true);
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.max(0, Math.floor(secondsLeft / 60));
+    const s = Math.max(0, secondsLeft % 60);
+    document.getElementById('timerText').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const row = document.getElementById('timerRow');
+    if (secondsLeft <= 60) row.classList.add('warn'); else row.classList.remove('warn');
+  }
+
   async function loadDeneme(id) {
     const sorular = await bgysGetAll('sorular');
     quiz = sorular.filter(s => s.denemeId === id);
@@ -170,6 +205,7 @@
     document.getElementById('quizScreen').classList.remove('hidden');
     document.getElementById('qTotal').textContent = quiz.length;
     qIdx = 0; correctCount = 0; wrongCount = 0;
+    startTimer(quiz.length);
     renderQuestion();
   }
 
@@ -221,13 +257,18 @@
     if (qIdx >= quiz.length) showResults(); else renderQuestion();
   });
 
-  function showResults() {
+  function showResults(timeUp) {
+    clearInterval(timerInterval);
     document.getElementById('quizScreen').classList.add('hidden');
     document.getElementById('resultScreen').classList.remove('hidden');
     const total = quiz.length;
     document.getElementById('finalScore').textContent = `${correctCount} / ${total}`;
     const pct = Math.round((correctCount/total)*100);
-    document.getElementById('finalMsg').textContent = `%${pct} başarı`;
+    const unanswered = total - correctCount - wrongCount;
+    let msg = `%${pct} başarı`;
+    if (unanswered > 0) msg += ` · ${unanswered} soru cevaplanmadı`;
+    if (timeUp) msg = `⏱️ Süre doldu! ` + msg;
+    document.getElementById('finalMsg').textContent = msg;
   }
 
   init();

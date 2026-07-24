@@ -7,6 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+</script>
 <style>
   :root{
     --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
@@ -235,7 +241,15 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
           <input type="file" id="soruPdfInput" accept="application/pdf">
         </div>
         <div class="file-list" id="soruPdfList"></div>
-        <div class="hint">PDF soru setleri interaktif çözülemez; görüntüleme/indirme için Soru Çöz sayfasında listelenir.</div>
+        <div class="field" style="margin-top:14px;">
+          <label>Cevap Anahtarı (opsiyonel)</label>
+          <textarea id="soruPdfCevapAnahtari" rows="4" placeholder="PDF'te cevaplar yazmıyorsa buraya gir. Örnek:
+1. B
+2. D
+3. A
+veya sadece: B D A C ..."></textarea>
+          <div class="hint">PDF'in metin katmanı varsa sorular otomatik okunur. Cevap anahtarı girersen sorular tıklanınca doğru/yanlış gösterecek şekilde interaktif eklenir; girmezsen PDF sadece görüntülenebilir olarak eklenir.</div>
+        </div>
         <button class="btn primary" id="soruPdfEkleBtn" style="margin-top:12px;">Soru Setini Ekle</button>
         <div class="result-msg" id="soruPdfResult"></div>
       </div>
@@ -277,6 +291,15 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
           <input type="file" id="denemePdfInput" accept="application/pdf">
         </div>
         <div class="file-list" id="denemePdfList"></div>
+        <div class="field" style="margin-top:14px;">
+          <label>Cevap Anahtarı (opsiyonel)</label>
+          <textarea id="denemePdfCevapAnahtari" rows="4" placeholder="PDF'te cevaplar yazmıyorsa buraya gir. Örnek:
+1. B
+2. D
+3. A
+veya sadece: B D A C ..."></textarea>
+          <div class="hint">Cevap anahtarı girersen deneme süreli ve interaktif çözülür (tıklayınca doğru/yanlış gösterir); girmezsen PDF sadece görüntülenebilir eklenir.</div>
+        </div>
         <button class="btn primary" id="denemePdfEkleBtn" style="margin-top:12px;">Denemeyi Ekle</button>
         <div class="result-msg" id="denemePdfResult"></div>
       </div>
@@ -311,19 +334,22 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
     });
   });
 
-  function wireModeRow(rowId, panelPrefix) {
+  function wireModeRow(rowId, panelPrefix, fileInputMap) {
     document.querySelectorAll(`#${rowId} .radio-chip`).forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll(`#${rowId} .radio-chip`).forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         document.querySelectorAll(`[id^="${panelPrefix}-mode-"]`).forEach(p => p.classList.remove('active'));
         document.getElementById(`${panelPrefix}-mode-${chip.dataset.mode}`).classList.add('active');
+        // Görsel/PDF gibi dosya gerektiren modlarda, sekmeye tıklar tıklamaz dosya seçme penceresini aç
+        const inputId = fileInputMap && fileInputMap[chip.dataset.mode];
+        if (inputId) document.getElementById(inputId).click();
       });
     });
   }
-  wireModeRow('konuModeRow', 'konu');
-  wireModeRow('soruModeRow', 'soru');
-  wireModeRow('denemeModeRow', 'deneme');
+  wireModeRow('konuModeRow', 'konu', { image: 'konuImageInput', pdf: 'konuPdfInput' });
+  wireModeRow('soruModeRow', 'soru', { gorsel: 'soruGorselInput', pdf: 'soruPdfInput' });
+  wireModeRow('denemeModeRow', 'deneme', { pdf: 'denemePdfInput', gorsel: 'denemeGorselInput' });
 
   function showMsg(elId, cls, text) {
     const el = document.getElementById(elId);
@@ -448,13 +474,44 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
   document.getElementById('soruPdfEkleBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
     const baslik = document.getElementById('soruPdfBaslik').value.trim();
+    const cevapMetni = document.getElementById('soruPdfCevapAnahtari').value;
     if (!baslik || !soruPdfFile) { showMsg('soruPdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
+    showMsg('soruPdfResult', 'warn', 'PDF işleniyor, lütfen bekle...');
     const dataUrl = await bgysFileToDataUrl(soruPdfFile);
+    // Orijinal PDF her zaman görüntülenebilir şekilde saklanır
     await bgysAdd('soruSetleri', { bolum, baslik, tip: 'pdf', dataUrl, fileName: soruPdfFile.name });
-    showMsg('soruPdfResult', 'ok', 'Soru seti eklendi.');
+
+    let addedCount = 0, eksikCevap = 0, extractErr = null;
+    try {
+      const text = await bgysExtractPdfText(dataUrl);
+      const { results, errors } = bgysParseSoruMetniFlexible(text, false);
+      const cevapListesi = bgysParseCevapAnahtari(cevapMetni);
+      const { results: merged, eksikCevapSayisi } = bgysMergeCevapAnahtari(results, cevapListesi);
+      eksikCevap = eksikCevapSayisi;
+      for (const r of merged) {
+        if (r.correct === null || r.correct === undefined) continue; // cevabı olmayanı interaktif ekleme
+        await bgysAdd('sorular', { bolum, ...r, tip: 'text' });
+        addedCount++;
+      }
+    } catch (e) {
+      extractErr = e.message;
+    }
+
+    if (addedCount > 0) {
+      let msg = `PDF eklendi. ${addedCount} soru interaktif olarak çözülebilir şekilde eklendi.`;
+      if (eksikCevap > 0) msg += ` ${eksikCevap} sorunun cevabı bulunamadığı için interaktif eklenemedi (PDF görüntülenebilir).`;
+      showMsg('soruPdfResult', eksikCevap > 0 ? 'warn' : 'ok', msg);
+    } else if (extractErr) {
+      showMsg('soruPdfResult', 'warn', `PDF eklendi (görüntülenebilir) ama otomatik soru okunamadı: ${extractErr}. Muhtemelen taranmış/görsel bir PDF.`);
+    } else {
+      showMsg('soruPdfResult', 'warn', 'PDF eklendi (görüntülenebilir) ama hiç soru otomatik okunamadı veya cevap anahtarı eşleşmedi.');
+    }
+
     document.getElementById('soruPdfBaslik').value='';
+    document.getElementById('soruPdfCevapAnahtari').value='';
     soruPdfFile = null; document.getElementById('soruPdfInput').value=''; document.getElementById('soruPdfList').textContent='';
     renderSoruSetiList();
+    renderSoruList();
     refreshBolumListesi();
   });
 
@@ -522,11 +579,41 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
   });
   document.getElementById('denemePdfEkleBtn').addEventListener('click', async () => {
     const baslik = document.getElementById('denemeBaslik').value.trim();
+    const cevapMetni = document.getElementById('denemePdfCevapAnahtari').value;
     if (!baslik || !denemePdfFile) { showMsg('denemePdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
+    showMsg('denemePdfResult', 'warn', 'PDF işleniyor, lütfen bekle...');
     const dataUrl = await bgysFileToDataUrl(denemePdfFile);
-    await bgysAdd('denemeler', { baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
-    showMsg('denemePdfResult', 'ok', 'Deneme eklendi.');
+
+    let interactiveResults = [];
+    let eksikCevap = 0, extractErr = null;
+    try {
+      const text = await bgysExtractPdfText(dataUrl);
+      const { results } = bgysParseSoruMetniFlexible(text, false);
+      const cevapListesi = bgysParseCevapAnahtari(cevapMetni);
+      const { results: merged, eksikCevapSayisi } = bgysMergeCevapAnahtari(results, cevapListesi);
+      eksikCevap = eksikCevapSayisi;
+      interactiveResults = merged.filter(r => r.correct !== null && r.correct !== undefined);
+    } catch (e) {
+      extractErr = e.message;
+    }
+
+    if (interactiveResults.length > 0) {
+      const denemeId = await bgysAdd('denemeler', { baslik, tip: 'metin', soruSayisi: interactiveResults.length, kaynakPdf: dataUrl, kaynakPdfAd: denemePdfFile.name });
+      for (const r of interactiveResults) {
+        await bgysAdd('sorular', { bolum: baslik, ...r, tip: 'text', denemeId });
+      }
+      let msg = `Deneme eklendi: ${interactiveResults.length} soru interaktif ve süreli çözülebilir.`;
+      if (eksikCevap > 0) msg += ` ${eksikCevap} sorunun cevabı bulunamadı, atlandı.`;
+      showMsg('denemePdfResult', eksikCevap > 0 ? 'warn' : 'ok', msg);
+    } else {
+      // Otomatik okuma/cevap eşleştirme başarısız oldu -> sadece görüntülenebilir PDF olarak ekle
+      await bgysAdd('denemeler', { baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
+      const reason = extractErr ? `otomatik okunamadı (${extractErr})` : 'soru/cevap eşleşmedi';
+      showMsg('denemePdfResult', 'warn', `Deneme eklendi ama ${reason}; PDF sadece görüntülenebilir olarak kaydedildi. Cevap anahtarı ekleyip tekrar dene.`);
+    }
+
     document.getElementById('denemeBaslik').value='';
+    document.getElementById('denemePdfCevapAnahtari').value='';
     denemePdfFile = null; document.getElementById('denemePdfInput').value=''; document.getElementById('denemePdfList').textContent='';
     renderDenemeList();
   });
