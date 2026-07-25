@@ -124,7 +124,7 @@
 <div class="topbar">
   <div class="crumb">
     <a href="index.html">Basamak GYS</a><span class="sep">/</span>
-    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">Soru Çöz</span>
   </div>
   <div class="score-chip" id="liveScore" style="display:none;">
@@ -171,7 +171,7 @@
       </div>
 
       <button class="start-btn" id="startBtn">Başla</button>
-      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut · <a href="icerik-ekle.html" style="color:var(--teal-dark);font-weight:700;">+ Kendi sorunu ekle</a></div>
+      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut · <a href="icerik-ekle.html" id="ekleLink" style="color:var(--teal-dark);font-weight:700;">+ Kendi sorunu ekle</a></div>
       <div class="setup-note" id="soruSetiNote" style="display:none;"></div>
     </div>
   </div>
@@ -206,7 +206,7 @@
       <p id="finalMsg">Tamamladın!</p>
       <div class="result-actions">
         <button class="result-btn primary" id="retryBtn">Tekrar Çöz</button>
-        <a class="result-btn secondary" href="saymanlik.html">Saymanlık'a Dön</a>
+        <a class="result-btn secondary" id="donLink" href="saymanlik.html">Saymanlık'a Dön</a>
       </div>
     </div>
   </div>
@@ -222,7 +222,7 @@
   };
   const DIFF_LABELS = { 1: "Kolay", 2: "Orta", 3: "Zor" };
   const LETTERS = ["A","B","C","D"];
-  const STORE_KEY = "basamak-gys-saymanlik-stats";
+  const STORE_KEY = "basamak-gys-" + bgysCurrentModul() + "-stats";
 
   let selectedDiff = "all";
   let selectedCount = 20;
@@ -234,9 +234,17 @@
   let answered = false;
   let mergedBank = QUESTION_BANK.map(q => ({...q, source: 'hazir'}));
 
+  const modulInfo = bgysModulInfo();
+  document.getElementById('crumbModul').textContent = modulInfo.ad;
+  document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
+  document.getElementById('ekleLink').setAttribute('href', bgysWithModul('icerik-ekle.html'));
+  document.getElementById('donLink').textContent = modulInfo.ad + "'a Dön";
+  document.getElementById('donLink').setAttribute('href', modulInfo.sayfa);
+  document.title = `Soru Çöz — ${modulInfo.ad} — Basamak GYS`;
+
   async function loadUserQuestions() {
     try {
-      const userQs = await bgysGetAll('sorular');
+      const userQs = await bgysGetAllByModul('sorular');
       const genelPool = userQs.filter(q => q.denemeId === undefined || q.denemeId === null);
       const normalized = genelPool.map(q => ({
         id: 'u' + q.id, kisim: q.bolum, madde: q.bolum, difficulty: 2, type: 'bilgi', trap: false,
@@ -247,7 +255,7 @@
       document.getElementById('totalCount').textContent = mergedBank.length;
       document.getElementById('bankInfo').textContent = mergedBank.length;
 
-      const soruSetleri = await bgysGetAll('soruSetleri');
+      const soruSetleri = await bgysGetAllByModul('soruSetleri');
       if (soruSetleri.length > 0) {
         const note = document.getElementById('soruSetiNote');
         note.style.display = 'block';

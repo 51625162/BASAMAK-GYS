@@ -57,6 +57,39 @@ function bgysDelete(storeName, id) {
   }));
 }
 
+/* ---- Bölüm (modül) sistemi ----
+   Basamak GYS birden fazla bağımsız bölümden oluşur (Saymanlık, DS Şefliği, ...).
+   Her sayfa URL'sindeki ?modul=... parametresine göre hangi bölümün verisiyle
+   çalıştığını bilir. Parametre yoksa geriye dönük uyumluluk için "saymanlik" varsayılır. */
+const BGYS_MODULLER = {
+  "saymanlik": { ad: "Saymanlık", sayfa: "saymanlik.html" },
+  "ds-sefligi": { ad: "DS Şefliği", sayfa: "ds-sefligi.html" },
+  "idare-memuru": { ad: "İdare Memuru", sayfa: "idare-memuru.html" }
+};
+
+function bgysCurrentModul() {
+  return new URLSearchParams(location.search).get("modul") || "saymanlik";
+}
+
+function bgysModulInfo() {
+  const key = bgysCurrentModul();
+  return { key, ...(BGYS_MODULLER[key] || { ad: key, sayfa: "index.html" }) };
+}
+
+// Sayfa içi linklere (icerik-ekle.html, soru-coz.html vb.) mevcut modul parametresini ekler.
+function bgysWithModul(url) {
+  const modul = bgysCurrentModul();
+  return url + (url.includes("?") ? "&" : "?") + "modul=" + encodeURIComponent(modul);
+}
+
+// Kayıtları (konular/sorular/soruSetleri/denemeler) sadece mevcut bölüme ait olanlarla filtreler.
+// modul alanı olmayan eski kayıtlar geriye dönük uyumluluk için "saymanlik" sayılır.
+async function bgysGetAllByModul(storeName) {
+  const all = await bgysGetAll(storeName);
+  const modul = bgysCurrentModul();
+  return all.filter(r => (r.modul || "saymanlik") === modul);
+}
+
 function bgysFileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

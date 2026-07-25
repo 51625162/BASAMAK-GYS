@@ -86,7 +86,7 @@
 <div class="topbar">
   <div class="crumb">
     <a href="index.html">Basamak GYS</a><span class="sep">/</span>
-    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">Deneme Sınavı</span>
   </div>
 </div>
@@ -95,7 +95,7 @@
 
   <div id="listScreen">
     <h1 style="font-size:1.4rem;">Deneme Sınavları</h1>
-    <p style="color:var(--slate);margin-bottom:20px;">Eklediğin denemeler burada listelenir. Yeni deneme eklemek için <a href="icerik-ekle.html" style="color:var(--teal-dark);font-weight:700;">İçerik Ekle</a> sayfasını kullan.</p>
+    <p style="color:var(--slate);margin-bottom:20px;">Eklediğin denemeler burada listelenir. Yeni deneme eklemek için <a href="icerik-ekle.html" id="ekleLink1" style="color:var(--teal-dark);font-weight:700;">İçerik Ekle</a> sayfasını kullan.</p>
     <div id="denemeListArea"></div>
   </div>
 
@@ -124,7 +124,7 @@
       <div class="big-score" id="finalScore">0 / 0</div>
       <p id="finalMsg"></p>
       <div class="result-actions">
-        <a class="result-btn secondary" href="deneme-sinavi.html">Denemelere Dön</a>
+        <a class="result-btn secondary" href="deneme-sinavi.html" id="donLink">Denemelere Dön</a>
       </div>
     </div>
   </div>
@@ -140,6 +140,13 @@
   let quiz = [];
   let qIdx = 0, correctCount = 0, wrongCount = 0, answered = false;
 
+  const modulInfo = bgysModulInfo();
+  document.getElementById('crumbModul').textContent = modulInfo.ad;
+  document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
+  document.getElementById('ekleLink1').setAttribute('href', bgysWithModul('icerik-ekle.html'));
+  document.getElementById('donLink').setAttribute('href', bgysWithModul('deneme-sinavi.html'));
+  document.title = `Deneme Sınavı — ${modulInfo.ad} — Basamak GYS`;
+
   async function init() {
     if (denemeId === null) {
       await showList();
@@ -149,15 +156,15 @@
   }
 
   async function showList() {
-    const denemeler = await bgysGetAll('denemeler');
+    const denemeler = await bgysGetAllByModul('denemeler');
     const area = document.getElementById('denemeListArea');
     if (denemeler.length === 0) {
-      area.innerHTML = '<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br><a href="icerik-ekle.html">İçerik Ekle</a> sayfasından ilk denemeni oluştur.</div>';
+      area.innerHTML = `<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br><a href="${bgysWithModul('icerik-ekle.html')}">İçerik Ekle</a> sayfasından ilk denemeni oluştur.</div>`;
       return;
     }
     area.innerHTML = denemeler.reverse().map(d => {
       let action;
-      if (d.tip === 'metin') action = `<a class="go" href="deneme-sinavi.html?id=${d.id}">Çöz</a>`;
+      if (d.tip === 'metin') action = `<a class="go" href="${bgysWithModul('deneme-sinavi.html?id=' + d.id)}">Çöz</a>`;
       else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
       else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
       return `<div class="list-card">
@@ -194,7 +201,7 @@
   }
 
   async function loadDeneme(id) {
-    const sorular = await bgysGetAll('sorular');
+    const sorular = await bgysGetAllByModul('sorular');
     quiz = sorular.filter(s => s.denemeId === id);
     if (quiz.length === 0) {
       document.getElementById('listScreen').classList.remove('hidden');

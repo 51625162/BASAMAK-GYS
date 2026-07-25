@@ -108,7 +108,7 @@
 <div class="topbar">
   <div class="crumb">
     <a href="index.html">Basamak GYS</a><span class="sep">/</span>
-    <a href="saymanlik.html">Saymanlık</a><span class="sep">/</span>
+    <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">İçerik Ekle</span>
   </div>
 </div>
@@ -383,14 +383,14 @@ veya sadece: B D A C ..."></textarea>
         if (konuImageFiles.length === 0) { showMsg('konuResult', 'err', 'En az bir görsel seç.'); return; }
         for (const file of konuImageFiles) {
           const dataUrl = await bgysFileToDataUrl(file);
-          await bgysAdd('konular', { bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
         }
         showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
       } else {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
         const dataUrl = await bgysFileToDataUrl(konuPdfFile);
-        await bgysAdd('konular', { bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
+        await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
         showMsg('konuResult', 'ok', 'PDF eklendi.');
         konuPdfFile = null; document.getElementById('konuPdfInput').value = ''; document.getElementById('konuPdfList').textContent = '';
       }
@@ -403,7 +403,7 @@ veya sadece: B D A C ..."></textarea>
   });
 
   async function renderKonuList() {
-    const items = await bgysGetAll('konular');
+    const items = await bgysGetAllByModul('konular');
     const el = document.getElementById('konuList');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz konu notu eklemedin.</div>'; return; }
     el.innerHTML = items.reverse().map(it => `
@@ -430,7 +430,7 @@ veya sadece: B D A C ..."></textarea>
     if (!text.trim()) { showMsg('soruMetinResult', 'err', 'Soru metni boş.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
     for (const r of results) {
-      await bgysAdd('sorular', { bolum, ...r, tip: 'text' });
+      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text' });
     }
     let msg = `${results.length} soru eklendi.`;
     let cls = 'ok';
@@ -458,7 +458,7 @@ veya sadece: B D A C ..."></textarea>
     if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu.'); return; }
     let imageDataUrl = null;
     if (soruGorselFile) imageDataUrl = await bgysFileToDataUrl(soruGorselFile);
-    await bgysAdd('sorular', { bolum, question, options, correct, explanation, tip: 'image', imageDataUrl });
+    await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, question, options, correct, explanation, tip: 'image', imageDataUrl });
     showMsg('soruGorselResult', 'ok', 'Soru eklendi.');
     ['soruGorselMetin','soruGorselA','soruGorselB','soruGorselC','soruGorselD','soruGorselAciklama'].forEach(id => document.getElementById(id).value = '');
     soruGorselFile = null; document.getElementById('soruGorselInput').value=''; document.getElementById('soruGorselList').textContent='';
@@ -479,7 +479,7 @@ veya sadece: B D A C ..."></textarea>
     showMsg('soruPdfResult', 'warn', 'PDF işleniyor, lütfen bekle...');
     const dataUrl = await bgysFileToDataUrl(soruPdfFile);
     // Orijinal PDF her zaman görüntülenebilir şekilde saklanır
-    await bgysAdd('soruSetleri', { bolum, baslik, tip: 'pdf', dataUrl, fileName: soruPdfFile.name });
+    await bgysAdd('soruSetleri', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: soruPdfFile.name });
 
     let addedCount = 0, eksikCevap = 0, extractErr = null;
     try {
@@ -490,7 +490,7 @@ veya sadece: B D A C ..."></textarea>
       eksikCevap = eksikCevapSayisi;
       for (const r of merged) {
         if (r.correct === null || r.correct === undefined) continue; // cevabı olmayanı interaktif ekleme
-        await bgysAdd('sorular', { bolum, ...r, tip: 'text' });
+        await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text' });
         addedCount++;
       }
     } catch (e) {
@@ -516,7 +516,7 @@ veya sadece: B D A C ..."></textarea>
   });
 
   async function renderSoruList() {
-    const items = await bgysGetAll('sorular');
+    const items = await bgysGetAllByModul('sorular');
     const el = document.getElementById('soruList');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz soru eklemedin.</div>'; return; }
     el.innerHTML = items.reverse().map(it => `
@@ -536,7 +536,7 @@ veya sadece: B D A C ..."></textarea>
   window.bgysDeleteSoru = async (id) => { await bgysDelete('sorular', id); renderSoruList(); };
 
   async function renderSoruSetiList() {
-    const items = await bgysGetAll('soruSetleri');
+    const items = await bgysGetAllByModul('soruSetleri');
     const el = document.getElementById('soruSetiList');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz PDF soru seti eklemedin.</div>'; return; }
     el.innerHTML = items.reverse().map(it => `
@@ -563,9 +563,9 @@ veya sadece: B D A C ..."></textarea>
     if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
     if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Hiç soru ayrıştırılamadı, formatı kontrol et.'); return; }
-    const denemeId = await bgysAdd('denemeler', { baslik, tip: 'metin', soruSayisi: results.length });
+    const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: results.length });
     for (const r of results) {
-      await bgysAdd('sorular', { bolum: baslik, ...r, tip: 'text', denemeId });
+      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId });
     }
     showMsg('denemeMetinResult', 'ok', `Deneme eklendi: ${results.length} soru.` + (errors.length ? ` ${errors.length} blok atlandı.` : ''));
     document.getElementById('denemeBaslik').value=''; document.getElementById('denemeMetin').value='';
@@ -598,16 +598,16 @@ veya sadece: B D A C ..."></textarea>
     }
 
     if (interactiveResults.length > 0) {
-      const denemeId = await bgysAdd('denemeler', { baslik, tip: 'metin', soruSayisi: interactiveResults.length, kaynakPdf: dataUrl, kaynakPdfAd: denemePdfFile.name });
+      const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: interactiveResults.length, kaynakPdf: dataUrl, kaynakPdfAd: denemePdfFile.name });
       for (const r of interactiveResults) {
-        await bgysAdd('sorular', { bolum: baslik, ...r, tip: 'text', denemeId });
+        await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId });
       }
       let msg = `Deneme eklendi: ${interactiveResults.length} soru interaktif ve süreli çözülebilir.`;
       if (eksikCevap > 0) msg += ` ${eksikCevap} sorunun cevabı bulunamadı, atlandı.`;
       showMsg('denemePdfResult', eksikCevap > 0 ? 'warn' : 'ok', msg);
     } else {
       // Otomatik okuma/cevap eşleştirme başarısız oldu -> sadece görüntülenebilir PDF olarak ekle
-      await bgysAdd('denemeler', { baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
+      await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
       const reason = extractErr ? `otomatik okunamadı (${extractErr})` : 'soru/cevap eşleşmedi';
       showMsg('denemePdfResult', 'warn', `Deneme eklendi ama ${reason}; PDF sadece görüntülenebilir olarak kaydedildi. Cevap anahtarı ekleyip tekrar dene.`);
     }
@@ -628,7 +628,7 @@ veya sadece: B D A C ..."></textarea>
     if (!baslik || denemeGorselFiles.length === 0) { showMsg('denemeGorselResult', 'err', 'Başlık ve en az bir görsel gerekli.'); return; }
     const dataUrls = [];
     for (const f of denemeGorselFiles) dataUrls.push(await bgysFileToDataUrl(f));
-    await bgysAdd('denemeler', { baslik, tip: 'gorsel', dataUrls });
+    await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'gorsel', dataUrls });
     showMsg('denemeGorselResult', 'ok', 'Deneme eklendi.');
     document.getElementById('denemeBaslik').value='';
     denemeGorselFiles = []; document.getElementById('denemeGorselInput').value=''; document.getElementById('denemeGorselList').textContent='';
@@ -636,13 +636,13 @@ veya sadece: B D A C ..."></textarea>
   });
 
   async function renderDenemeList() {
-    const items = await bgysGetAll('denemeler');
+    const items = await bgysGetAllByModul('denemeler');
     const el = document.getElementById('denemeList');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz deneme sınavı eklemedin.</div>'; return; }
     el.innerHTML = items.reverse().map(it => {
       let actionHtml = '';
       if (it.tip === 'metin') {
-        actionHtml = `<a class="btn secondary small" href="deneme-sinavi.html?id=${it.id}">Çöz (${it.soruSayisi} soru)</a>`;
+        actionHtml = `<a class="btn secondary small" href="${bgysWithModul('deneme-sinavi.html?id=' + it.id)}">Çöz (${it.soruSayisi} soru)</a>`;
       } else if (it.tip === 'pdf') {
         actionHtml = `<button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>`;
       } else {
@@ -665,11 +665,16 @@ veya sadece: B D A C ..."></textarea>
   window.bgysDeleteDeneme = async (id) => { await bgysDelete('denemeler', id); renderDenemeList(); };
 
   async function refreshBolumListesi() {
-    const konular = await bgysGetAll('konular');
-    const sorular = await bgysGetAll('sorular');
+    const konular = await bgysGetAllByModul('konular');
+    const sorular = await bgysGetAllByModul('sorular');
     const bolumler = new Set([...konular.map(k=>k.bolum), ...sorular.map(s=>s.bolum)]);
     document.getElementById('bolumListesi').innerHTML = Array.from(bolumler).map(b => `<option value="${b}">`).join('');
   }
+
+  const modulInfo = bgysModulInfo();
+  document.getElementById('crumbModul').textContent = modulInfo.ad;
+  document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
+  document.title = `İçerik Ekle — ${modulInfo.ad} — Basamak GYS`;
 
   renderKonuList();
   renderSoruList();

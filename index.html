@@ -121,6 +121,13 @@
     color:var(--slate);
     z-index:2;
   }
+  .step-2.active-step{
+    background:linear-gradient(160deg,var(--violet) 0%,#6D4FD1 100%);
+    border:none;color:white;
+    box-shadow:0 18px 34px -14px rgba(139,107,242,0.55);
+  }
+  .step-2.active-step .step-num{color:rgba(255,255,255,0.85);}
+  .step-2.active-step .step-status{color:rgba(255,255,255,0.92);}
   .step-3{
     height:282px;
     background:var(--white);
@@ -128,6 +135,13 @@
     color:var(--slate);
     z-index:1;
   }
+  .step-3.active-step{
+    background:linear-gradient(160deg,var(--coral) 0%,#E64A3B 100%);
+    border:none;color:white;
+    box-shadow:0 18px 34px -14px rgba(255,107,93,0.55);
+  }
+  .step-3.active-step .step-num{color:rgba(255,255,255,0.85);}
+  .step-3.active-step .step-status{color:rgba(255,255,255,0.92);}
   .step-num{
     font-family:'IBM Plex Mono';font-size:0.75rem;font-weight:600;opacity:0.85;
   }
@@ -220,7 +234,7 @@
 <section class="hero">
   <div class="eyebrow">CTE &amp; İnfaz Personeli · GYS Hazırlık</div>
   <h1>Basamağını seç, <em>sınava adım adım çık.</em></h1>
-  <p>Her bölüm ayrı bir basamak. Şu an aktif olan Saymanlık bölümüyle başla; diğer bölümler sırayla eklenecek.</p>
+  <p>Her bölüm ayrı bir basamak. Saymanlık, DS Şefliği ve İdare Memuru bölümleriyle çalışmaya başla.</p>
 
   <div class="staircase">
     <div class="step step-1">
@@ -233,25 +247,25 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
-    <div class="step step-2">
+    <div class="step step-2 active-step">
       <div>
         <div class="step-num">BASAMAK 02</div>
-        <div class="step-title">2. Bölüm</div>
-        <div class="step-status"><span class="lock-dot"></span>Yakında</div>
+        <div class="step-title">DS Şefliği</div>
+        <div class="step-status">● Aktif</div>
       </div>
-      <div class="step-locked-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      </div>
+      <a href="ds-sefligi.html" class="step-btn">Başla
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
-    <div class="step step-3">
+    <div class="step step-3 active-step">
       <div>
         <div class="step-num">BASAMAK 03</div>
-        <div class="step-title">3. Bölüm</div>
-        <div class="step-status"><span class="lock-dot"></span>Yakında</div>
+        <div class="step-title">İdare Memuru</div>
+        <div class="step-status">● Aktif</div>
       </div>
-      <div class="step-locked-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      </div>
+      <a href="idare-memuru.html" class="step-btn">Başla
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -259,7 +273,7 @@
 <section class="modules-section">
   <div class="section-head">
     <h2>Bölümler</h2>
-    <p>Basamak GYS üç bağımsız bölümden oluşacak. Her bölümün kendi soru bankası, konu anlatımı ve deneme sınavları olacak.</p>
+    <p>Basamak GYS üç bağımsız bölümden oluşur. Her bölümün kendi soru bankası, konu anlatımı ve deneme sınavları vardır.</p>
   </div>
   <div class="module-grid">
     <div class="module-card active">
@@ -271,19 +285,23 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
-    <div class="module-card locked">
-      <div class="module-icon">📘</div>
-      <span class="module-badge soon">YAKINDA</span>
-      <h3>2. Bölüm</h3>
-      <p>Bu bölümün içeriği hazırlanıyor. Yakında eklenecek.</p>
-      <span class="module-cta disabled">Yakında aktif olacak</span>
+    <div class="module-card active">
+      <div class="module-icon" style="background:linear-gradient(135deg,var(--violet),#6D4FD1);">🗂️</div>
+      <span class="module-badge live">AKTİF</span>
+      <h3>DS Şefliği</h3>
+      <p>Soru çöz, konu notlarını incele ve deneme sınavlarıyla DS Şefliği bölümüne hazırlan.</p>
+      <a href="ds-sefligi.html" class="module-cta">Bölüme git
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
-    <div class="module-card locked">
-      <div class="module-icon">📗</div>
-      <span class="module-badge soon">YAKINDA</span>
-      <h3>3. Bölüm</h3>
-      <p>Bu bölümün içeriği hazırlanıyor. Yakında eklenecek.</p>
-      <span class="module-cta disabled">Yakında aktif olacak</span>
+    <div class="module-card active">
+      <div class="module-icon" style="background:linear-gradient(135deg,var(--coral),#E64A3B);">🗃️</div>
+      <span class="module-badge live">AKTİF</span>
+      <h3>İdare Memuru</h3>
+      <p>Soru çöz, konu notlarını incele ve deneme sınavlarıyla İdare Memuru bölümüne hazırlan.</p>
+      <a href="idare-memuru.html" class="module-cta">Bölüme git
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </div>
 </section>
