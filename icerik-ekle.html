@@ -415,7 +415,8 @@ veya sadece: B D A C ..."></textarea>
           <p>${it.tip === 'image' ? 'Görsel' : 'PDF'} · ${it.fileName || ''}</p>
         </div>
         <div class="item-actions">
-          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>
+          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">👁️ Gör</button>
+          <a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>
           <button class="btn danger small" onclick="bgysDeleteKonu(${it.id})">Sil</button>
         </div>
       </div>

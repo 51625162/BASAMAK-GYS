@@ -54,12 +54,19 @@
   .g-info h3{margin:0;font-size:0.98rem;line-height:1.35;}
   .g-actions{display:flex;gap:8px;margin-top:auto;}
   .g-btn{
-    flex:1;text-align:center;padding:9px 10px;border-radius:100px;font-weight:700;font-size:0.82rem;
+    flex:1;text-align:center;padding:10px 10px;border-radius:100px;font-weight:700;font-size:0.82rem;
     display:inline-flex;align-items:center;justify-content:center;gap:6px;
   }
-  .g-btn.view{background:var(--cloud);color:var(--ink);}
-  .g-btn.download{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .g-btn.view{background:var(--white);color:var(--violet);border:1.5px solid var(--violet);}
+  .g-btn.view:hover{background:rgba(139,107,242,0.08);}
+  .g-btn.view.opened{background:var(--violet);color:white;}
+  .g-btn.download{background:linear-gradient(135deg,var(--amber),#E0951A);color:white;border:1.5px solid transparent;}
   .g-btn svg{width:14px;height:14px;flex-shrink:0;}
+
+  .g-expand{display:none;padding:0 18px 16px;}
+  .g-expand.open{display:block;}
+  .g-expand img{width:100%;border-radius:14px;display:block;}
+  .g-expand iframe{width:100%;height:420px;border:none;border-radius:14px;}
 
   .empty-card{
     background:var(--white);border:1.5px dashed var(--mist);border-radius:var(--radius-lg);
@@ -114,21 +121,32 @@
     grid.innerHTML = items.reverse().map(it => `
       <div class="g-card">
         ${it.tip === 'image'
-          ? `<a class="g-thumb" href="${it.dataUrl}" target="_blank"><img src="${it.dataUrl}" alt="${it.baslik}"></a>`
-          : `<a class="g-thumb" href="${it.dataUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);">📄</a>`}
+          ? `<div class="g-thumb"><img src="${it.dataUrl}" alt="${it.baslik}"></div>`
+          : `<div class="g-thumb" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);">📄</div>`}
         <div class="g-info">
           <span class="g-tag">${it.bolum}</span>
           <h3>${it.baslik}</h3>
           <div class="g-actions">
-            <a class="g-btn view" href="${it.dataUrl}" target="_blank">Büyüt</a>
+            <button class="g-btn view" id="viewBtn-${it.id}" onclick="toggleExpand(${it.id}, '${it.tip}')">👁️ Görüntüle</button>
             <a class="g-btn download" href="${it.dataUrl}" download="${it.fileName || it.baslik}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
               İndir
             </a>
           </div>
         </div>
+        <div class="g-expand" id="expand-${it.id}">
+          ${it.tip === 'image' ? `<img src="${it.dataUrl}">` : `<iframe src="${it.dataUrl}"></iframe>`}
+        </div>
       </div>
     `).join('');
+  }
+
+  function toggleExpand(id, tip) {
+    const box = document.getElementById('expand-' + id);
+    const btn = document.getElementById('viewBtn-' + id);
+    const isOpen = box.classList.toggle('open');
+    btn.classList.toggle('opened', isOpen);
+    btn.innerHTML = isOpen ? '👁️ Gizle' : '👁️ Görüntüle';
   }
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
