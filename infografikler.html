@@ -79,6 +79,35 @@
     display:inline-flex;padding:12px 24px;border-radius:100px;
     background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;font-weight:700;font-size:0.9rem;
   }
+
+  /* Lightbox - tam ekran görüntüleyici */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(16,36,62,0.94);z-index:1000;
+    display:none;flex-direction:column;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox-toolbar{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:14px;flex-shrink:0;
+  }
+  .lb-btn{
+    background:rgba(255,255,255,0.12);color:white;border:none;border-radius:100px;
+    padding:10px 16px;font-weight:700;font-size:0.9rem;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;
+  }
+  .lb-btn:hover{background:rgba(255,255,255,0.22);}
+  .lb-btn.close{background:var(--coral);}
+  .lb-zoom-label{color:white;font-family:'IBM Plex Mono';font-size:0.85rem;min-width:52px;text-align:center;}
+  .lightbox-stage{
+    flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;
+    cursor:grab;padding:20px;
+  }
+  .lightbox-stage img{
+    max-width:none;transition:transform .12s ease;user-select:none;
+  }
+  .lightbox-stage iframe{
+    width:92vw;height:88vh;border:none;border-radius:12px;background:white;
+  }
 </style>
 </head>
 <body>
@@ -110,44 +139,98 @@
   </div>
 </div>
 
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-toolbar" id="lightboxToolbar">
+    <button class="lb-btn" onclick="lbZoom(-0.25)">➖ Uzaklaştır</button>
+    <span class="lb-zoom-label" id="lbZoomLabel">100%</span>
+    <button class="lb-btn" onclick="lbZoom(0.25)">➕ Yakınlaştır</button>
+    <button class="lb-btn" onclick="lbReset()">↺ Sıfırla</button>
+    <button class="lb-btn close" onclick="closeLightbox()">✕ Kapat</button>
+  </div>
+  <div class="lightbox-stage" id="lightboxStage"></div>
+</div>
+
 <script src="db.js"></script>
 <script>
+  const konuDataMap = {};
+
   async function renderOwnKonular() {
     const items = await bgysGetAllByModul('konular');
     const grid = document.getElementById('ownKonuGrid');
     const empty = document.getElementById('ownKonuEmpty');
     if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
     empty.style.display = 'none'; grid.style.display = 'grid';
+    items.forEach(it => konuDataMap[it.id] = it);
     grid.innerHTML = items.reverse().map(it => `
       <div class="g-card">
         ${it.tip === 'image'
-          ? `<div class="g-thumb"><img src="${it.dataUrl}" alt="${it.baslik}"></div>`
-          : `<div class="g-thumb" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);">📄</div>`}
+          ? `<div class="g-thumb" style="cursor:zoom-in;" onclick="openLightbox(${it.id})"><img src="${it.dataUrl}" alt="${it.baslik}"></div>`
+          : `<div class="g-thumb" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);cursor:zoom-in;" onclick="openLightbox(${it.id})">📄</div>`}
         <div class="g-info">
           <span class="g-tag">${it.bolum}</span>
           <h3>${it.baslik}</h3>
           <div class="g-actions">
-            <button class="g-btn view" id="viewBtn-${it.id}" onclick="toggleExpand(${it.id}, '${it.tip}')">👁️ Görüntüle</button>
+            <button class="g-btn view" onclick="openLightbox(${it.id})">👁️ Görüntüle</button>
             <a class="g-btn download" href="${it.dataUrl}" download="${it.fileName || it.baslik}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
               İndir
             </a>
           </div>
         </div>
-        <div class="g-expand" id="expand-${it.id}">
-          ${it.tip === 'image' ? `<img src="${it.dataUrl}">` : `<iframe src="${it.dataUrl}"></iframe>`}
-        </div>
       </div>
     `).join('');
   }
 
-  function toggleExpand(id, tip) {
-    const box = document.getElementById('expand-' + id);
-    const btn = document.getElementById('viewBtn-' + id);
-    const isOpen = box.classList.toggle('open');
-    btn.classList.toggle('opened', isOpen);
-    btn.innerHTML = isOpen ? '👁️ Gizle' : '👁️ Görüntüle';
+  // ---- Lightbox: tam ekran görüntüleme + yakınlaştırma/uzaklaştırma ----
+  let lbScale = 1;
+  function openLightbox(id) {
+    const it = konuDataMap[id];
+    if (!it) return;
+    const stage = document.getElementById('lightboxStage');
+    const toolbar = document.getElementById('lightboxToolbar');
+    lbScale = 1;
+    if (it.tip === 'image') {
+      stage.innerHTML = `<img id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);">`;
+    } else {
+      stage.innerHTML = `<iframe id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);width:85vw;height:85vh;"></iframe>`;
+    }
+    toolbar.style.display = 'flex';
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightboxStage').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+  function lbZoom(delta) {
+    lbScale = Math.min(5, Math.max(0.25, lbScale + delta));
+    updateLbZoom();
+  }
+  function lbReset() {
+    lbScale = 1;
+    updateLbZoom();
+  }
+  function updateLbZoom() {
+    const img = document.getElementById('lightboxImg');
+    if (img) img.style.transform = `scale(${lbScale})`;
+    document.getElementById('lbZoomLabel').textContent = Math.round(lbScale * 100) + '%';
+  }
+  document.getElementById('lightboxStage').addEventListener('wheel', (e) => {
+    if (!document.getElementById('lightboxImg')) return;
+    e.preventDefault();
+    lbZoom(e.deltaY < 0 ? 0.2 : -0.2);
+  }, { passive: false });
+  document.getElementById('lightboxStage').addEventListener('dblclick', () => {
+    if (!document.getElementById('lightboxImg')) return;
+    lbScale === 1 ? lbZoom(1) : lbReset();
+  });
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox' || e.target.id === 'lightboxStage') closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
