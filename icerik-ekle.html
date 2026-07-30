@@ -101,6 +101,32 @@
   .item-info p{margin:2px 0 0;font-size:0.78rem;color:var(--slate);}
   .item-actions{display:flex;gap:6px;flex-shrink:0;}
   .empty-note{color:var(--slate);font-size:0.85rem;padding:16px 0;text-align:center;}
+
+  .sync-overlay{
+    position:fixed;inset:0;background:rgba(16,36,62,0.55);z-index:900;
+    display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;
+  }
+  .sync-overlay.open{display:flex;}
+  .sync-modal{
+    background:var(--white);border-radius:var(--radius-lg);max-width:560px;width:100%;
+    padding:0;box-shadow:0 30px 60px -20px rgba(16,36,62,0.4);
+  }
+  .sync-modal-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-bottom:1px solid var(--mist);
+  }
+  .sync-modal-head h3{margin:0;font-size:1.1rem;}
+  .sync-close{background:var(--cloud);border-radius:100px;width:32px;height:32px;font-size:1rem;color:var(--slate);}
+  .sync-body{padding:20px 24px 26px;}
+  .sync-lead{color:var(--slate);font-size:0.88rem;margin:0 0 14px;line-height:1.5;}
+  .sync-steps{background:var(--cloud);border-radius:14px;padding:16px 18px;margin-bottom:18px;font-size:0.85rem;line-height:1.6;}
+  .sync-steps ol{margin:8px 0;padding-left:20px;}
+  .sync-steps a{color:var(--teal-dark);font-weight:700;}
+  .sync-btn-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .sync-btn-row .btn{flex:1;justify-content:center;}
+  .sync-status{font-size:0.8rem;color:var(--slate);margin-top:8px;}
+  .sync-caveat{font-size:0.78rem;color:#B0740F;background:rgba(245,166,35,0.1);padding:10px 14px;border-radius:12px;margin-top:14px;line-height:1.5;}
+  .sync-divider{border-top:1px solid var(--mist);margin:22px 0;}
 </style>
 </head>
 <body>
@@ -111,6 +137,7 @@
     <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">İçerik Ekle</span>
   </div>
+  <button id="cloudSyncBtn" style="display:flex;align-items:center;gap:6px;background:var(--cloud);color:var(--ink);border:1.5px solid var(--mist);padding:9px 16px;border-radius:100px;font-weight:700;font-size:0.85rem;">☁️ Bulut Senkron</button>
 </div>
 
 <div class="wrap">
@@ -320,6 +347,63 @@ veya sadece: B D A C ..."></textarea>
     </div>
   </div>
 
+</div>
+
+<div class="sync-overlay" id="syncOverlay">
+  <div class="sync-modal">
+    <div class="sync-modal-head">
+      <h3>☁️ Bulut Senkron</h3>
+      <button class="sync-close" id="syncCloseBtn">✕</button>
+    </div>
+
+    <div class="sync-body">
+      <p class="sync-lead">Kayıtlarını (konu notu, soru, deneme) diğer cihazlarında da görmek için JSONBin.io ile ücretsiz senkronizasyon.</p>
+
+      <div class="sync-steps">
+        <b>Kurulum (bir kere yapılır):</b>
+        <ol>
+          <li><a href="https://jsonbin.io" target="_blank">jsonbin.io</a> adresine ücretsiz üye ol, hesap ayarlarından <b>X-Master-Key</b>'ini kopyala.</li>
+          <li>Aşağıya API Key'i yapıştır ve <b>"Yeni Bin Oluştur"</b>a bas — bir Bin ID alacaksın.</li>
+          <li>Bu API Key + Bin ID ikilisini diğer cihazlarında da bu panele gir, <b>"Kaydet ve Buluttan Yükle"</b>ye bas.</li>
+        </ol>
+        <p>Bundan sonra her ekleme/silme otomatik buluta gönderilir; sayfa her açıldığında buluttan güncel veri çekilir.</p>
+      </div>
+
+      <div class="field">
+        <label>API Key (X-Master-Key)</label>
+        <input type="password" id="syncApiKey" placeholder="jsonbin.io hesabından kopyaladığın anahtar">
+      </div>
+      <div class="field">
+        <label>Bin ID</label>
+        <input type="text" id="syncBinId" placeholder="Yeni Bin Oluştur ile alacaksın, ya da başka cihazdan kopyala">
+      </div>
+
+      <div class="sync-btn-row">
+        <button class="btn primary" id="syncCreateBinBtn">Yeni Bin Oluştur</button>
+        <button class="btn secondary" id="syncSaveLoadBtn">Kaydet ve Buluttan Yükle</button>
+      </div>
+      <div class="sync-btn-row">
+        <button class="btn secondary" id="syncPushNowBtn">Şimdi Buluta Gönder</button>
+        <button class="btn danger" id="syncDisconnectBtn">Bağlantıyı Kaldır</button>
+      </div>
+
+      <div class="result-msg" id="syncResult"></div>
+      <div class="sync-status" id="syncStatus"></div>
+
+      <div class="sync-caveat">⚠️ Bu API anahtarı tarayıcında saklanır ve tamamen gizli sayılmaz. Kişisel kullanım için pratik ve yeterlidir; hassas/kurumsal veriler için önerilmez.</div>
+
+      <div class="sync-divider"></div>
+
+      <h4>Yedek (JSON dosyası)</h4>
+      <p class="sync-lead">Senkron kurmak istemiyorsan, verilerini bir dosyaya indirip başka cihazda o dosyadan geri yükleyebilirsin.</p>
+      <div class="sync-btn-row">
+        <button class="btn secondary" id="backupExportBtn">⬇️ Dışa Aktar</button>
+        <button class="btn secondary" id="backupImportBtn">⬆️ İçe Aktar</button>
+        <input type="file" id="backupFileInput" accept="application/json" style="display:none;">
+      </div>
+      <div class="result-msg" id="backupResult"></div>
+    </div>
+  </div>
 </div>
 
 <script src="db.js"></script>
@@ -676,6 +760,111 @@ veya sadece: B D A C ..."></textarea>
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
   document.title = `İçerik Ekle — ${modulInfo.ad} — Basamak GYS`;
+
+  // ===== BULUT SENKRON =====
+  function syncStatusText() {
+    const cfg = bgysGetSyncConfig();
+    const last = localStorage.getItem('bgys-last-sync');
+    if (!cfg) return 'Henüz bağlı değil.';
+    const lastTxt = last ? new Date(parseInt(last)).toLocaleString('tr-TR') : 'henüz gönderilmedi';
+    return `Bağlı · Bin ID: ${cfg.binId} · Son senkron: ${lastTxt}`;
+  }
+  function refreshSyncPanel() {
+    const cfg = bgysGetSyncConfig();
+    if (cfg) {
+      document.getElementById('syncApiKey').value = cfg.apiKey;
+      document.getElementById('syncBinId').value = cfg.binId;
+    }
+    document.getElementById('syncStatus').textContent = syncStatusText();
+  }
+
+  document.getElementById('cloudSyncBtn').addEventListener('click', () => {
+    refreshSyncPanel();
+    document.getElementById('syncOverlay').classList.add('open');
+  });
+  document.getElementById('syncCloseBtn').addEventListener('click', () => {
+    document.getElementById('syncOverlay').classList.remove('open');
+  });
+  document.getElementById('syncOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'syncOverlay') document.getElementById('syncOverlay').classList.remove('open');
+  });
+
+  document.getElementById('syncCreateBinBtn').addEventListener('click', async () => {
+    const apiKey = document.getElementById('syncApiKey').value.trim();
+    if (!apiKey) { showMsg('syncResult', 'err', 'Önce API Key gir.'); return; }
+    showMsg('syncResult', 'warn', 'Bin oluşturuluyor...');
+    try {
+      const binId = await bgysCreateBin(apiKey);
+      bgysSetSyncConfig(apiKey, binId);
+      document.getElementById('syncBinId').value = binId;
+      showMsg('syncResult', 'ok', `Bin oluşturuldu: ${binId}. Bu bilgiyi diğer cihazlarına da gir.`);
+      refreshSyncPanel();
+    } catch (e) {
+      showMsg('syncResult', 'err', 'Hata: ' + e.message);
+    }
+  });
+
+  document.getElementById('syncSaveLoadBtn').addEventListener('click', async () => {
+    const apiKey = document.getElementById('syncApiKey').value.trim();
+    const binId = document.getElementById('syncBinId').value.trim();
+    if (!apiKey || !binId) { showMsg('syncResult', 'err', 'API Key ve Bin ID gerekli.'); return; }
+    bgysSetSyncConfig(apiKey, binId);
+    showMsg('syncResult', 'warn', 'Buluttan yükleniyor...');
+    try {
+      await bgysPullFromCloud();
+      showMsg('syncResult', 'ok', 'Buluttan veriler yüklendi.');
+      refreshSyncPanel();
+      renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+    } catch (e) {
+      showMsg('syncResult', 'err', 'Hata: ' + e.message);
+    }
+  });
+
+  document.getElementById('syncPushNowBtn').addEventListener('click', async () => {
+    showMsg('syncResult', 'warn', 'Buluta gönderiliyor...');
+    try {
+      await bgysPushToCloud();
+      showMsg('syncResult', 'ok', 'Buluta gönderildi.');
+      refreshSyncPanel();
+    } catch (e) {
+      showMsg('syncResult', 'err', 'Hata: ' + e.message);
+    }
+  });
+
+  document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
+    bgysClearSyncConfig();
+    document.getElementById('syncApiKey').value = '';
+    document.getElementById('syncBinId').value = '';
+    showMsg('syncResult', 'ok', 'Bulut bağlantısı kaldırıldı (yerel verilerin duruyor).');
+    refreshSyncPanel();
+  });
+
+  // ===== YEDEK (JSON) =====
+  document.getElementById('backupExportBtn').addEventListener('click', async () => {
+    await bgysDownloadBackupFile();
+    showMsg('backupResult', 'ok', 'Yedek dosyası indirildi.');
+  });
+  document.getElementById('backupImportBtn').addEventListener('click', () => {
+    document.getElementById('backupFileInput').click();
+  });
+  document.getElementById('backupFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      await bgysRestoreFromFile(file);
+      showMsg('backupResult', 'ok', 'Yedek geri yüklendi.');
+      renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+    } catch (err) {
+      showMsg('backupResult', 'err', 'Geri yükleme hatası: ' + err.message);
+    }
+    document.getElementById('backupFileInput').value = '';
+  });
+
+  // Sayfa açılışında ayar varsa buluttan otomatik çek
+  (async () => {
+    const pulled = await bgysAutoPullIfConfigured();
+    if (pulled) { renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi(); }
+  })();
 
   renderKonuList();
   renderSoruList();

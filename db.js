@@ -36,7 +36,7 @@ function bgysAdd(storeName, record) {
   return bgysTx(storeName, "readwrite").then(store => new Promise((resolve, reject) => {
     record.createdAt = record.createdAt || Date.now();
     const req = store.add(record);
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => { bgysScheduleCloudPush(); resolve(req.result); };
     req.onerror = (e) => reject(e.target.error);
   }));
 }
@@ -52,6 +52,27 @@ function bgysGetAll(storeName) {
 function bgysDelete(storeName, id) {
   return bgysTx(storeName, "readwrite").then(store => new Promise((resolve, reject) => {
     const req = store.delete(id);
+    req.onsuccess = () => { bgysScheduleCloudPush(); resolve(); };
+    req.onerror = (e) => reject(e.target.error);
+  }));
+}
+
+// Buluttan geri yükleme sırasında orijinal id'leri korumak için put kullanır (add değil).
+function bgysPutAll(storeName, records) {
+  return bgysTx(storeName, "readwrite").then(store => new Promise((resolve, reject) => {
+    let remaining = records.length;
+    if (remaining === 0) return resolve();
+    records.forEach(rec => {
+      const req = store.put(rec);
+      req.onsuccess = () => { remaining--; if (remaining === 0) resolve(); };
+      req.onerror = (e) => reject(e.target.error);
+    });
+  }));
+}
+
+function bgysClearStore(storeName) {
+  return bgysTx(storeName, "readwrite").then(store => new Promise((resolve, reject) => {
+    const req = store.clear();
     req.onsuccess = () => resolve();
     req.onerror = (e) => reject(e.target.error);
   }));
@@ -241,4 +262,140 @@ function bgysMergeCevapAnahtari(parsedResults, cevapListesi) {
     return { ...r, correct: null };
   });
   return { results: merged, eksikCevapSayisi };
+}
+
+/* ================= Yedekleme ve Bulut Senkron ================= */
+
+const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler"];
+
+// Tüm bölümlerdeki (modüllerdeki) tüm verileri tek bir JSON nesnesi olarak dışa aktarır.
+async function bgysExportAllData() {
+  const data = { exportedAt: Date.now(), version: 1 };
+  for (const store of BGYS_SYNC_STORES) {
+    data[store] = await bgysGetAll(store);
+  }
+  return data;
+}
+
+// Dışa aktarılan veriyi geri yükler. mode "replace" ise önce mevcut store temizlenir.
+async function bgysImportAllData(data, mode) {
+  mode = mode || "replace";
+  for (const store of BGYS_SYNC_STORES) {
+    const records = Array.isArray(data[store]) ? data[store] : [];
+    if (mode === "replace") await bgysClearStore(store);
+    await bgysPutAll(store, records);
+  }
+}
+
+function bgysDownloadBackupFile() {
+  return bgysExportAllData().then(data => {
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const tarih = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `basamak-gys-yedek-${tarih}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  });
+}
+
+function bgysRestoreFromFile(file) {
+  return file.text().then(text => {
+    const data = JSON.parse(text);
+    return bgysImportAllData(data, "replace");
+  });
+}
+
+/* ---- JSONBin.io bulut senkron ----
+   Ayarlar (API key + Bin ID) localStorage'da saklanır (cihaza özgü, tüm bölümler ortak). */
+const BGYS_SYNC_CONFIG_KEY = "bgys-cloud-sync-config";
+const JSONBIN_BASE = "https://api.jsonbin.io/v3/b";
+
+function bgysGetSyncConfig() {
+  try {
+    const raw = localStorage.getItem(BGYS_SYNC_CONFIG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function bgysSetSyncConfig(apiKey, binId) {
+  localStorage.setItem(BGYS_SYNC_CONFIG_KEY, JSON.stringify({ apiKey, binId }));
+}
+
+function bgysClearSyncConfig() {
+  localStorage.removeItem(BGYS_SYNC_CONFIG_KEY);
+}
+
+// Yeni bir JSONBin "bin" oluşturur (mevcut yerel veriyle doldurur) ve Bin ID döner.
+async function bgysCreateBin(apiKey) {
+  const data = await bgysExportAllData();
+  const resp = await fetch(JSONBIN_BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": apiKey,
+      "X-Bin-Name": "BasamakGYS"
+    },
+    body: JSON.stringify(data)
+  });
+  if (!resp.ok) throw new Error("Bin oluşturulamadı (HTTP " + resp.status + ")");
+  const json = await resp.json();
+  return json.metadata.id;
+}
+
+async function bgysPushToCloud() {
+  const cfg = bgysGetSyncConfig();
+  if (!cfg || !cfg.apiKey || !cfg.binId) throw new Error("Bulut senkron ayarlanmamış");
+  const data = await bgysExportAllData();
+  const resp = await fetch(`${JSONBIN_BASE}/${cfg.binId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": cfg.apiKey
+    },
+    body: JSON.stringify(data)
+  });
+  if (!resp.ok) throw new Error("Buluta gönderilemedi (HTTP " + resp.status + ")");
+  localStorage.setItem("bgys-last-sync", Date.now().toString());
+  return true;
+}
+
+async function bgysPullFromCloud() {
+  const cfg = bgysGetSyncConfig();
+  if (!cfg || !cfg.apiKey || !cfg.binId) throw new Error("Bulut senkron ayarlanmamış");
+  const resp = await fetch(`${JSONBIN_BASE}/${cfg.binId}/latest`, {
+    method: "GET",
+    headers: { "X-Master-Key": cfg.apiKey }
+  });
+  if (!resp.ok) throw new Error("Buluttan yüklenemedi (HTTP " + resp.status + ")");
+  const json = await resp.json();
+  const data = json.record || json;
+  await bgysImportAllData(data, "replace");
+  localStorage.setItem("bgys-last-sync", Date.now().toString());
+  return true;
+}
+
+// bgysAdd/bgysDelete her çağrıldığında otomatik tetiklenir (debounce'lu, ayar yoksa hiçbir şey yapmaz).
+let bgysPushTimer = null;
+function bgysScheduleCloudPush() {
+  const cfg = bgysGetSyncConfig();
+  if (!cfg || !cfg.apiKey || !cfg.binId) return;
+  clearTimeout(bgysPushTimer);
+  bgysPushTimer = setTimeout(() => {
+    bgysPushToCloud().catch(e => console.warn("Bulut gönderim hatası:", e.message));
+  }, 1500);
+}
+
+// Sayfa yüklenirken bir kere çağrılır: ayar varsa buluttan en güncel veriyi indirir.
+async function bgysAutoPullIfConfigured() {
+  const cfg = bgysGetSyncConfig();
+  if (!cfg || !cfg.apiKey || !cfg.binId) return false;
+  try {
+    await bgysPullFromCloud();
+    return true;
+  } catch (e) {
+    console.warn("Otomatik senkron hatası:", e.message);
+    return false;
+  }
 }
