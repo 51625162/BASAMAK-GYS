@@ -127,6 +127,20 @@
   .sync-status{font-size:0.8rem;color:var(--slate);margin-top:8px;}
   .sync-caveat{font-size:0.78rem;color:#B0740F;background:rgba(245,166,35,0.1);padding:10px 14px;border-radius:12px;margin-top:14px;line-height:1.5;}
   .sync-divider{border-top:1px solid var(--mist);margin:22px 0;}
+
+  .transfer-overlay{
+    position:fixed;inset:0;background:rgba(16,36,62,0.55);z-index:920;
+    display:none;align-items:center;justify-content:center;padding:16px;
+  }
+  .transfer-overlay.open{display:flex;}
+  .transfer-modal{background:var(--white);border-radius:var(--radius-lg);max-width:420px;width:100%;padding:24px;}
+  .transfer-modal h3{margin:0 0 4px;font-size:1.05rem;}
+  .transfer-modal .item-name{color:var(--slate);font-size:0.85rem;margin:0 0 16px;}
+  .transfer-check-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--mist);border-radius:12px;margin-bottom:10px;cursor:pointer;}
+  .transfer-check-row input{width:18px;height:18px;}
+  .transfer-check-row label{font-weight:600;font-size:0.92rem;cursor:pointer;flex-grow:1;}
+  .transfer-actions{display:flex;gap:10px;margin-top:16px;}
+  .transfer-actions .btn{flex:1;justify-content:center;}
 </style>
 </head>
 <body>
@@ -230,7 +244,7 @@ Cevap: B
 Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
 
 (İkinci soru buraya...)"></textarea>
-          <div class="hint">Format: soru satırı, ardından A) B) C) D) şıkları, "Cevap: X" ve isteğe bağlı "Açıklama: ...". Sorular arasında boş satır bırak.</div>
+          <div class="hint">Format esnek: A) A. A- A: hepsi olur, küçük harf de olabilir. "Cevap:" yerine "Doğru Cevap:" / "Yanıt:" de yazılabilir. Numaralı sorularda (1. 2. 3. ...) aralarına boş satır koymana bile gerek yok — otomatik ayrılır.</div>
         </div>
         <button class="btn primary" id="soruMetinEkleBtn">Soruları Ekle</button>
         <div class="result-msg" id="soruMetinResult"></div>
@@ -406,6 +420,19 @@ veya sadece: B D A C ..."></textarea>
   </div>
 </div>
 
+<div class="transfer-overlay" id="transferOverlay">
+  <div class="transfer-modal">
+    <h3>↔ Başka Bölüme Aktar</h3>
+    <p class="item-name" id="transferItemName"></p>
+    <div id="transferCheckList"></div>
+    <div class="transfer-actions">
+      <button class="btn secondary" id="transferCancelBtn">Vazgeç</button>
+      <button class="btn primary" id="transferConfirmBtn">Aktar</button>
+    </div>
+    <div class="result-msg" id="transferResult"></div>
+  </div>
+</div>
+
 <script src="db.js"></script>
 <script>
   // ---- Tab switching ----
@@ -501,6 +528,7 @@ veya sadece: B D A C ..."></textarea>
         <div class="item-actions">
           <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">👁️ Gör</button>
           <a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>
+          <button class="btn secondary small" onclick="openTransferModal('konular', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteKonu(${it.id})">Sil</button>
         </div>
       </div>
@@ -520,7 +548,8 @@ veya sadece: B D A C ..."></textarea>
     let msg = `${results.length} soru eklendi.`;
     let cls = 'ok';
     if (errors.length > 0) {
-      msg += ` ${errors.length} blok ayrıştırılamadı (format kontrolü yap).`;
+      const detay = errors.slice(0, 3).map(e => `Blok ${e.block}: "${e.raw}..." → ${e.reason}`).join(' | ');
+      msg += ` ${errors.length} blok ayrıştırılamadı — ${detay}`;
       cls = results.length > 0 ? 'warn' : 'err';
     }
     showMsg('soruMetinResult', cls, msg);
@@ -613,6 +642,7 @@ veya sadece: B D A C ..."></textarea>
           <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
         </div>
         <div class="item-actions">
+          <button class="btn secondary small" onclick="openTransferModal('sorular', ${it.id}, '${it.question.replace(/'/g,"\\'").slice(0,40)}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteSoru(${it.id})">Sil</button>
         </div>
       </div>
@@ -634,6 +664,7 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>
+          <button class="btn secondary small" onclick="openTransferModal('soruSetleri', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteSoruSeti(${it.id})">Sil</button>
         </div>
       </div>
@@ -742,6 +773,7 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           ${actionHtml}
+          <button class="btn secondary small" onclick="openTransferModal('denemeler', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteDeneme(${it.id})">Sil</button>
         </div>
       </div>`;
@@ -865,6 +897,51 @@ veya sadece: B D A C ..."></textarea>
     const pulled = await bgysAutoPullIfConfigured();
     if (pulled) { renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi(); }
   })();
+
+  // ===== BÖLÜMLER ARASI AKTARIM =====
+  let transferState = null; // { store, id }
+
+  window.openTransferModal = function(store, id, name) {
+    transferState = { store, id };
+    document.getElementById('transferItemName').textContent = `"${name}" öğesini kopyala:`;
+    const others = bgysOtherModuller();
+    document.getElementById('transferCheckList').innerHTML = others.map(m => `
+      <div class="transfer-check-row" onclick="document.getElementById('tf-${m.key}').click()">
+        <input type="checkbox" id="tf-${m.key}" value="${m.key}" onclick="event.stopPropagation()">
+        <label for="tf-${m.key}">${m.ad}</label>
+      </div>
+    `).join('');
+    document.getElementById('transferResult').textContent = '';
+    document.getElementById('transferOverlay').classList.add('open');
+  };
+
+  document.getElementById('transferCancelBtn').addEventListener('click', () => {
+    document.getElementById('transferOverlay').classList.remove('open');
+  });
+  document.getElementById('transferOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'transferOverlay') document.getElementById('transferOverlay').classList.remove('open');
+  });
+
+  document.getElementById('transferConfirmBtn').addEventListener('click', async () => {
+    if (!transferState) return;
+    const checked = Array.from(document.querySelectorAll('#transferCheckList input:checked')).map(c => c.value);
+    if (checked.length === 0) { showMsg('transferResult', 'err', 'En az bir bölüm seç.'); return; }
+    showMsg('transferResult', 'warn', 'Aktarılıyor...');
+    try {
+      for (const targetModul of checked) {
+        if (transferState.store === 'denemeler') {
+          await bgysCopyDenemeToModul(transferState.id, targetModul);
+        } else {
+          await bgysCopyToModul(transferState.store, transferState.id, targetModul);
+        }
+      }
+      const isimler = checked.map(k => BGYS_MODULLER[k].ad).join(', ');
+      showMsg('transferResult', 'ok', `Aktarıldı: ${isimler}`);
+      setTimeout(() => document.getElementById('transferOverlay').classList.remove('open'), 1200);
+    } catch (e) {
+      showMsg('transferResult', 'err', 'Hata: ' + e.message);
+    }
+  });
 
   renderKonuList();
   renderSoruList();

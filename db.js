@@ -111,6 +111,51 @@ async function bgysGetAllByModul(storeName) {
   return all.filter(r => (r.modul || "saymanlik") === modul);
 }
 
+// Bir kaydı (konu/soru/soruSeti/deneme) başka bir bölüme kopyalar. Denemeye ait sorular
+// (denemeId) taşınmaz, sadece bağımsız kayıtlar aktarılır.
+async function bgysCopyToModul(storeName, id, targetModul) {
+  const all = await bgysGetAll(storeName);
+  const record = all.find(r => r.id === id);
+  if (!record) throw new Error("Kayıt bulunamadı");
+  const clone = { ...record };
+  delete clone.id;
+  if (storeName === "sorular") delete clone.denemeId; // deneme bağlantısı hedef bölümde anlamsız, bağımsız soru olarak aktarılır
+  clone.modul = targetModul;
+  clone.createdAt = Date.now();
+  return bgysAdd(storeName, clone);
+}
+
+function bgysOtherModuller() {
+  const current = bgysCurrentModul();
+  return Object.keys(BGYS_MODULLER).filter(k => k !== current).map(k => ({ key: k, ...BGYS_MODULLER[k] }));
+}
+
+// Bir denemeyi (metin tipi) bağlı tüm sorularıyla birlikte başka bölüme kopyalar.
+async function bgysCopyDenemeToModul(denemeId, targetModul) {
+  const denemeler = await bgysGetAll("denemeler");
+  const deneme = denemeler.find(d => d.id === denemeId);
+  if (!deneme) throw new Error("Deneme bulunamadı");
+  const denemeClone = { ...deneme };
+  delete denemeClone.id;
+  denemeClone.modul = targetModul;
+  denemeClone.createdAt = Date.now();
+  const newDenemeId = await bgysAdd("denemeler", denemeClone);
+
+  if (deneme.tip === "metin") {
+    const tumSorular = await bgysGetAll("sorular");
+    const denemeSorulari = tumSorular.filter(s => s.denemeId === denemeId);
+    for (const s of denemeSorulari) {
+      const soruClone = { ...s };
+      delete soruClone.id;
+      soruClone.modul = targetModul;
+      soruClone.denemeId = newDenemeId;
+      soruClone.createdAt = Date.now();
+      await bgysAdd("sorular", soruClone);
+    }
+  }
+  return newDenemeId;
+}
+
 function bgysFileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -120,8 +165,24 @@ function bgysFileToDataUrl(file) {
   });
 }
 
+/* Boş satırla ayrılmamış, numaralı soru listelerini (1. ... 2. ... gibi) otomatik olarak
+   bloklara ayırır — kullanıcı her sorudan sonra boş satır bırakmayı unutsa bile çalışır. */
+function bgysAutoInsertBlockBreaks(text) {
+  const lines = text.split("\n");
+  const out = [];
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    const isNewQuestion = /^\d+\s*[\.\)\-]\s*\S/.test(trimmed);
+    if (isNewQuestion && idx !== 0 && out.length > 0 && out[out.length - 1].trim() !== "") {
+      out.push("");
+    }
+    out.push(line);
+  });
+  return out.join("\n");
+}
+
 /* ---- Soru metni yapıştırma formatı ayrıştırıcı ----
-Beklenen format (her soru boş satırla ayrılır):
+Beklenen format (her soru tercihen boş satırla ayrılır, ama numaralıysa boş satır şart değil):
 
 Soru metni buraya yazılır
 A) Seçenek 1
@@ -131,12 +192,18 @@ D) Seçenek 4
 Cevap: B
 Açıklama: (opsiyonel, tek satır)
 
+Esneklikler: şık işareti olarak ) . : - hepsi kabul edilir (A) A. A: A- gibi), küçük harf de
+olur. "Cevap:" yerine "Doğru Cevap:", "Yanıt:", "Doğru Yanıt:" de kabul edilir. "Açıklama:"
+yerine "Çözüm:" de kabul edilir. Numaralı sorularda (1. 2. 3. ...) aralarında boş satır
+olmasa da otomatik olarak ayrılır.
+
 requireAnswer=false verilirse "Cevap:" satırı olmadan da soru+4 şık yeterli sayılır
 (correct alanı null döner) — PDF'ten çıkarılan, cevabı ayrı bir anahtarla eşleştirilecek
 sorular için kullanılır.
 */
 function bgysParseSoruMetniFlexible(text, requireAnswer) {
   if (requireAnswer === undefined) requireAnswer = true;
+  text = bgysAutoInsertBlockBreaks(text);
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
   const results = [];
   const errors = [];
@@ -147,13 +214,13 @@ function bgysParseSoruMetniFlexible(text, requireAnswer) {
     let explanation = "";
     let questionLines = [];
     lines.forEach(line => {
-      const optMatch = line.match(/^([A-D])[\)\.\:]\s*(.+)$/i);
-      const cevapMatch = line.match(/^cevap\s*[:\-]\s*([A-D])/i);
-      const acikMatch = line.match(/^a[çc]ıklama\s*[:\-]\s*(.+)$/i);
+      const optMatch = line.match(/^([A-D])\s*[\)\.\:\-]\s*(.+)$/i);
+      const cevapMatch = line.match(/^(do[ğg]ru\s+)?(cevap|yan[ıi]t)\s*[:\-]\s*([A-D])\b/i);
+      const acikMatch = line.match(/^(a[çc]ıklama|[çc]özüm|cozum)\s*[:\-]\s*(.+)$/i);
       if (cevapMatch) {
-        correctLetter = cevapMatch[1].toUpperCase();
+        correctLetter = cevapMatch[3].toUpperCase();
       } else if (acikMatch) {
-        explanation = acikMatch[1].trim();
+        explanation = acikMatch[2].trim();
       } else if (optMatch) {
         optionLines[optMatch[1].toUpperCase()] = optMatch[2].trim();
       } else {
