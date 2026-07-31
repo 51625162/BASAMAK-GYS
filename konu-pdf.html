@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>İnfografikler — Saymanlık — Basamak GYS</title>
+<title>PDF Konu Notları — Basamak GYS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -116,16 +116,16 @@
   <div class="crumb">
     <a href="index.html">Basamak GYS</a><span class="sep">/</span>
     <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
-    <span class="cur">İnfografikler</span>
+    <span class="cur">PDF Konu Notları</span>
   </div>
   <a class="add-btn" href="icerik-ekle.html" id="addBtn">+ İçerik Ekle</a>
 </div>
 
 <section class="page-hero">
-  <div class="icon">🧠</div>
+  <div class="icon" style="background:linear-gradient(135deg,var(--coral),#E64A3B);">📄</div>
   <div>
-    <h1 id="pageH1">İnfografikler</h1>
-    <p>Görsel olarak eklediğin konu anlatımı notların — PDF'ler <a href="konu-pdf.html" id="pdfLink" style="color:var(--teal-dark);font-weight:700;">PDF Konu Notları</a> sayfasında.</p>
+    <h1 id="pageH1">PDF Konu Notları</h1>
+    <p>PDF olarak eklediğin konu anlatımı notların — görseller <a href="infografikler.html" id="pdfLink" style="color:var(--teal-dark);font-weight:700;">İnfografikler</a> sayfasında.</p>
   </div>
 </section>
 
@@ -133,8 +133,8 @@
   <div id="ownKonuGrid" class="gallery-grid"></div>
   <div id="ownKonuEmpty" class="empty-card" style="display:none;">
     <div class="big-icon">📥</div>
-    <h3>Henüz görsel konu notu eklemedin</h3>
-    <p>İnfografik görselleri buradan eklersin; PDF'ler ayrı bir sayfada (PDF Konu Notları) tutulur.</p>
+    <h3>Henüz PDF konu notu eklemedin</h3>
+    <p>PDF olarak eklediğin konu anlatımlarını buradan görebilirsin; görseller İnfografikler sayfasında tutulur.</p>
     <a class="cta" href="icerik-ekle.html" id="ctaBtn">+ İçerik Ekle</a>
   </div>
 </div>
@@ -156,7 +156,7 @@
 
   async function renderOwnKonular() {
     const all = await bgysGetAllByModul('konular');
-    const items = all.filter(it => it.tip === 'image');
+    const items = all.filter(it => it.tip === 'pdf');
     const grid = document.getElementById('ownKonuGrid');
     const empty = document.getElementById('ownKonuEmpty');
     if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
@@ -164,7 +164,7 @@
     items.forEach(it => konuDataMap[it.id] = it);
     grid.innerHTML = items.reverse().map(it => `
       <div class="g-card">
-        <div class="g-thumb" style="cursor:zoom-in;" onclick="openLightbox(${it.id})"><img src="${it.dataUrl}" alt="${it.baslik}"></div>
+        <div class="g-thumb" style="cursor:zoom-in;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);" onclick="openLightbox(${it.id})">📄</div>
         <div class="g-info">
           <span class="g-tag">${it.bolum}</span>
           <h3>${it.baslik}</h3>
@@ -188,11 +188,7 @@
     const stage = document.getElementById('lightboxStage');
     const toolbar = document.getElementById('lightboxToolbar');
     lbScale = 1;
-    if (it.tip === 'image') {
-      stage.innerHTML = `<img id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);">`;
-    } else {
-      stage.innerHTML = `<iframe id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);width:85vw;height:85vh;"></iframe>`;
-    }
+    stage.innerHTML = `<iframe id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);width:85vw;height:85vh;"></iframe>`;
     toolbar.style.display = 'flex';
     document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -235,9 +231,9 @@
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
   document.getElementById('addBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
   document.getElementById('ctaBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
-  document.getElementById('pdfLink').setAttribute('href', bgysWithModul('konu-pdf.html'));
-  document.getElementById('pageH1').textContent = `${modulInfo.ad} İnfografikler`;
-  document.title = `İnfografikler — ${modulInfo.ad} — Basamak GYS`;
+  document.getElementById('pdfLink').setAttribute('href', bgysWithModul('infografikler.html'));
+  document.getElementById('pageH1').textContent = `${modulInfo.ad} PDF Konu Notları`;
+  document.title = `PDF Konu Notları — ${modulInfo.ad} — Basamak GYS`;
 
   renderOwnKonular();
 </script>
