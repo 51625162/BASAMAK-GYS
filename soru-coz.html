@@ -151,6 +151,13 @@
       </div>
 
       <div class="setup-group">
+        <h4>Konu / Bölüm</h4>
+        <select id="topicSelect" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+          <option value="all">Tüm konular</option>
+        </select>
+      </div>
+
+      <div class="setup-group">
         <h4>Zorluk</h4>
         <div class="chip-row" id="diffChips">
           <button class="chip active" data-val="all">Hepsi (Kolaydan Zora)</button>
@@ -255,6 +262,13 @@
       document.getElementById('totalCount').textContent = mergedBank.length;
       document.getElementById('bankInfo').textContent = mergedBank.length;
 
+      const konular = new Set(mergedBank.map(q => q.kisim).filter(Boolean));
+      const topicSelect = document.getElementById('topicSelect');
+      const mevcutSecim = topicSelect.value;
+      topicSelect.innerHTML = '<option value="all">Tüm konular</option>' +
+        Array.from(konular).sort().map(k => `<option value="${k.replace(/"/g,'&quot;')}">${k}</option>`).join('');
+      if (Array.from(konular).includes(mevcutSecim)) topicSelect.value = mevcutSecim;
+
       const soruSetleri = await bgysGetAllByModul('soruSetleri');
       if (soruSetleri.length > 0) {
         const note = document.getElementById('soruSetiNote');
@@ -303,6 +317,8 @@
   document.getElementById('startBtn').addEventListener('click', () => {
     let pool = mergedBank.slice();
     if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
+    const selectedTopic = document.getElementById('topicSelect').value;
+    if (selectedTopic !== "all") pool = pool.filter(q => q.kisim === selectedTopic);
     if(selectedDiff !== "all"){
       pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
     } else {

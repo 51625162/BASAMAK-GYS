@@ -141,6 +141,17 @@
   .transfer-check-row label{font-weight:600;font-size:0.92rem;cursor:pointer;flex-grow:1;}
   .transfer-actions{display:flex;gap:10px;margin-top:16px;}
   .transfer-actions .btn{flex:1;justify-content:center;}
+
+  .viewer-overlay{
+    position:fixed;inset:0;background:rgba(16,36,62,0.94);z-index:950;
+    display:none;flex-direction:column;
+  }
+  .viewer-overlay.open{display:flex;}
+  .viewer-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:14px;flex-shrink:0;}
+  .viewer-close{background:var(--coral);color:white;border:none;border-radius:100px;padding:10px 18px;font-weight:700;font-size:0.85rem;cursor:pointer;}
+  .viewer-stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .viewer-stage img{max-width:90%;border-radius:8px;}
+  .viewer-stage iframe{width:92vw;height:85vh;border:none;border-radius:12px;background:white;}
 </style>
 </head>
 <body>
@@ -168,7 +179,7 @@
   <div class="panel active" id="panel-konu">
     <div class="card">
       <h3>Yeni Konu Notu Ekle</h3>
-      <p class="sub">Görsel eklersen <a href="infografikler.html">İnfografikler</a>'de, PDF eklersen <a href="konu-pdf.html">PDF Konu Notları</a>'nda görünür — ikisi ayrı sayfalardır.</p>
+      <p class="sub">Görsel → <a href="infografikler.html">İnfografikler</a>, PDF → <a href="konu-pdf.html">PDF Konu Notları</a>, Bilgi Kartı → <a href="bilgi-kartlari.html">Bilgi Kartları</a>, Ses Kaydı → <a href="podcastler.html">Podcastler</a> sayfasında görünür.</p>
 
       <div class="field">
         <label>Bölüm / Kısım</label>
@@ -183,6 +194,8 @@
       <div class="radio-row" id="konuModeRow">
         <button class="radio-chip active" data-mode="image">🖼️ Görsel</button>
         <button class="radio-chip" data-mode="pdf">📄 PDF</button>
+        <button class="radio-chip" data-mode="metin">📝 Bilgi Kartı</button>
+        <button class="radio-chip" data-mode="audio">🎙️ Ses Kaydı</button>
       </div>
 
       <div class="mode-panel active" id="konu-mode-image">
@@ -198,6 +211,19 @@
           <input type="file" id="konuPdfInput" accept="application/pdf">
         </div>
         <div class="file-list" id="konuPdfList"></div>
+      </div>
+      <div class="mode-panel" id="konu-mode-metin">
+        <div class="field">
+          <label>Kart Metni</label>
+          <textarea id="konuMetinIcerik" rows="6" placeholder="Kısa, akılda kalıcı bir bilgi notu yaz..."></textarea>
+        </div>
+      </div>
+      <div class="mode-panel" id="konu-mode-audio">
+        <div class="file-drop" onclick="document.getElementById('konuAudioInput').click()">
+          🎙️ Ses dosyası seçmek için tıkla (telefonunda kaydettiğin ses notu, mp3/m4a/wav)
+          <input type="file" id="konuAudioInput" accept="audio/*">
+        </div>
+        <div class="file-list" id="konuAudioList"></div>
       </div>
 
       <div style="margin-top:16px;">
@@ -433,6 +459,13 @@ veya sadece: B D A C ..."></textarea>
   </div>
 </div>
 
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-toolbar">
+    <button class="viewer-close" id="viewerCloseBtn">✕ Kapat</button>
+  </div>
+  <div class="viewer-stage" id="viewerStage"></div>
+</div>
+
 <script src="db.js"></script>
 <script>
   // ---- Tab switching ----
@@ -458,7 +491,7 @@ veya sadece: B D A C ..."></textarea>
       });
     });
   }
-  wireModeRow('konuModeRow', 'konu', { image: 'konuImageInput', pdf: 'konuPdfInput' });
+  wireModeRow('konuModeRow', 'konu', { image: 'konuImageInput', pdf: 'konuPdfInput', audio: 'konuAudioInput' });
   wireModeRow('soruModeRow', 'soru', { gorsel: 'soruGorselInput', pdf: 'soruPdfInput' });
   wireModeRow('denemeModeRow', 'deneme', { pdf: 'denemePdfInput', gorsel: 'denemeGorselInput' });
 
@@ -483,6 +516,11 @@ veya sadece: B D A C ..."></textarea>
     konuPdfFile = e.target.files[0] || null;
     document.getElementById('konuPdfList').textContent = konuPdfFile ? konuPdfFile.name : '';
   });
+  let konuAudioFile = null;
+  document.getElementById('konuAudioInput').addEventListener('change', (e) => {
+    konuAudioFile = e.target.files[0] || null;
+    document.getElementById('konuAudioList').textContent = konuAudioFile ? konuAudioFile.name : '';
+  });
 
   document.getElementById('konuKaydetBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('konuBolum').value.trim();
@@ -498,12 +536,24 @@ veya sadece: B D A C ..."></textarea>
         }
         showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
-      } else {
+      } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
         const dataUrl = await bgysFileToDataUrl(konuPdfFile);
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
         showMsg('konuResult', 'ok', 'PDF eklendi.');
         konuPdfFile = null; document.getElementById('konuPdfInput').value = ''; document.getElementById('konuPdfList').textContent = '';
+      } else if (mode === 'metin') {
+        const metin = document.getElementById('konuMetinIcerik').value.trim();
+        if (!metin) { showMsg('konuResult', 'err', 'Kart metni boş olamaz.'); return; }
+        await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'metin', metin });
+        showMsg('konuResult', 'ok', 'Bilgi kartı eklendi.');
+        document.getElementById('konuMetinIcerik').value = '';
+      } else if (mode === 'audio') {
+        if (!konuAudioFile) { showMsg('konuResult', 'err', 'Bir ses dosyası seç.'); return; }
+        const dataUrl = await bgysFileToDataUrl(konuAudioFile);
+        await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'audio', dataUrl, fileName: konuAudioFile.name });
+        showMsg('konuResult', 'ok', 'Ses kaydı eklendi.');
+        konuAudioFile = null; document.getElementById('konuAudioInput').value = ''; document.getElementById('konuAudioList').textContent = '';
       }
       document.getElementById('konuBaslik').value = '';
       renderKonuList();
@@ -513,26 +563,40 @@ veya sadece: B D A C ..."></textarea>
     }
   });
 
+  const KONU_TIP_LABEL = { image: 'Görsel', pdf: 'PDF', metin: 'Bilgi Kartı', audio: 'Ses Kaydı' };
+  const KONU_TIP_ICON = { pdf: '📄', metin: '📝', audio: '🎙️' };
+
   async function renderKonuList() {
     const items = await bgysGetAllByModul('konular');
     const el = document.getElementById('konuList');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz konu notu eklemedin.</div>'; return; }
-    el.innerHTML = items.reverse().map(it => `
+    el.innerHTML = items.reverse().map(it => {
+      const thumb = it.tip === 'image'
+        ? `<img class="item-thumb" src="${it.dataUrl}">`
+        : `<div class="item-icon">${KONU_TIP_ICON[it.tip] || '📄'}</div>`;
+      const gorBtn = it.tip === 'metin'
+        ? `<button class="btn secondary small" onclick="alert('${(it.metin || '').replace(/'/g,"\\'").replace(/\n/g,' ')}')">👁️ Gör</button>`
+        : `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">👁️ Gör</button>`;
+      const indirBtn = it.tip === 'metin'
+        ? ''
+        : `<a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>`;
+      return `
       <div class="item-card">
-        ${it.tip === 'image' ? `<img class="item-thumb" src="${it.dataUrl}">` : `<div class="item-icon">📄</div>`}
+        ${thumb}
         <div class="item-info">
           <div class="tag">${it.bolum}</div>
           <h4>${it.baslik}</h4>
-          <p>${it.tip === 'image' ? 'Görsel' : 'PDF'} · ${it.fileName || ''}</p>
+          <p>${KONU_TIP_LABEL[it.tip] || it.tip} ${it.fileName ? '· ' + it.fileName : ''}</p>
         </div>
         <div class="item-actions">
-          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">👁️ Gör</button>
-          <a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>
+          ${gorBtn}
+          ${indirBtn}
           <button class="btn secondary small" onclick="openTransferModal('konular', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteKonu(${it.id})">Sil</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
   window.bgysDeleteKonu = async (id) => { await bgysDelete('konular', id); renderKonuList(); };
 
@@ -663,7 +727,7 @@ veya sadece: B D A C ..."></textarea>
           <p>${it.fileName || ''}</p>
         </div>
         <div class="item-actions">
-          <button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>
+          <button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>
           <button class="btn secondary small" onclick="openTransferModal('soruSetleri', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
           <button class="btn danger small" onclick="bgysDeleteSoruSeti(${it.id})">Sil</button>
         </div>
@@ -760,9 +824,9 @@ veya sadece: B D A C ..."></textarea>
       if (it.tip === 'metin') {
         actionHtml = `<a class="btn secondary small" href="${bgysWithModul('deneme-sinavi.html?id=' + it.id)}">Çöz (${it.soruSayisi} soru)</a>`;
       } else if (it.tip === 'pdf') {
-        actionHtml = `<button class="btn secondary small" onclick="window.open('${it.dataUrl}','_blank')">Gör</button>`;
+        actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>`;
       } else {
-        actionHtml = `<button class="btn secondary small" onclick="window.open('${it.dataUrls[0]}','_blank')">Gör</button>`;
+        actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrls[0]}')">Gör</button>`;
       }
       return `
       <div class="item-card">
@@ -897,6 +961,30 @@ veya sadece: B D A C ..."></textarea>
     const pulled = await bgysAutoPullIfConfigured();
     if (pulled) { renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi(); }
   })();
+
+  // ===== DOSYA GÖRÜNTÜLEYİCİ (window.open yerine — büyük data URL'lerde sekme açmama sorununu çözer) =====
+  window.viewFile = function(dataUrl) {
+    const stage = document.getElementById('viewerStage');
+    if (dataUrl.startsWith('data:application/pdf')) {
+      stage.innerHTML = `<iframe src="${dataUrl}"></iframe>`;
+    } else {
+      stage.innerHTML = `<img src="${dataUrl}">`;
+    }
+    document.getElementById('viewerOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  document.getElementById('viewerCloseBtn').addEventListener('click', () => {
+    document.getElementById('viewerOverlay').classList.remove('open');
+    document.getElementById('viewerStage').innerHTML = '';
+    document.body.style.overflow = '';
+  });
+  document.getElementById('viewerOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'viewerOverlay' || e.target.id === 'viewerStage') {
+      document.getElementById('viewerOverlay').classList.remove('open');
+      document.getElementById('viewerStage').innerHTML = '';
+      document.body.style.overflow = '';
+    }
+  });
 
   // ===== BÖLÜMLER ARASI AKTARIM =====
   let transferState = null; // { store, id }
