@@ -258,6 +258,14 @@
       <!-- Metin yapıştır -->
       <div class="mode-panel active" id="soru-mode-metin">
         <div class="field">
+          <label>Zorluk (bu grupta eklenecek tüm sorulara uygulanır)</label>
+          <div class="radio-row" id="soruMetinZorlukRow" style="margin-bottom:0;">
+            <button class="radio-chip" data-zorluk="1">🟢 Kolay</button>
+            <button class="radio-chip active" data-zorluk="2">🟡 Orta</button>
+            <button class="radio-chip" data-zorluk="3">🔴 Zor</button>
+          </div>
+        </div>
+        <div class="field">
           <label>Soruları Yapıştır</label>
           <textarea id="soruMetin" rows="12" placeholder="Her soruyu bu formatta yaz, sorular arasına BOŞ SATIR koy:
 
@@ -294,6 +302,10 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
         <div class="field">
           <label>Doğru Cevap</label>
           <select id="soruGorselCevap"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+        </div>
+        <div class="field">
+          <label>Zorluk</label>
+          <select id="soruGorselZorluk"><option value="1">🟢 Kolay</option><option value="2" selected>🟡 Orta</option><option value="3">🔴 Zor</option></select>
         </div>
         <div class="field"><label>Açıklama (opsiyonel)</label><textarea id="soruGorselAciklama" rows="3"></textarea></div>
         <button class="btn primary" id="soruGorselEkleBtn">Soruyu Ekle</button>
@@ -601,13 +613,22 @@ veya sadece: B D A C ..."></textarea>
   window.bgysDeleteKonu = async (id) => { await bgysDelete('konular', id); renderKonuList(); };
 
   // ===== SORULAR =====
+  let soruMetinZorluk = 2;
+  document.querySelectorAll('#soruMetinZorlukRow .radio-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#soruMetinZorlukRow .radio-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      soruMetinZorluk = parseInt(chip.dataset.zorluk);
+    });
+  });
+
   document.getElementById('soruMetinEkleBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
     const text = document.getElementById('soruMetin').value;
     if (!text.trim()) { showMsg('soruMetinResult', 'err', 'Soru metni boş.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
     for (const r of results) {
-      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text' });
+      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text', difficulty: soruMetinZorluk });
     }
     let msg = `${results.length} soru eklendi.`;
     let cls = 'ok';
@@ -632,11 +653,12 @@ veya sadece: B D A C ..."></textarea>
     const question = document.getElementById('soruGorselMetin').value.trim();
     const options = ['A','B','C','D'].map(l => document.getElementById('soruGorsel'+l).value.trim());
     const correct = parseInt(document.getElementById('soruGorselCevap').value);
+    const difficulty = parseInt(document.getElementById('soruGorselZorluk').value);
     const explanation = document.getElementById('soruGorselAciklama').value.trim() || 'Açıklama eklenmedi.';
     if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu.'); return; }
     let imageDataUrl = null;
     if (soruGorselFile) imageDataUrl = await bgysFileToDataUrl(soruGorselFile);
-    await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, question, options, correct, explanation, tip: 'image', imageDataUrl });
+    await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, question, options, correct, explanation, tip: 'image', imageDataUrl, difficulty });
     showMsg('soruGorselResult', 'ok', 'Soru eklendi.');
     ['soruGorselMetin','soruGorselA','soruGorselB','soruGorselC','soruGorselD','soruGorselAciklama'].forEach(id => document.getElementById(id).value = '');
     soruGorselFile = null; document.getElementById('soruGorselInput').value=''; document.getElementById('soruGorselList').textContent='';

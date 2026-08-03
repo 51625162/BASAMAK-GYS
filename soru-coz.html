@@ -158,12 +158,22 @@
       </div>
 
       <div class="setup-group">
+        <h4>Durum</h4>
+        <div class="chip-row" id="statusChips">
+          <button class="chip active" data-val="unsolved">Çözülmemişler</button>
+          <button class="chip" data-val="solved">Çözdüklerim (<span id="solvedCount">0</span>)</button>
+          <button class="chip" data-val="all">Hepsi</button>
+        </div>
+        <div class="hint" style="margin-top:6px;">Çözdüğün sorular varsayılan olarak tekrar karşına çıkmaz. Tekrar çözmek istersen "Çözdüklerim" veya "Hepsi"ni seç.</div>
+      </div>
+
+      <div class="setup-group">
         <h4>Zorluk</h4>
         <div class="chip-row" id="diffChips">
           <button class="chip active" data-val="all">Hepsi (Kolaydan Zora)</button>
-          <button class="chip" data-val="1">Kolay</button>
-          <button class="chip" data-val="2">Orta</button>
-          <button class="chip" data-val="3">Zor</button>
+          <button class="chip" data-val="1">🟢 Kolay</button>
+          <button class="chip" data-val="2">🟡 Orta</button>
+          <button class="chip" data-val="3">🔴 Zor</button>
         </div>
       </div>
 
@@ -234,6 +244,7 @@
   let selectedDiff = "all";
   let selectedCount = 20;
   let selectedSource = "all";
+  let selectedStatus = "unsolved";
   let quiz = [];
   let qIdx = 0;
   let correctCount = 0;
@@ -254,7 +265,7 @@
       const userQs = await bgysGetAllByModul('sorular');
       const genelPool = userQs.filter(q => q.denemeId === undefined || q.denemeId === null);
       const normalized = genelPool.map(q => ({
-        id: 'u' + q.id, kisim: q.bolum, madde: q.bolum, difficulty: 2, type: 'bilgi', trap: false,
+        id: 'u' + q.id, kisim: q.bolum, madde: q.bolum, difficulty: q.difficulty || 2, type: 'bilgi', trap: false,
         question: q.question, options: q.options, correct: q.correct, explanation: q.explanation,
         imageDataUrl: q.imageDataUrl || null, source: 'benim'
       }));
@@ -268,6 +279,7 @@
       topicSelect.innerHTML = '<option value="all">Tüm konular</option>' +
         Array.from(konular).sort().map(k => `<option value="${k.replace(/"/g,'&quot;')}">${k}</option>`).join('');
       if (Array.from(konular).includes(mevcutSecim)) topicSelect.value = mevcutSecim;
+      updateSolvedCount();
 
       const soruSetleri = await bgysGetAllByModul('soruSetleri');
       if (soruSetleri.length > 0) {
@@ -289,6 +301,20 @@
       selectedSource = c.dataset.val;
     });
   });
+
+  document.querySelectorAll('#statusChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#statusChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      selectedStatus = c.dataset.val;
+    });
+  });
+
+  function updateSolvedCount() {
+    const solvedMap = bgysGetSolvedMap();
+    const solvedIdsInBank = mergedBank.filter(q => solvedMap[q.id]).length;
+    document.getElementById('solvedCount').textContent = solvedIdsInBank;
+  }
 
   document.querySelectorAll('#diffChips .chip').forEach(c => {
     c.addEventListener('click', () => {
@@ -317,6 +343,9 @@
   document.getElementById('startBtn').addEventListener('click', () => {
     let pool = mergedBank.slice();
     if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
+    const solvedMap = bgysGetSolvedMap();
+    if (selectedStatus === "unsolved") pool = pool.filter(q => !solvedMap[q.id]);
+    else if (selectedStatus === "solved") pool = pool.filter(q => !!solvedMap[q.id]);
     const selectedTopic = document.getElementById('topicSelect').value;
     if (selectedTopic !== "all") pool = pool.filter(q => q.kisim === selectedTopic);
     if(selectedDiff !== "all"){
@@ -354,12 +383,14 @@
     document.getElementById('qBarFill').style.width = ((qIdx) / quiz.length * 100) + '%';
 
     const tagsEl = document.getElementById('qTags');
+    const oncedenCozuldu = bgysIsSolved(q.id);
     tagsEl.innerHTML = `
       <span class="q-tag madde">${q.madde}</span>
       <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
       <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
       ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
       ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
+      ${oncedenCozuldu ? '<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ Çözüldü</span>' : ''}
     `;
 
     document.getElementById('qImgWrap').innerHTML = q.imageDataUrl ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
@@ -392,13 +423,17 @@
       if(idx === q.correct) el.classList.add('correct');
       if(idx !== q.correct) el.classList.add('dim');
     });
+    let wasCorrect;
     if(i === q.correct){
       correctCount++;
+      wasCorrect = true;
     } else {
       btn.classList.remove('dim');
       btn.classList.add('wrong');
       wrongCount++;
+      wasCorrect = false;
     }
+    bgysMarkSolved(q.id, wasCorrect);
     document.getElementById('okCount').textContent = correctCount;
     document.getElementById('noCount').textContent = wrongCount;
     document.getElementById('solutionToggle').classList.add('show');

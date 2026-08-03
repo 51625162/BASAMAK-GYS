@@ -216,7 +216,7 @@ function bgysParseSoruMetniFlexible(text, requireAnswer) {
     lines.forEach(line => {
       const optMatch = line.match(/^([A-D])\s*[\)\.\:\-]\s*(.+)$/i);
       const cevapMatch = line.match(/^(do[ğg]ru\s+)?(cevap|yan[ıi]t)\s*[:\-]\s*([A-D])\b/i);
-      const acikMatch = line.match(/^(a[çc]ıklama|[çc]özüm|cozum)\s*[:\-]\s*(.+)$/i);
+      const acikMatch = line.match(/^(a[çc][ıi]klama|[çc]öz[üu]m|cozum)\s*[:\-]\s*(.+)$/i);
       if (cevapMatch) {
         correctLetter = cevapMatch[3].toUpperCase();
       } else if (acikMatch) {
@@ -465,4 +465,33 @@ async function bgysAutoPullIfConfigured() {
     console.warn("Otomatik senkron hatası:", e.message);
     return false;
   }
+}
+
+/* ================= Çözülen Soru Takibi =================
+   Hangi soruların daha önce çözüldüğünü (bölüme göre) localStorage'da tutar,
+   böylece "istemediğim sürece tekrar çözmeyeyim" filtresi çalışabilir. */
+function bgysSolvedKey() {
+  return "bgys-solved-" + bgysCurrentModul();
+}
+
+function bgysGetSolvedMap() {
+  try {
+    const raw = localStorage.getItem(bgysSolvedKey());
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+
+function bgysMarkSolved(questionId, wasCorrect) {
+  const map = bgysGetSolvedMap();
+  map[questionId] = { correct: !!wasCorrect, solvedAt: Date.now() };
+  localStorage.setItem(bgysSolvedKey(), JSON.stringify(map));
+}
+
+function bgysIsSolved(questionId) {
+  const map = bgysGetSolvedMap();
+  return !!map[questionId];
+}
+
+function bgysClearSolved() {
+  localStorage.removeItem(bgysSolvedKey());
 }
