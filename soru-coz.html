@@ -230,7 +230,13 @@
 
 </div>
 
-<script src="soru/questions.js"></script>
+<script>
+  // Hazır soru bankası artık kullanılmıyor (her şey kullanıcı tarafından ekleniyor).
+  // Önceden ayrı bir "soru/questions.js" dosyasından yükleniyordu; o dosya/klasör
+  // GitHub'a yüklerken eksik kalırsa TÜM sayfa JavaScript'i çöküyordu. Artık dışarıdan
+  // hiçbir dosyaya bağımlı değil, bu satır tek başına yeterli.
+  const QUESTION_BANK = [];
+</script>
 <script src="db.js"></script>
 <script>
   const TYPE_LABELS = {
