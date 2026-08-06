@@ -202,11 +202,10 @@ requireAnswer=false verilirse "Cevap:" satırı olmadan da soru+4 şık yeterli 
 sorular için kullanılır.
 */
 function bgysParseSoruMetniFlexible(text, requireAnswer) {
-  if (requireAnswer === undefined) requireAnswer = true;
   text = bgysAutoInsertBlockBreaks(text);
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
   const results = [];
-  const errors = [];
+  const uyarilar = []; // artık hiçbir şeyi reddetmiyoruz, sadece bilgi amaçlı not düşüyoruz
   blocks.forEach((block, idx) => {
     const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
     const optionLines = { A: null, B: null, C: null, D: null };
@@ -227,23 +226,33 @@ function bgysParseSoruMetniFlexible(text, requireAnswer) {
         questionLines.push(line);
       }
     });
-    const question = questionLines.join(" ").trim().replace(/^\d+\s*[\.\)\-]\s*/, "");
-    const options = [optionLines.A, optionLines.B, optionLines.C, optionLines.D];
-    if (!question || options.some(o => !o) || (requireAnswer && !correctLetter)) {
-      errors.push({ block: idx + 1, reason: "Eksik alan (soru/şık" + (requireAnswer ? "/cevap" : "") + " bulunamadı)", raw: block.slice(0, 80) });
-      return;
+    const question = questionLines.join(" ").trim().replace(/^\d+\s*[\.\)\-]\s*/, "") || "(Soru metni girilmedi)";
+    const eksikSik = ["A","B","C","D"].filter(l => !optionLines[l]);
+    if (eksikSik.length > 0) {
+      uyarilar.push({ block: idx + 1, not: `${eksikSik.join(", ")} şıkkı boş bırakıldı` });
+    }
+    const options = ["A","B","C","D"].map(l => optionLines[l] || "(Boş bırakıldı)");
+    let correct;
+    if (correctLetter) {
+      correct = "ABCD".indexOf(correctLetter);
+    } else if (requireAnswer) {
+      correct = 0; // cevap belirtilmemişse varsayılan olarak A kabul edilir, soru yine de eklenir
+      uyarilar.push({ block: idx + 1, not: "Cevap belirtilmemiş, A varsayıldı" });
+    } else {
+      correct = null; // PDF+cevap anahtarı akışı için: cevap daha sonra anahtarla eşleştirilecek
     }
     results.push({
       question,
       options,
-      correct: correctLetter ? "ABCD".indexOf(correctLetter) : null,
+      correct,
       explanation: explanation || "Açıklama eklenmedi."
     });
   });
-  return { results, errors };
+  return { results, errors: uyarilar };
 }
 
-// Geriye dönük uyumluluk: eskiden beri kullanılan isim, cevabı zorunlu tutar.
+// Geriye dönük uyumluluk: eskiden beri kullanılan isim. Artık hiçbir soruyu reddetmez,
+// eksik cevap varsa A'yı varsayılan kabul eder (results her zaman dolu döner).
 function bgysParseSoruMetni(text) {
   return bgysParseSoruMetniFlexible(text, true);
 }
@@ -428,7 +437,7 @@ async function bgysPushToCloud() {
   return true;
 }
 
-async function bgysPullFromCloud() {
+async function bgysPullFromCloud(force) {
   const cfg = bgysGetSyncConfig();
   if (!cfg || !cfg.apiKey || !cfg.binId) throw new Error("Bulut senkron ayarlanmamış");
   const resp = await fetch(`${JSONBIN_BASE}/${cfg.binId}/latest`, {
@@ -438,6 +447,21 @@ async function bgysPullFromCloud() {
   if (!resp.ok) throw new Error("Buluttan yüklenemedi (HTTP " + resp.status + ")");
   const json = await resp.json();
   const data = json.record || json;
+
+  // Güvenlik: Bulut verisi tamamen boşsa ve yerelde veri varsa, otomatik pull sırasında
+  // yerel veriyi SİLME — muhtemelen bulut henüz ilk push'u almamış veya farklı bir bin'e bakılıyor.
+  const bulutBos = BGYS_SYNC_STORES.every(s => !Array.isArray(data[s]) || data[s].length === 0);
+  if (bulutBos && !force) {
+    let yerelDoluMu = false;
+    for (const s of BGYS_SYNC_STORES) {
+      const yerel = await bgysGetAll(s);
+      if (yerel.length > 0) { yerelDoluMu = true; break; }
+    }
+    if (yerelDoluMu) {
+      throw new Error("Bulut boş görünüyor ama cihazında veri var — üzerine yazmadım. Emin olduğunda 'Şimdi Buluta Gönder' ile buluttaki boş veriyi güncelleyebilirsin.");
+    }
+  }
+
   await bgysImportAllData(data, "replace");
   localStorage.setItem("bgys-last-sync", Date.now().toString());
   return true;

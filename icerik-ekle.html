@@ -633,9 +633,9 @@ veya sadece: B D A C ..."></textarea>
     let msg = `${results.length} soru eklendi.`;
     let cls = 'ok';
     if (errors.length > 0) {
-      const detay = errors.slice(0, 3).map(e => `Blok ${e.block}: "${e.raw}..." → ${e.reason}`).join(' | ');
-      msg += ` ${errors.length} blok ayrıştırılamadı — ${detay}`;
-      cls = results.length > 0 ? 'warn' : 'err';
+      const detay = errors.slice(0, 3).map(e => `Soru ${e.block}: ${e.not}`).join(' | ');
+      msg += ` (Not: ${detay}${errors.length > 3 ? ' ...' : ''})`;
+      cls = 'ok';
     }
     showMsg('soruMetinResult', cls, msg);
     if (results.length > 0) document.getElementById('soruMetin').value = '';
@@ -764,12 +764,17 @@ veya sadece: B D A C ..."></textarea>
     const text = document.getElementById('denemeMetin').value;
     if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
-    if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Hiç soru ayrıştırılamadı, formatı kontrol et.'); return; }
+    if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Metin boş görünüyor, soru eklenemedi.'); return; }
     const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: results.length });
     for (const r of results) {
       await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId });
     }
-    showMsg('denemeMetinResult', 'ok', `Deneme eklendi: ${results.length} soru.` + (errors.length ? ` ${errors.length} blok atlandı.` : ''));
+    let msg = `Deneme eklendi: ${results.length} soru.`;
+    if (errors.length > 0) {
+      const detay = errors.slice(0, 3).map(e => `Soru ${e.block}: ${e.not}`).join(' | ');
+      msg += ` (Not: ${detay}${errors.length > 3 ? ' ...' : ''})`;
+    }
+    showMsg('denemeMetinResult', 'ok', msg);
     document.getElementById('denemeBaslik').value=''; document.getElementById('denemeMetin').value='';
     renderDenemeList();
   });
