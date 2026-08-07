@@ -13,6 +13,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
   :root{
     --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
@@ -287,20 +288,21 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
       <!-- Görsel soru -->
       <div class="mode-panel" id="soru-mode-gorsel">
         <div class="field">
-          <label>Soru Görseli (opsiyonel — şema/tablo içeren sorular için)</label>
+          <label>Soru Görseli</label>
           <div class="file-drop" onclick="document.getElementById('soruGorselInput').click()">
-            🖼️ Görsel seçmek için tıkla
+            🖼️ Görsel seçmek için tıkla — seçince metin ve şıklar otomatik okunmaya çalışılır
             <input type="file" id="soruGorselInput" accept="image/*">
           </div>
           <div class="file-list" id="soruGorselList"></div>
+          <div class="hint" id="soruGorselOcrStatus" style="display:none;"></div>
         </div>
-        <div class="field"><label>Soru Metni</label><input type="text" id="soruGorselMetin" placeholder="Soru metnini yaz"></div>
+        <div class="field"><label>Soru Metni <span style="font-weight:400;color:var(--slate);">(görselden otomatik okunur, gerekirse düzelt)</span></label><input type="text" id="soruGorselMetin" placeholder="Görsel seçince otomatik dolar, ya da elle yaz"></div>
         <div class="field"><label>A Şıkkı</label><input type="text" id="soruGorselA"></div>
         <div class="field"><label>B Şıkkı</label><input type="text" id="soruGorselB"></div>
         <div class="field"><label>C Şıkkı</label><input type="text" id="soruGorselC"></div>
         <div class="field"><label>D Şıkkı</label><input type="text" id="soruGorselD"></div>
         <div class="field">
-          <label>Doğru Cevap</label>
+          <label>Doğru Cevap <span style="font-weight:400;color:var(--slate);">(görselde yazıyorsa otomatik seçilir, yoksa kontrol et)</span></label>
           <select id="soruGorselCevap"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
         </div>
         <div class="field">
@@ -668,9 +670,38 @@ veya sadece: B D A C ..."></textarea>
   });
 
   let soruGorselFile = null;
-  document.getElementById('soruGorselInput').addEventListener('change', (e) => {
+  document.getElementById('soruGorselInput').addEventListener('change', async (e) => {
     soruGorselFile = e.target.files[0] || null;
     document.getElementById('soruGorselList').textContent = soruGorselFile ? soruGorselFile.name : '';
+    if (!soruGorselFile) return;
+    const statusEl = document.getElementById('soruGorselOcrStatus');
+    statusEl.style.display = 'block';
+    statusEl.textContent = '🔍 Görsel okunuyor, birkaç saniye sürebilir...';
+    try {
+      if (typeof Tesseract === 'undefined') throw new Error('OCR kütüphanesi yüklenemedi');
+      const { data } = await Tesseract.recognize(soruGorselFile, 'tur');
+      const metin = data.text || '';
+      const { results } = bgysParseSoruMetniFlexible(metin, false);
+      if (results.length > 0) {
+        const r = results[0];
+        document.getElementById('soruGorselMetin').value = r.question !== '(Soru metni girilmedi)' ? r.question : '';
+        ['A','B','C','D'].forEach((l, i) => {
+          const val = r.options[i];
+          document.getElementById('soruGorsel'+l).value = (val && val !== '(Boş bırakıldı)') ? val : '';
+        });
+        if (r.correct !== null && r.correct !== undefined) {
+          document.getElementById('soruGorselCevap').value = r.correct;
+        }
+        if (r.explanation && r.explanation !== 'Açıklama eklenmedi.') {
+          document.getElementById('soruGorselAciklama').value = r.explanation;
+        }
+        statusEl.textContent = '✅ Görselden okundu — kontrol edip gerekirse düzelt.';
+      } else {
+        statusEl.textContent = '⚠️ Görselden metin/şık ayıklanamadı, alanları elle doldurabilirsin.';
+      }
+    } catch (err) {
+      statusEl.textContent = '⚠️ Otomatik okuma başarısız (' + err.message + '), alanları elle doldurabilirsin.';
+    }
   });
   document.getElementById('soruGorselEkleBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
@@ -679,12 +710,13 @@ veya sadece: B D A C ..."></textarea>
     const correct = parseInt(document.getElementById('soruGorselCevap').value);
     const difficulty = parseInt(document.getElementById('soruGorselZorluk').value);
     const explanation = document.getElementById('soruGorselAciklama').value.trim() || 'Açıklama eklenmedi.';
-    if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu.'); return; }
+    if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu — görselden otomatik okunamadıysa elle doldur.'); return; }
     let imageDataUrl = null;
     if (soruGorselFile) imageDataUrl = await bgysFileToDataUrl(soruGorselFile);
     await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, question, options, correct, explanation, tip: 'image', imageDataUrl, difficulty });
     showMsg('soruGorselResult', 'ok', 'Soru eklendi.');
     ['soruGorselMetin','soruGorselA','soruGorselB','soruGorselC','soruGorselD','soruGorselAciklama'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('soruGorselOcrStatus').style.display = 'none';
     soruGorselFile = null; document.getElementById('soruGorselInput').value=''; document.getElementById('soruGorselList').textContent='';
     renderSoruList();
     refreshBolumListesi();
