@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Konu Notları — Basamak GYS</title>
+<title>Bilgi Kartları — Basamak GYS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -116,16 +116,16 @@
   <div class="crumb">
     <a href="index.html">Basamak GYS</a><span class="sep">/</span>
     <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
-    <span class="cur">PDF Konu Notları</span>
+    <span class="cur">Soru-Cevap</span>
   </div>
   <a class="add-btn" href="icerik-ekle.html" id="addBtn">+ İçerik Ekle</a>
 </div>
 
 <section class="page-hero">
-  <div class="icon" style="background:linear-gradient(135deg,var(--coral),#E64A3B);">📄</div>
+  <div class="icon" style="background:linear-gradient(135deg,#F49AC1,#E0629C);">📇</div>
   <div>
-    <h1 id="pageH1">PDF Konu Notları</h1>
-    <p>PDF olarak eklediğin konu anlatımı notların — görseller <a href="infografikler.html" id="pdfLink" style="color:var(--teal-dark);font-weight:700;">İnfografikler</a> sayfasında.</p>
+    <h1 id="pageH1">Soru-Cevap</h1>
+    <p>Karta tıkla, cevabı gör — hızlı kendi kendine test için.</p>
   </div>
 </section>
 
@@ -133,21 +133,10 @@
   <div id="ownKonuGrid" class="gallery-grid"></div>
   <div id="ownKonuEmpty" class="empty-card" style="display:none;">
     <div class="big-icon">📥</div>
-    <h3>Henüz PDF konu notu eklemedin</h3>
-    <p>PDF olarak eklediğin konu anlatımlarını buradan görebilirsin; görseller İnfografikler sayfasında tutulur.</p>
+    <h3>Henüz soru-cevap eklemedin</h3>
+    <p>Şıksız, kısa cevaplı soru-cevap çiftlerini buradan ekleyebilirsin.</p>
     <a class="cta" href="icerik-ekle.html" id="ctaBtn">+ İçerik Ekle</a>
   </div>
-</div>
-
-<div class="lightbox" id="lightbox">
-  <div class="lightbox-toolbar" id="lightboxToolbar">
-    <button class="lb-btn" onclick="lbZoom(-0.25)">➖ Uzaklaştır</button>
-    <span class="lb-zoom-label" id="lbZoomLabel">100%</span>
-    <button class="lb-btn" onclick="lbZoom(0.25)">➕ Yakınlaştır</button>
-    <button class="lb-btn" onclick="lbReset()">↺ Sıfırla</button>
-    <button class="lb-btn close" onclick="closeLightbox()">✕ Kapat</button>
-  </div>
-  <div class="lightbox-stage" id="lightboxStage"></div>
 </div>
 
 <script src="db.js"></script>
@@ -156,85 +145,42 @@
   const konuDataMap = {};
 
   async function renderOwnKonular() {
-    const all = await bgysGetAllByModul('konular');
-    const items = all.filter(it => it.tip === 'pdf');
+    const items = await bgysGetAllByModul('soruCevap');
     const grid = document.getElementById('ownKonuGrid');
     const empty = document.getElementById('ownKonuEmpty');
     if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
     empty.style.display = 'none'; grid.style.display = 'grid';
     items.forEach(it => konuDataMap[it.id] = it);
     grid.innerHTML = items.reverse().map(it => `
-      <div class="g-card">
-        <div class="g-thumb" style="cursor:zoom-in;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--cloud);" onclick="openLightbox('${it.id}')">📄</div>
-        <div class="g-info">
+      <div class="g-card" style="cursor:pointer;" onclick="toggleCevap('${it.id}')">
+        <div class="g-info" style="padding-top:20px;">
           <span class="g-tag">${it.bolum}</span>
-          <h3>${it.baslik}</h3>
+          <h3>${it.soru}</h3>
+          <p id="cevap-${it.id}" style="display:none;font-size:0.9rem;color:var(--teal-dark);font-weight:700;line-height:1.6;white-space:pre-line;border-top:1px dashed var(--mist);padding-top:10px;margin-top:6px;">💡 ${it.cevap}</p>
           <div class="g-actions">
-            <button class="g-btn view" onclick="openLightbox('${it.id}')">👁️ Görüntüle</button>
-            <a class="g-btn download" href="${it.dataUrl}" download="${it.fileName || it.baslik}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-              İndir
-            </a>
+            <button class="g-btn view" id="toggleBtn-${it.id}" onclick="event.stopPropagation();toggleCevap('${it.id}')">👁️ Cevabı Gör</button>
           </div>
         </div>
       </div>
     `).join('');
   }
 
-  // ---- Lightbox: tam ekran görüntüleme + yakınlaştırma/uzaklaştırma ----
-  let lbScale = 1;
-  function openLightbox(id) {
-    const it = konuDataMap[id];
-    if (!it) return;
-    const stage = document.getElementById('lightboxStage');
-    const toolbar = document.getElementById('lightboxToolbar');
-    lbScale = 1;
-    stage.innerHTML = `<iframe id="lightboxImg" src="${it.dataUrl}" style="transform:scale(1);width:85vw;height:85vh;"></iframe>`;
-    toolbar.style.display = 'flex';
-    document.getElementById('lightbox').classList.add('open');
-    document.body.style.overflow = 'hidden';
+  function toggleCevap(id) {
+    const p = document.getElementById('cevap-' + id);
+    const btn = document.getElementById('toggleBtn-' + id);
+    if (!p) return;
+    const acik = p.style.display !== 'none';
+    p.style.display = acik ? 'none' : 'block';
+    btn.textContent = acik ? '👁️ Cevabı Gör' : '🙈 Cevabı Gizle';
   }
-  function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
-    document.getElementById('lightboxStage').innerHTML = '';
-    document.body.style.overflow = '';
-  }
-  function lbZoom(delta) {
-    lbScale = Math.min(5, Math.max(0.25, lbScale + delta));
-    updateLbZoom();
-  }
-  function lbReset() {
-    lbScale = 1;
-    updateLbZoom();
-  }
-  function updateLbZoom() {
-    const img = document.getElementById('lightboxImg');
-    if (img) img.style.transform = `scale(${lbScale})`;
-    document.getElementById('lbZoomLabel').textContent = Math.round(lbScale * 100) + '%';
-  }
-  document.getElementById('lightboxStage').addEventListener('wheel', (e) => {
-    if (!document.getElementById('lightboxImg')) return;
-    e.preventDefault();
-    lbZoom(e.deltaY < 0 ? 0.2 : -0.2);
-  }, { passive: false });
-  document.getElementById('lightboxStage').addEventListener('dblclick', () => {
-    if (!document.getElementById('lightboxImg')) return;
-    lbScale === 1 ? lbZoom(1) : lbReset();
-  });
-  document.getElementById('lightbox').addEventListener('click', (e) => {
-    if (e.target.id === 'lightbox' || e.target.id === 'lightboxStage') closeLightbox();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLightbox();
-  });
+
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
   document.getElementById('addBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
   document.getElementById('ctaBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
-  document.getElementById('pdfLink').setAttribute('href', bgysWithModul('infografikler.html'));
-  document.getElementById('pageH1').textContent = `${modulInfo.ad} PDF Konu Notları`;
-  document.title = `PDF Konu Notları — ${modulInfo.ad} — Basamak GYS`;
+  document.getElementById('pageH1').textContent = `${modulInfo.ad} Soru-Cevap`;
+  document.title = `Soru-Cevap — ${modulInfo.ad} — Basamak GYS`;
 
   renderOwnKonular();
 </script>

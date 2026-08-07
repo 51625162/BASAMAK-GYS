@@ -140,6 +140,7 @@
 </div>
 
 <script src="db.js"></script>
+<script>bgysRequireAuth();</script>
 <script>
   const konuDataMap = {};
 
@@ -158,7 +159,7 @@
           <h3>${it.baslik}</h3>
           <p style="font-size:0.9rem;color:var(--ink);line-height:1.6;white-space:pre-line;">${it.metin}</p>
           <div class="g-actions">
-            <button class="g-btn view" onclick="kopyalaMetin(${it.id})">📋 Kopyala</button>
+            <button class="g-btn view" onclick="kopyalaMetin('${it.id}')">📋 Kopyala</button>
           </div>
         </div>
       </div>

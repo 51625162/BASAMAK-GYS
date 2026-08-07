@@ -151,6 +151,7 @@
 </div>
 
 <script src="db.js"></script>
+<script>bgysRequireAuth();</script>
 <script>
   const konuDataMap = {};
 
@@ -164,12 +165,12 @@
     items.forEach(it => konuDataMap[it.id] = it);
     grid.innerHTML = items.reverse().map(it => `
       <div class="g-card">
-        <div class="g-thumb" style="cursor:zoom-in;" onclick="openLightbox(${it.id})"><img src="${it.dataUrl}" alt="${it.baslik}"></div>
+        <div class="g-thumb" style="cursor:zoom-in;" onclick="openLightbox('${it.id}')"><img src="${it.dataUrl}" alt="${it.baslik}"></div>
         <div class="g-info">
           <span class="g-tag">${it.bolum}</span>
           <h3>${it.baslik}</h3>
           <div class="g-actions">
-            <button class="g-btn view" onclick="openLightbox(${it.id})">👁️ Görüntüle</button>
+            <button class="g-btn view" onclick="openLightbox('${it.id}')">👁️ Görüntüle</button>
             <a class="g-btn download" href="${it.dataUrl}" download="${it.fileName || it.baslik}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
               İndir

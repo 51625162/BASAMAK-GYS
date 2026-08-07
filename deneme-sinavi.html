@@ -132,10 +132,11 @@
 </div>
 
 <script src="db.js"></script>
+<script>bgysRequireAuth();</script>
 <script>
   const LETTERS = ["A","B","C","D"];
   const params = new URLSearchParams(location.search);
-  const denemeId = params.get('id') ? parseInt(params.get('id')) : null;
+  const denemeId = params.get('id') || null;
 
   let quiz = [];
   let qIdx = 0, correctCount = 0, wrongCount = 0, answered = false;

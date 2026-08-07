@@ -163,7 +163,7 @@
     <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">İçerik Ekle</span>
   </div>
-  <button id="cloudSyncBtn" style="display:flex;align-items:center;gap:6px;background:var(--cloud);color:var(--ink);border:1.5px solid var(--mist);padding:9px 16px;border-radius:100px;font-weight:700;font-size:0.85rem;">☁️ Bulut Senkron</button>
+  <button id="cloudSyncBtn" style="display:flex;align-items:center;gap:6px;background:var(--cloud);color:var(--ink);border:1.5px solid var(--mist);padding:9px 16px;border-radius:100px;font-weight:700;font-size:0.85rem;">👤 Hesabım</button>
 </div>
 
 <div class="wrap">
@@ -173,6 +173,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="konu">📘 Konu Anlatımı</button>
     <button class="tab-btn" data-tab="soru">❓ Sorular</button>
+    <button class="tab-btn" data-tab="soruCevap">📇 Soru-Cevap</button>
     <button class="tab-btn" data-tab="deneme">📝 Deneme Sınavı</button>
   </div>
 
@@ -344,6 +345,38 @@ veya sadece: B D A C ..."></textarea>
     </div>
   </div>
 
+  <!-- ===== SORU-CEVAP (kısa cevaplı, çoktan seçmeli değil) ===== -->
+  <div class="panel" id="panel-soruCevap">
+    <div class="card">
+      <h3>Soru-Cevap Ekle</h3>
+      <p class="sub">Şıksız, kısa cevaplı soru-cevap çiftleri. <a href="soru-cevap.html">Soru-Cevap</a> sayfasında kartlar hâlinde görünür.</p>
+
+      <div class="field">
+        <label>Bölüm / Kısım</label>
+        <input type="text" id="soruCevapBolum" list="bolumListesi" placeholder="Örn. Anayasa - Genel Esaslar...">
+      </div>
+
+      <div class="field">
+        <label>Soru-Cevap Çiftlerini Yapıştır</label>
+        <textarea id="soruCevapMetin" rows="12" placeholder="Her çifti bu formatta yaz, aralarına BOŞ SATIR koy:
+
+Soru: Anayasa kaç maddeden oluşur?
+Cevap: 177 madde
+
+Soru: İlk cumhurbaşkanı kimdir?
+Cevap: Mustafa Kemal Atatürk"></textarea>
+        <div class="hint">"Soru:" ve "Cevap:" etiketleri olmadan da yazabilirsin — ilk satır soru, "Cevap:" sonrası cevap sayılır.</div>
+      </div>
+      <button class="btn primary" id="soruCevapEkleBtn">Çiftleri Ekle</button>
+      <div class="result-msg" id="soruCevapResult"></div>
+    </div>
+
+    <div class="list-section">
+      <h2>Eklediğim Soru-Cevap Çiftleri</h2>
+      <div id="soruCevapList"></div>
+    </div>
+  </div>
+
   <!-- ===== DENEME SINAVI ===== -->
   <div class="panel" id="panel-deneme">
     <div class="card">
@@ -430,56 +463,50 @@ veya sadece: B D A C ..."></textarea>
 <div class="sync-overlay" id="syncOverlay">
   <div class="sync-modal">
     <div class="sync-modal-head">
-      <h3>☁️ Bulut Senkron</h3>
+      <h3>👤 Hesabım ve Paylaşım</h3>
       <button class="sync-close" id="syncCloseBtn">✕</button>
     </div>
 
     <div class="sync-body">
-      <p class="sync-lead">Kayıtlarını (konu notu, soru, deneme) diğer cihazlarında da görmek için JSONBin.io ile ücretsiz senkronizasyon.</p>
+      <p class="sync-lead">Giriş yaptığın e-posta ile tüm cihazlarında otomatik senkron. Ayrıca istediğin içeriği başka bir kullanıcıya paylaşabilirsin.</p>
 
-      <div class="sync-steps">
-        <b>Kurulum (bir kere yapılır):</b>
-        <ol>
-          <li><a href="https://jsonbin.io" target="_blank">jsonbin.io</a> adresine ücretsiz üye ol, hesap ayarlarından <b>X-Master-Key</b>'ini kopyala.</li>
-          <li>Aşağıya API Key'i yapıştır ve <b>"Yeni Bin Oluştur"</b>a bas — bir Bin ID alacaksın.</li>
-          <li>Bu API Key + Bin ID ikilisini diğer cihazlarında da bu panele gir, <b>"Kaydet ve Buluttan Yükle"</b>ye bas.</li>
-        </ol>
-        <p>Bundan sonra her ekleme/silme otomatik buluta gönderilir; sayfa her açıldığında buluttan güncel veri çekilir.</p>
-      </div>
+      <div class="sync-steps" id="accountInfoBox">Yükleniyor...</div>
 
-      <div class="field">
-        <label>API Key (X-Master-Key)</label>
-        <input type="password" id="syncApiKey" placeholder="jsonbin.io hesabından kopyaladığın anahtar">
-      </div>
-      <div class="field">
-        <label>Bin ID</label>
-        <input type="text" id="syncBinId" placeholder="Yeni Bin Oluştur ile alacaksın, ya da başka cihazdan kopyala">
-      </div>
+      <button class="btn danger" id="logoutBtn" style="width:100%;">Çıkış Yap</button>
 
-      <div class="sync-btn-row">
-        <button class="btn primary" id="syncCreateBinBtn">Yeni Bin Oluştur</button>
-        <button class="btn secondary" id="syncSaveLoadBtn">Kaydet ve Buluttan Yükle</button>
-      </div>
-      <div class="sync-btn-row">
-        <button class="btn secondary" id="syncPushNowBtn">Şimdi Buluta Gönder</button>
-        <button class="btn danger" id="syncDisconnectBtn">Bağlantıyı Kaldır</button>
-      </div>
+      <div class="sync-divider"></div>
 
-      <div class="result-msg" id="syncResult"></div>
-      <div class="sync-status" id="syncStatus"></div>
-
-      <div class="sync-caveat">⚠️ Bu API anahtarı tarayıcında saklanır ve tamamen gizli sayılmaz. Kişisel kullanım için pratik ve yeterlidir; hassas/kurumsal veriler için önerilmez.</div>
+      <h4>📨 Gelen Paylaşımlar</h4>
+      <div id="incomingSharesList" class="sync-lead">Yükleniyor...</div>
 
       <div class="sync-divider"></div>
 
       <h4>Yedek (JSON dosyası)</h4>
-      <p class="sync-lead">Senkron kurmak istemiyorsan, verilerini bir dosyaya indirip başka cihazda o dosyadan geri yükleyebilirsin.</p>
+      <p class="sync-lead">İstersen tüm verini bir dosyaya indirip başka bir hesaba/cihaza taşıyabilirsin.</p>
       <div class="sync-btn-row">
         <button class="btn secondary" id="backupExportBtn">⬇️ Dışa Aktar</button>
         <button class="btn secondary" id="backupImportBtn">⬆️ İçe Aktar</button>
         <input type="file" id="backupFileInput" accept="application/json" style="display:none;">
       </div>
       <div class="result-msg" id="backupResult"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sync-overlay" id="shareOverlay">
+  <div class="sync-modal">
+    <div class="sync-modal-head">
+      <h3>📤 Kullanıcıyla Paylaş</h3>
+      <button class="sync-close" id="shareCloseBtn">✕</button>
+    </div>
+    <div class="sync-body">
+      <p class="item-name" id="shareItemName"></p>
+      <div class="field">
+        <label>Paylaşılacak kişinin e-postası</label>
+        <input type="email" id="shareEmailInput" placeholder="arkadas@mail.com">
+      </div>
+      <button class="btn primary" id="shareConfirmBtn" style="width:100%;">Paylaş</button>
+      <div class="result-msg" id="shareResult"></div>
     </div>
   </div>
 </div>
@@ -506,6 +533,8 @@ veya sadece: B D A C ..."></textarea>
 
 <script src="db.js"></script>
 <script>
+  bgysRequireAuth();
+
   // ---- Tab switching ----
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -629,8 +658,9 @@ veya sadece: B D A C ..."></textarea>
         <div class="item-actions">
           ${gorBtn}
           ${indirBtn}
-          <button class="btn secondary small" onclick="openTransferModal('konular', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
-          <button class="btn danger small" onclick="bgysDeleteKonu(${it.id})">Sil</button>
+          <button class="btn secondary small" onclick="openTransferModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openShareModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
+          <button class="btn danger small" onclick="bgysDeleteKonu('${it.id}')">Sil</button>
         </div>
       </div>
     `;
@@ -771,6 +801,43 @@ veya sadece: B D A C ..."></textarea>
     refreshBolumListesi();
   });
 
+  // ===== SORU-CEVAP =====
+  document.getElementById('soruCevapEkleBtn').addEventListener('click', async () => {
+    const bolum = document.getElementById('soruCevapBolum').value.trim() || 'Genel';
+    const text = document.getElementById('soruCevapMetin').value;
+    if (!text.trim()) { showMsg('soruCevapResult', 'err', 'Metin boş.'); return; }
+    const pairs = bgysParseSoruCevap(text);
+    if (pairs.length === 0) { showMsg('soruCevapResult', 'err', 'Hiç çift ayrıştırılamadı.'); return; }
+    for (const p of pairs) {
+      await bgysAdd('soruCevap', { modul: bgysCurrentModul(), bolum, soru: p.soru, cevap: p.cevap, tip: 'text' });
+    }
+    showMsg('soruCevapResult', 'ok', `${pairs.length} soru-cevap çifti eklendi.`);
+    document.getElementById('soruCevapMetin').value = '';
+    renderSoruCevapList();
+    refreshBolumListesi();
+  });
+
+  async function renderSoruCevapList() {
+    const items = await bgysGetAllByModul('soruCevap');
+    const el = document.getElementById('soruCevapList');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz soru-cevap çifti eklemedin.</div>'; return; }
+    el.innerHTML = items.reverse().map(it => `
+      <div class="item-card">
+        <div class="item-icon">📇</div>
+        <div class="item-info">
+          <div class="tag">${it.bolum}</div>
+          <h4>${it.soru}</h4>
+          <p>Cevap: ${it.cevap}</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn secondary small" onclick="openShareModal('soruCevap', '${it.id}', '${it.soru.replace(/'/g,"\\'").slice(0,40)}')">📤</button>
+          <button class="btn danger small" onclick="bgysDeleteSoruCevap('${it.id}')">Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.bgysDeleteSoruCevap = async (id) => { await bgysDelete('soruCevap', id); renderSoruCevapList(); };
+
   async function renderSoruList() {
     const items = await bgysGetAllByModul('sorular');
     const el = document.getElementById('soruList');
@@ -784,8 +851,9 @@ veya sadece: B D A C ..."></textarea>
           <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
         </div>
         <div class="item-actions">
-          <button class="btn secondary small" onclick="openTransferModal('sorular', ${it.id}, '${it.question.replace(/'/g,"\\'").slice(0,40)}')">↔ Aktar</button>
-          <button class="btn danger small" onclick="bgysDeleteSoru(${it.id})">Sil</button>
+          <button class="btn secondary small" onclick="openTransferModal('sorular', '${it.id}', '${it.question.replace(/'/g,"\\'").slice(0,40)}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openShareModal('sorular', '${it.id}', '${it.question.replace(/'/g,"\\'")}')">📤</button>
+          <button class="btn danger small" onclick="bgysDeleteSoru('${it.id}')">Sil</button>
         </div>
       </div>
     `).join('');
@@ -806,8 +874,8 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           <button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>
-          <button class="btn secondary small" onclick="openTransferModal('soruSetleri', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
-          <button class="btn danger small" onclick="bgysDeleteSoruSeti(${it.id})">Sil</button>
+          <button class="btn secondary small" onclick="openTransferModal('soruSetleri', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn danger small" onclick="bgysDeleteSoruSeti('${it.id}')">Sil</button>
         </div>
       </div>
     `).join('');
@@ -947,8 +1015,9 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           ${actionHtml}
-          <button class="btn secondary small" onclick="openTransferModal('denemeler', ${it.id}, '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
-          <button class="btn danger small" onclick="bgysDeleteDeneme(${it.id})">Sil</button>
+          <button class="btn secondary small" onclick="openTransferModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openShareModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
+          <button class="btn danger small" onclick="bgysDeleteDeneme('${it.id}')">Sil</button>
         </div>
       </div>`;
     }).join('');
@@ -967,25 +1036,50 @@ veya sadece: B D A C ..."></textarea>
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
   document.title = `İçerik Ekle — ${modulInfo.ad} — Basamak GYS`;
 
-  // ===== BULUT SENKRON =====
-  function syncStatusText() {
-    const cfg = bgysGetSyncConfig();
-    const last = localStorage.getItem('bgys-last-sync');
-    if (!cfg) return 'Henüz bağlı değil.';
-    const lastTxt = last ? new Date(parseInt(last)).toLocaleString('tr-TR') : 'henüz gönderilmedi';
-    return `Bağlı · Bin ID: ${cfg.binId} · Son senkron: ${lastTxt}`;
-  }
-  function refreshSyncPanel() {
-    const cfg = bgysGetSyncConfig();
-    if (cfg) {
-      document.getElementById('syncApiKey').value = cfg.apiKey;
-      document.getElementById('syncBinId').value = cfg.binId;
-    }
-    document.getElementById('syncStatus').textContent = syncStatusText();
+  // ===== HESAP & PAYLAŞIM =====
+  async function refreshAccountPanel() {
+    const user = bgysCurrentUser();
+    document.getElementById('accountInfoBox').innerHTML = user
+      ? `<b>Giriş yapan:</b> ${user.email}<br>Bu hesapla girdiğin her cihazda aynı verileri görürsün.`
+      : 'Giriş bilgisi bulunamadı.';
+    await refreshIncomingShares();
   }
 
+  async function refreshIncomingShares() {
+    const el = document.getElementById('incomingSharesList');
+    try {
+      const shares = await bgysGetIncomingShares();
+      if (shares.length === 0) { el.textContent = 'Sana paylaşılan bir şey yok.'; return; }
+      el.innerHTML = shares.map(s => `
+        <div class="item-card" style="margin-bottom:8px;">
+          <div class="item-icon">📥</div>
+          <div class="item-info">
+            <div class="tag">${s.fromEmail}</div>
+            <h4>${s.record.baslik || s.record.question || 'İçerik'}</h4>
+          </div>
+          <div class="item-actions">
+            <button class="btn primary small" onclick="acceptIncomingShare('${s.id}')">Kabul Et</button>
+            <button class="btn danger small" onclick="declineIncomingShare('${s.id}')">Reddet</button>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      el.textContent = 'Yüklenemedi: ' + e.message;
+    }
+  }
+
+  window.acceptIncomingShare = async (shareId) => {
+    await bgysAcceptShare(shareId);
+    await refreshIncomingShares();
+    renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  };
+  window.declineIncomingShare = async (shareId) => {
+    await bgysDeclineShare(shareId);
+    await refreshIncomingShares();
+  };
+
   document.getElementById('cloudSyncBtn').addEventListener('click', () => {
-    refreshSyncPanel();
+    refreshAccountPanel();
     document.getElementById('syncOverlay').classList.add('open');
   });
   document.getElementById('syncCloseBtn').addEventListener('click', () => {
@@ -994,55 +1088,37 @@ veya sadece: B D A C ..."></textarea>
   document.getElementById('syncOverlay').addEventListener('click', (e) => {
     if (e.target.id === 'syncOverlay') document.getElementById('syncOverlay').classList.remove('open');
   });
-
-  document.getElementById('syncCreateBinBtn').addEventListener('click', async () => {
-    const apiKey = document.getElementById('syncApiKey').value.trim();
-    if (!apiKey) { showMsg('syncResult', 'err', 'Önce API Key gir.'); return; }
-    showMsg('syncResult', 'warn', 'Bin oluşturuluyor...');
-    try {
-      const binId = await bgysCreateBin(apiKey);
-      bgysSetSyncConfig(apiKey, binId);
-      document.getElementById('syncBinId').value = binId;
-      showMsg('syncResult', 'ok', `Bin oluşturuldu: ${binId}. Bu bilgiyi diğer cihazlarına da gir.`);
-      refreshSyncPanel();
-    } catch (e) {
-      showMsg('syncResult', 'err', 'Hata: ' + e.message);
-    }
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await bgysLogOut();
+    location.href = 'auth.html';
   });
 
-  document.getElementById('syncSaveLoadBtn').addEventListener('click', async () => {
-    const apiKey = document.getElementById('syncApiKey').value.trim();
-    const binId = document.getElementById('syncBinId').value.trim();
-    if (!apiKey || !binId) { showMsg('syncResult', 'err', 'API Key ve Bin ID gerekli.'); return; }
-    bgysSetSyncConfig(apiKey, binId);
-    showMsg('syncResult', 'warn', 'Buluttan yükleniyor...');
-    try {
-      await bgysPullFromCloud();
-      showMsg('syncResult', 'ok', 'Buluttan veriler yüklendi.');
-      refreshSyncPanel();
-      renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
-    } catch (e) {
-      showMsg('syncResult', 'err', 'Hata: ' + e.message);
-    }
+  // ===== PAYLAŞIM MODALI =====
+  let shareState = null;
+  window.openShareModal = function(store, id, name) {
+    shareState = { store, id };
+    document.getElementById('shareItemName').textContent = `"${name}" öğesini paylaş:`;
+    document.getElementById('shareEmailInput').value = '';
+    document.getElementById('shareResult').textContent = '';
+    document.getElementById('shareOverlay').classList.add('open');
+  };
+  document.getElementById('shareCloseBtn').addEventListener('click', () => {
+    document.getElementById('shareOverlay').classList.remove('open');
   });
-
-  document.getElementById('syncPushNowBtn').addEventListener('click', async () => {
-    showMsg('syncResult', 'warn', 'Buluta gönderiliyor...');
-    try {
-      await bgysPushToCloud();
-      showMsg('syncResult', 'ok', 'Buluta gönderildi.');
-      refreshSyncPanel();
-    } catch (e) {
-      showMsg('syncResult', 'err', 'Hata: ' + e.message);
-    }
+  document.getElementById('shareOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'shareOverlay') document.getElementById('shareOverlay').classList.remove('open');
   });
-
-  document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
-    bgysClearSyncConfig();
-    document.getElementById('syncApiKey').value = '';
-    document.getElementById('syncBinId').value = '';
-    showMsg('syncResult', 'ok', 'Bulut bağlantısı kaldırıldı (yerel verilerin duruyor).');
-    refreshSyncPanel();
+  document.getElementById('shareConfirmBtn').addEventListener('click', async () => {
+    const email = document.getElementById('shareEmailInput').value.trim();
+    if (!email || !shareState) { showMsg('shareResult', 'err', 'E-posta gerekli.'); return; }
+    showMsg('shareResult', 'warn', 'Paylaşılıyor...');
+    try {
+      await bgysShareItem(shareState.store, shareState.id, email);
+      showMsg('shareResult', 'ok', `${email} adresine paylaşıldı.`);
+      setTimeout(() => document.getElementById('shareOverlay').classList.remove('open'), 1200);
+    } catch (e) {
+      showMsg('shareResult', 'err', 'Hata: ' + e.message);
+    }
   });
 
   // ===== YEDEK (JSON) =====
@@ -1065,12 +1141,6 @@ veya sadece: B D A C ..."></textarea>
     }
     document.getElementById('backupFileInput').value = '';
   });
-
-  // Sayfa açılışında ayar varsa buluttan otomatik çek
-  (async () => {
-    const pulled = await bgysAutoPullIfConfigured();
-    if (pulled) { renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi(); }
-  })();
 
   // ===== DOSYA GÖRÜNTÜLEYİCİ (window.open yerine — büyük data URL'lerde sekme açmama sorununu çözer) =====
   window.viewFile = function(dataUrl) {
@@ -1143,6 +1213,7 @@ veya sadece: B D A C ..."></textarea>
 
   renderKonuList();
   renderSoruList();
+  renderSoruCevapList();
   renderSoruSetiList();
   renderDenemeList();
   refreshBolumListesi();
