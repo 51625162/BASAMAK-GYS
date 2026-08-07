@@ -155,6 +155,8 @@
     }
   }
 
+  const DENEME_ZORLUK_LABEL2 = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
+
   async function showList() {
     const denemeler = await bgysGetAllByModul('denemeler');
     const area = document.getElementById('denemeListArea');
@@ -167,9 +169,10 @@
       if (d.tip === 'metin') action = `<a class="go" href="${bgysWithModul('deneme-sinavi.html?id=' + d.id)}">Çöz</a>`;
       else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
       else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
+      const zorlukEtiket = d.zorluk ? ` · ${DENEME_ZORLUK_LABEL2[d.zorluk]}` : '';
       return `<div class="list-card">
         <div class="icon">${d.tip === 'metin' ? '📝' : d.tip === 'pdf' ? '📄' : '🖼️'}</div>
-        <div class="info"><h3>${d.baslik}</h3><p>${d.tip === 'metin' ? d.soruSayisi + ' soru' : d.tip.toUpperCase()}</p></div>
+        <div class="info"><h3>${d.baslik}</h3><p>${d.tip === 'metin' ? d.soruSayisi + ' soru' : d.tip.toUpperCase()}${zorlukEtiket}</p></div>
         ${action}
       </div>`;
     }).join('');

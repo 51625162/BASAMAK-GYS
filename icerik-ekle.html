@@ -358,6 +358,14 @@ veya sadece: B D A C ..."></textarea>
 
       <div class="mode-panel active" id="deneme-mode-metin">
         <div class="field">
+          <label>Denemenin Zorluğu</label>
+          <div class="radio-row" id="denemeMetinZorlukRow" style="margin-bottom:0;">
+            <button class="radio-chip" data-zorluk="1">🟢 Kolay</button>
+            <button class="radio-chip active" data-zorluk="2">🟡 Orta</button>
+            <button class="radio-chip" data-zorluk="3">🔴 Zor</button>
+          </div>
+        </div>
+        <div class="field">
           <label>Soruları Yapıştır</label>
           <textarea id="denemeMetin" rows="12" placeholder="Aynı format: soru + A) B) C) D) + Cevap: X + Açıklama: (opsiyonel). Sorular arasında boş satır bırak."></textarea>
         </div>
@@ -365,6 +373,14 @@ veya sadece: B D A C ..."></textarea>
         <div class="result-msg" id="denemeMetinResult"></div>
       </div>
       <div class="mode-panel" id="deneme-mode-pdf">
+        <div class="field">
+          <label>Denemenin Zorluğu</label>
+          <div class="radio-row" id="denemePdfZorlukRow" style="margin-bottom:0;">
+            <button class="radio-chip" data-zorluk="1">🟢 Kolay</button>
+            <button class="radio-chip active" data-zorluk="2">🟡 Orta</button>
+            <button class="radio-chip" data-zorluk="3">🔴 Zor</button>
+          </div>
+        </div>
         <div class="file-drop" onclick="document.getElementById('denemePdfInput').click()">
           📄 PDF seçmek için tıkla
           <input type="file" id="denemePdfInput" accept="application/pdf">
@@ -383,6 +399,14 @@ veya sadece: B D A C ..."></textarea>
         <div class="result-msg" id="denemePdfResult"></div>
       </div>
       <div class="mode-panel" id="deneme-mode-gorsel">
+        <div class="field">
+          <label>Denemenin Zorluğu</label>
+          <div class="radio-row" id="denemeGorselZorlukRow" style="margin-bottom:0;">
+            <button class="radio-chip" data-zorluk="1">🟢 Kolay</button>
+            <button class="radio-chip active" data-zorluk="2">🟡 Orta</button>
+            <button class="radio-chip" data-zorluk="3">🔴 Zor</button>
+          </div>
+        </div>
         <div class="file-drop" onclick="document.getElementById('denemeGorselInput').click()">
           🖼️ Görsel(ler) seçmek için tıkla
           <input type="file" id="denemeGorselInput" accept="image/*" multiple>
@@ -759,15 +783,42 @@ veya sadece: B D A C ..."></textarea>
   window.bgysDeleteSoruSeti = async (id) => { await bgysDelete('soruSetleri', id); renderSoruSetiList(); };
 
   // ===== DENEMELER =====
+  const DENEME_ZORLUK_LABEL = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
+
+  let denemeMetinZorluk = 2;
+  document.querySelectorAll('#denemeMetinZorlukRow .radio-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#denemeMetinZorlukRow .radio-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      denemeMetinZorluk = parseInt(chip.dataset.zorluk);
+    });
+  });
+  let denemePdfZorluk = 2;
+  document.querySelectorAll('#denemePdfZorlukRow .radio-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#denemePdfZorlukRow .radio-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      denemePdfZorluk = parseInt(chip.dataset.zorluk);
+    });
+  });
+  let denemeGorselZorluk = 2;
+  document.querySelectorAll('#denemeGorselZorlukRow .radio-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#denemeGorselZorlukRow .radio-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      denemeGorselZorluk = parseInt(chip.dataset.zorluk);
+    });
+  });
+
   document.getElementById('denemeMetinEkleBtn').addEventListener('click', async () => {
     const baslik = document.getElementById('denemeBaslik').value.trim();
     const text = document.getElementById('denemeMetin').value;
     if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
     if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Metin boş görünüyor, soru eklenemedi.'); return; }
-    const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: results.length });
+    const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: results.length, zorluk: denemeMetinZorluk });
     for (const r of results) {
-      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId });
+      await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId, difficulty: denemeMetinZorluk });
     }
     let msg = `Deneme eklendi: ${results.length} soru.`;
     if (errors.length > 0) {
@@ -805,16 +856,16 @@ veya sadece: B D A C ..."></textarea>
     }
 
     if (interactiveResults.length > 0) {
-      const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: interactiveResults.length, kaynakPdf: dataUrl, kaynakPdfAd: denemePdfFile.name });
+      const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: interactiveResults.length, kaynakPdf: dataUrl, kaynakPdfAd: denemePdfFile.name, zorluk: denemePdfZorluk });
       for (const r of interactiveResults) {
-        await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId });
+        await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId, difficulty: denemePdfZorluk });
       }
       let msg = `Deneme eklendi: ${interactiveResults.length} soru interaktif ve süreli çözülebilir.`;
       if (eksikCevap > 0) msg += ` ${eksikCevap} sorunun cevabı bulunamadı, atlandı.`;
       showMsg('denemePdfResult', eksikCevap > 0 ? 'warn' : 'ok', msg);
     } else {
       // Otomatik okuma/cevap eşleştirme başarısız oldu -> sadece görüntülenebilir PDF olarak ekle
-      await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name });
+      await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'pdf', dataUrl, fileName: denemePdfFile.name, zorluk: denemePdfZorluk });
       const reason = extractErr ? `otomatik okunamadı (${extractErr})` : 'soru/cevap eşleşmedi';
       showMsg('denemePdfResult', 'warn', `Deneme eklendi ama ${reason}; PDF sadece görüntülenebilir olarak kaydedildi. Cevap anahtarı ekleyip tekrar dene.`);
     }
@@ -835,7 +886,7 @@ veya sadece: B D A C ..."></textarea>
     if (!baslik || denemeGorselFiles.length === 0) { showMsg('denemeGorselResult', 'err', 'Başlık ve en az bir görsel gerekli.'); return; }
     const dataUrls = [];
     for (const f of denemeGorselFiles) dataUrls.push(await bgysFileToDataUrl(f));
-    await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'gorsel', dataUrls });
+    await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'gorsel', dataUrls, zorluk: denemeGorselZorluk });
     showMsg('denemeGorselResult', 'ok', 'Deneme eklendi.');
     document.getElementById('denemeBaslik').value='';
     denemeGorselFiles = []; document.getElementById('denemeGorselInput').value=''; document.getElementById('denemeGorselList').textContent='';
@@ -859,7 +910,7 @@ veya sadece: B D A C ..."></textarea>
       <div class="item-card">
         <div class="item-icon">${it.tip === 'metin' ? '📝' : it.tip === 'pdf' ? '📄' : '🖼️'}</div>
         <div class="item-info">
-          <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}</div>
+          <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}${it.zorluk ? ' · ' + DENEME_ZORLUK_LABEL[it.zorluk] : ''}</div>
           <h4>${it.baslik}</h4>
         </div>
         <div class="item-actions">
