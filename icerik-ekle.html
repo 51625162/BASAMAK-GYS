@@ -476,8 +476,69 @@ veya sadece: B D A C ..."></textarea>
 
       <div class="sync-divider"></div>
 
+      <h4>📤 Toplu Paylaşım</h4>
+      <p class="sync-lead">Tek tek değil, bir kerede paylaş.</p>
+      <div class="field">
+        <label>Paylaşılacak kişinin e-postası</label>
+        <input type="email" id="bulkShareEmail" placeholder="arkadas@mail.com">
+      </div>
+      <div class="field">
+        <label>Ne paylaşılsın?</label>
+        <select id="bulkShareScope" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+          <option value="all">Bu bölümdeki tüm içeriklerim (konu+soru+soru-cevap+deneme)</option>
+          <option value="konular">Sadece konu notlarım</option>
+          <option value="sorular">Sadece sorularım</option>
+          <option value="soruCevap">Sadece soru-cevap kartlarım</option>
+          <option value="denemeler">Sadece denemelerim</option>
+          <option value="bolum">Belirli bir ders/konuya ait olanlar</option>
+        </select>
+      </div>
+      <div class="field" id="bulkShareBolumField" style="display:none;">
+        <label>Ders / Konu adı</label>
+        <input type="text" id="bulkShareBolum" placeholder="Örn. Anayasa - Genel Esaslar">
+      </div>
+      <button class="btn primary" id="bulkShareBtn" style="width:100%;">Toplu Paylaş</button>
+      <div class="result-msg" id="bulkShareResult"></div>
+
+      <div class="sync-divider"></div>
+
       <h4>📨 Gelen Paylaşımlar</h4>
+      <p class="sync-lead">Kabul etsen de etmesen de bildirim burada kalır, istediğinde silebilirsin.</p>
       <div id="incomingSharesList" class="sync-lead">Yükleniyor...</div>
+
+      <div class="sync-divider"></div>
+
+      <h4>🗑️ İçerik Sil / Çöp Kutusu</h4>
+      <p class="sync-lead">Sildiklerin çöp kutusuna gider, istediğinde geri alabilirsin.</p>
+      <div class="field">
+        <label>Hangi içerik türü?</label>
+        <select id="trashStoreSelect" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+          <option value="konular">Konu Notları</option>
+          <option value="sorular">Sorular</option>
+          <option value="soruCevap">Soru-Cevap Kartları</option>
+          <option value="denemeler">Denemeler</option>
+        </select>
+      </div>
+      <div class="sync-btn-row">
+        <button class="btn danger" id="deleteAllBtn">Bu Türün Tümünü Sil</button>
+      </div>
+      <div class="field">
+        <label>Tarih aralığına göre sil</label>
+        <div style="display:flex;gap:8px;">
+          <input type="date" id="deleteFromDate" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--mist);">
+          <input type="date" id="deleteToDate" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--mist);">
+        </div>
+      </div>
+      <div class="sync-btn-row">
+        <button class="btn danger" id="deleteByDateBtn">Bu Aralıktakileri Sil</button>
+      </div>
+      <div class="result-msg" id="trashActionResult"></div>
+
+      <div class="sync-divider"></div>
+
+      <h4>Çöp Kutusu</h4>
+      <div id="trashList" class="sync-lead">Bir içerik türü seç.</div>
+      <button class="btn secondary" id="loadTrashBtn" style="width:100%;margin-top:10px;">Çöp Kutusunu Göster</button>
 
       <div class="sync-divider"></div>
 
@@ -514,6 +575,7 @@ veya sadece: B D A C ..."></textarea>
 <div class="transfer-overlay" id="transferOverlay">
   <div class="transfer-modal">
     <h3>↔ Başka Bölüme Aktar</h3>
+
     <p class="item-name" id="transferItemName"></p>
     <div id="transferCheckList"></div>
     <div class="transfer-actions">
@@ -1045,6 +1107,8 @@ veya sadece: B D A C ..."></textarea>
     await refreshIncomingShares();
   }
 
+  const SHARE_STATUS_LABEL = { pending: '⏳ Bekliyor', accepted: '✅ Kabul Edildi', declined: '🚫 Reddedildi' };
+
   async function refreshIncomingShares() {
     const el = document.getElementById('incomingSharesList');
     try {
@@ -1054,12 +1118,15 @@ veya sadece: B D A C ..."></textarea>
         <div class="item-card" style="margin-bottom:8px;">
           <div class="item-icon">📥</div>
           <div class="item-info">
-            <div class="tag">${s.fromEmail}</div>
-            <h4>${s.record.baslik || s.record.question || 'İçerik'}</h4>
+            <div class="tag">${s.fromEmail} · ${SHARE_STATUS_LABEL[s.status] || s.status}</div>
+            <h4>${s.baslikOzet || s.record.baslik || s.record.question || s.record.soru || 'İçerik'}</h4>
           </div>
           <div class="item-actions">
-            <button class="btn primary small" onclick="acceptIncomingShare('${s.id}')">Kabul Et</button>
-            <button class="btn danger small" onclick="declineIncomingShare('${s.id}')">Reddet</button>
+            ${s.status === 'pending' ? `
+              <button class="btn primary small" onclick="acceptIncomingShare('${s.id}')">Kabul Et</button>
+              <button class="btn danger small" onclick="declineIncomingShare('${s.id}')">Reddet</button>
+            ` : ''}
+            <button class="btn danger small" onclick="deleteIncomingShareNotif('${s.id}')">🗑️</button>
           </div>
         </div>
       `).join('');
@@ -1071,10 +1138,14 @@ veya sadece: B D A C ..."></textarea>
   window.acceptIncomingShare = async (shareId) => {
     await bgysAcceptShare(shareId);
     await refreshIncomingShares();
-    renderKonuList(); renderSoruList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
   };
   window.declineIncomingShare = async (shareId) => {
     await bgysDeclineShare(shareId);
+    await refreshIncomingShares();
+  };
+  window.deleteIncomingShareNotif = async (shareId) => {
+    await bgysDeleteShareNotification(shareId);
     await refreshIncomingShares();
   };
 
@@ -1092,6 +1163,89 @@ veya sadece: B D A C ..."></textarea>
     await bgysLogOut();
     location.href = 'auth.html';
   });
+
+  // ===== TOPLU PAYLAŞIM =====
+  document.getElementById('bulkShareScope').addEventListener('change', (e) => {
+    document.getElementById('bulkShareBolumField').style.display = e.target.value === 'bolum' ? 'block' : 'none';
+  });
+  document.getElementById('bulkShareBtn').addEventListener('click', async () => {
+    const email = document.getElementById('bulkShareEmail').value.trim();
+    const scope = document.getElementById('bulkShareScope').value;
+    if (!email) { showMsg('bulkShareResult', 'err', 'E-posta gerekli.'); return; }
+    showMsg('bulkShareResult', 'warn', 'Paylaşılıyor...');
+    try {
+      let sayi = 0;
+      if (scope === 'all') sayi = await bgysShareAllContent(email);
+      else if (scope === 'bolum') {
+        const bolum = document.getElementById('bulkShareBolum').value.trim();
+        if (!bolum) { showMsg('bulkShareResult', 'err', 'Ders/konu adı gerekli.'); return; }
+        for (const store of ['konular','sorular','soruCevap','denemeler']) {
+          sayi += await bgysShareByBolum(store, bolum, email);
+        }
+      } else {
+        sayi = await bgysShareAllInStore(scope, email);
+      }
+      showMsg('bulkShareResult', 'ok', `${sayi} içerik ${email} adresine paylaşıldı.`);
+    } catch (e) {
+      showMsg('bulkShareResult', 'err', 'Hata: ' + e.message);
+    }
+  });
+
+  // ===== TOPLU SİLME / ÇÖP KUTUSU =====
+  document.getElementById('deleteAllBtn').addEventListener('click', async () => {
+    const store = document.getElementById('trashStoreSelect').value;
+    if (!confirm('Bu türdeki TÜM içerikler çöp kutusuna taşınacak. Emin misin?')) return;
+    showMsg('trashActionResult', 'warn', 'Siliniyor...');
+    const sayi = await bgysDeleteAllInStore(store);
+    showMsg('trashActionResult', 'ok', `${sayi} kayıt çöp kutusuna taşındı.`);
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  });
+  document.getElementById('deleteByDateBtn').addEventListener('click', async () => {
+    const store = document.getElementById('trashStoreSelect').value;
+    const fromVal = document.getElementById('deleteFromDate').value;
+    const toVal = document.getElementById('deleteToDate').value;
+    if (!fromVal || !toVal) { showMsg('trashActionResult', 'err', 'İki tarihi de seç.'); return; }
+    const fromTs = new Date(fromVal + 'T00:00:00').getTime();
+    const toTs = new Date(toVal + 'T23:59:59').getTime();
+    showMsg('trashActionResult', 'warn', 'Siliniyor...');
+    const sayi = await bgysDeleteByDateRange(store, fromTs, toTs);
+    showMsg('trashActionResult', 'ok', `${sayi} kayıt çöp kutusuna taşındı.`);
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  });
+
+  document.getElementById('loadTrashBtn').addEventListener('click', async () => {
+    await renderTrashList();
+  });
+  async function renderTrashList() {
+    const store = document.getElementById('trashStoreSelect').value;
+    const el = document.getElementById('trashList');
+    el.textContent = 'Yükleniyor...';
+    const items = await bgysGetTrashByModul(store);
+    if (items.length === 0) { el.textContent = 'Çöp kutusu boş.'; return; }
+    el.innerHTML = items.map(it => `
+      <div class="item-card" style="margin-bottom:8px;">
+        <div class="item-icon">🗑️</div>
+        <div class="item-info">
+          <div class="tag">${it.bolum || ''}</div>
+          <h4>${it.baslik || it.question || it.soru || 'İçerik'}</h4>
+        </div>
+        <div class="item-actions">
+          <button class="btn primary small" onclick="restoreTrashItem('${store}','${it.id}')">Geri Yükle</button>
+          <button class="btn danger small" onclick="permanentDeleteTrashItem('${store}','${it.id}')">Kalıcı Sil</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.restoreTrashItem = async (store, id) => {
+    await bgysRestoreFromTrash(store, id);
+    await renderTrashList();
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  };
+  window.permanentDeleteTrashItem = async (store, id) => {
+    if (!confirm('Bu kayıt kalıcı olarak silinecek, geri alınamaz. Emin misin?')) return;
+    await bgysPermanentDelete(store, id);
+    await renderTrashList();
+  };
 
   // ===== PAYLAŞIM MODALI =====
   let shareState = null;

@@ -158,7 +158,7 @@ async function bgysGetAll(storeName) {
   const user = bgysCurrentUser();
   if (!user) return [];
   const snap = await bgysUserCollection(storeName).get();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
 }
 
 async function bgysGetAllByModul(storeName) {
@@ -167,9 +167,67 @@ async function bgysGetAllByModul(storeName) {
   return all.filter(r => (r.modul || "saymanlik") === modul);
 }
 
+// Yumuşak silme: kayıt gerçekten silinmez, "deleted" işaretlenir — Silinenler'den geri alınabilir.
 async function bgysDelete(storeName, id) {
   await bgysInitFirebase();
+  await bgysUserCollection(storeName).doc(String(id)).update({ deleted: true, deletedAt: Date.now() });
+}
+
+// Silinenler (çöp kutusu) listesini getirir — mevcut bölüme göre filtrelenir.
+async function bgysGetTrashByModul(storeName) {
+  await bgysInitFirebase();
+  const user = bgysCurrentUser();
+  if (!user) return [];
+  const snap = await bgysUserCollection(storeName).get();
+  const modul = bgysCurrentModul();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => r.deleted && (r.modul || "saymanlik") === modul);
+}
+
+// Silinenler'den geri yükler.
+async function bgysRestoreFromTrash(storeName, id) {
+  await bgysInitFirebase();
+  await bgysUserCollection(storeName).doc(String(id)).update({ deleted: false, deletedAt: null });
+}
+
+// Kalıcı olarak siler (geri alınamaz).
+async function bgysPermanentDelete(storeName, id) {
+  await bgysInitFirebase();
   await bgysUserCollection(storeName).doc(String(id)).delete();
+}
+
+// Bir bölümdeki (mevcut modül) tüm kayıtları toplu olarak (yumuşak) siler.
+async function bgysDeleteAllInStore(storeName) {
+  const items = await bgysGetAllByModul(storeName);
+  await bgysInitFirebase();
+  const batch = firebase.firestore().batch();
+  const col = bgysUserCollection(storeName);
+  items.forEach(it => batch.update(col.doc(String(it.id)), { deleted: true, deletedAt: Date.now() }));
+  await batch.commit();
+  return items.length;
+}
+
+// Belirli bir tarih aralığındaki kayıtları toplu (yumuşak) siler. from/to: timestamp (ms).
+async function bgysDeleteByDateRange(storeName, fromTs, toTs) {
+  const items = await bgysGetAllByModul(storeName);
+  const hedef = items.filter(it => it.createdAt >= fromTs && it.createdAt <= toTs);
+  await bgysInitFirebase();
+  const batch = firebase.firestore().batch();
+  const col = bgysUserCollection(storeName);
+  hedef.forEach(it => batch.update(col.doc(String(it.id)), { deleted: true, deletedAt: Date.now() }));
+  await batch.commit();
+  return hedef.length;
+}
+
+// Çöp kutusunu (mevcut bölüm için) tamamen boşaltır — geri alınamaz.
+async function bgysEmptyTrash(storeName) {
+  const items = await bgysGetTrashByModul(storeName);
+  await bgysInitFirebase();
+  const batch = firebase.firestore().batch();
+  const col = bgysUserCollection(storeName);
+  items.forEach(it => batch.delete(col.doc(String(it.id))));
+  await batch.commit();
+  return items.length;
 }
 
 async function bgysPutAll(storeName, records) {
@@ -248,6 +306,7 @@ async function bgysShareItem(storeName, id, toEmail) {
   await firebase.firestore().collection("shares").add({
     storeName,
     record: clone,
+    baslikOzet: clone.baslik || clone.question || clone.soru || "İçerik",
     fromEmail: user.email,
     toEmail: toEmail.trim().toLowerCase(),
     sharedAt: Date.now(),
@@ -255,15 +314,39 @@ async function bgysShareItem(storeName, id, toEmail) {
   });
 }
 
+// Bir bölümdeki (mevcut modül) belirli bir store'daki TÜM kayıtları paylaşır.
+async function bgysShareAllInStore(storeName, toEmail) {
+  const items = await bgysGetAllByModul(storeName);
+  for (const it of items) await bgysShareItem(storeName, it.id, toEmail);
+  return items.length;
+}
+
+// "bolum" (ders/konu) alanına göre filtrelenmiş kayıtları paylaşır.
+async function bgysShareByBolum(storeName, bolum, toEmail) {
+  const items = await bgysGetAllByModul(storeName);
+  const hedef = items.filter(it => it.bolum === bolum);
+  for (const it of hedef) await bgysShareItem(storeName, it.id, toEmail);
+  return hedef.length;
+}
+
+// Mevcut bölümdeki (modül) TÜM içerik türlerini (konu/soru/soru-cevap/deneme) paylaşır.
+async function bgysShareAllContent(toEmail) {
+  let toplam = 0;
+  for (const store of BGYS_SYNC_STORES) {
+    toplam += await bgysShareAllInStore(store, toEmail);
+  }
+  return toplam;
+}
+
+// Gelen TÜM paylaşımları getirir (bekleyen/kabul edilen/reddedilen dahil) — kalıcı bildirim geçmişi.
 async function bgysGetIncomingShares() {
   await bgysInitFirebase();
   const user = bgysCurrentUser();
   if (!user) return [];
   const snap = await firebase.firestore().collection("shares")
     .where("toEmail", "==", user.email.toLowerCase())
-    .where("status", "==", "pending")
     .get();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.sharedAt || 0) - (a.sharedAt || 0));
 }
 
 async function bgysAcceptShare(shareId) {
@@ -280,6 +363,12 @@ async function bgysAcceptShare(shareId) {
 async function bgysDeclineShare(shareId) {
   await bgysInitFirebase();
   await firebase.firestore().collection("shares").doc(shareId).update({ status: "declined" });
+}
+
+// Bildirimi (kabul/red durumundan bağımsız) kalıcı olarak siler.
+async function bgysDeleteShareNotification(shareId) {
+  await bgysInitFirebase();
+  await firebase.firestore().collection("shares").doc(shareId).delete();
 }
 
 /* ================= Bölüm (modül) sistemi ================= */
