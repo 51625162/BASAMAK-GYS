@@ -651,6 +651,8 @@ veya sadece: B D A C ..."></textarea>
     document.getElementById('konuAudioList').textContent = konuAudioFile ? konuAudioFile.name : '';
   });
 
+  const KONU_TIP_SAYFA = { image: 'infografikler.html', pdf: 'konu-pdf.html', metin: 'bilgi-kartlari.html', audio: 'podcastler.html' };
+
   document.getElementById('konuKaydetBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('konuBolum').value.trim();
     const baslik = document.getElementById('konuBaslik').value.trim();
@@ -663,30 +665,31 @@ veya sadece: B D A C ..."></textarea>
           const dataUrl = await bgysFileToDataUrl(file);
           await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
         }
-        showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi.`);
+        showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'e yönlendiriliyorsun...`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
       } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
         const dataUrl = await bgysFileToDataUrl(konuPdfFile);
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
-        showMsg('konuResult', 'ok', 'PDF eklendi.');
+        showMsg('konuResult', 'ok', 'PDF eklendi. PDF Konu Notları\'na yönlendiriliyorsun...');
         konuPdfFile = null; document.getElementById('konuPdfInput').value = ''; document.getElementById('konuPdfList').textContent = '';
       } else if (mode === 'metin') {
         const metin = document.getElementById('konuMetinIcerik').value.trim();
         if (!metin) { showMsg('konuResult', 'err', 'Kart metni boş olamaz.'); return; }
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'metin', metin });
-        showMsg('konuResult', 'ok', 'Bilgi kartı eklendi.');
+        showMsg('konuResult', 'ok', 'Bilgi kartı eklendi. Bilgi Kartları\'na yönlendiriliyorsun...');
         document.getElementById('konuMetinIcerik').value = '';
       } else if (mode === 'audio') {
         if (!konuAudioFile) { showMsg('konuResult', 'err', 'Bir ses dosyası seç.'); return; }
         const dataUrl = await bgysFileToDataUrl(konuAudioFile);
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'audio', dataUrl, fileName: konuAudioFile.name });
-        showMsg('konuResult', 'ok', 'Ses kaydı eklendi.');
+        showMsg('konuResult', 'ok', 'Ses kaydı eklendi. Podcastler\'e yönlendiriliyorsun...');
         konuAudioFile = null; document.getElementById('konuAudioInput').value = ''; document.getElementById('konuAudioList').textContent = '';
       }
       document.getElementById('konuBaslik').value = '';
       renderKonuList();
       refreshBolumListesi();
+      setTimeout(() => { location.href = bgysWithModul(KONU_TIP_SAYFA[mode]); }, 900);
     } catch(err) {
       showMsg('konuResult', 'err', 'Kayıt hatası: ' + err.message + ' (Dosya çok büyük olabilir.)');
     }
@@ -990,6 +993,7 @@ veya sadece: B D A C ..."></textarea>
     showMsg('denemeMetinResult', 'ok', msg);
     document.getElementById('denemeBaslik').value=''; document.getElementById('denemeMetin').value='';
     renderDenemeList();
+    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 900);
   });
 
   let denemePdfFile = null;
@@ -1036,6 +1040,7 @@ veya sadece: B D A C ..."></textarea>
     document.getElementById('denemePdfCevapAnahtari').value='';
     denemePdfFile = null; document.getElementById('denemePdfInput').value=''; document.getElementById('denemePdfList').textContent='';
     renderDenemeList();
+    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 1100);
   });
 
   let denemeGorselFiles = [];
@@ -1049,10 +1054,11 @@ veya sadece: B D A C ..."></textarea>
     const dataUrls = [];
     for (const f of denemeGorselFiles) dataUrls.push(await bgysFileToDataUrl(f));
     await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'gorsel', dataUrls, zorluk: denemeGorselZorluk });
-    showMsg('denemeGorselResult', 'ok', 'Deneme eklendi.');
+    showMsg('denemeGorselResult', 'ok', 'Deneme eklendi. Deneme Sınavlarım\'a yönlendiriliyorsun...');
     document.getElementById('denemeBaslik').value='';
     denemeGorselFiles = []; document.getElementById('denemeGorselInput').value=''; document.getElementById('denemeGorselList').textContent='';
     renderDenemeList();
+    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 900);
   });
 
   async function renderDenemeList() {
