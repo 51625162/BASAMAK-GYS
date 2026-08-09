@@ -188,7 +188,7 @@
       </div>
 
       <button class="start-btn" id="startBtn">Başla</button>
-      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut · <a href="icerik-ekle.html" id="ekleLink" style="color:var(--teal-dark);font-weight:700;">+ Kendi sorunu ekle</a></div>
+      <div class="setup-note">Şu an <span id="bankInfo">0</span> soru mevcut.</div>
       <div class="setup-note" id="soruSetiNote" style="display:none;"></div>
     </div>
   </div>
@@ -262,7 +262,6 @@
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
-  document.getElementById('ekleLink').setAttribute('href', bgysWithModul('icerik-ekle.html'));
   document.getElementById('donLink').textContent = modulInfo.ad + "'a Dön";
   document.getElementById('donLink').setAttribute('href', modulInfo.sayfa);
   document.title = `Soru Çöz — ${modulInfo.ad} — Basamak GYS`;

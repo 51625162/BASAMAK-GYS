@@ -665,7 +665,7 @@ veya sadece: B D A C ..."></textarea>
           const dataUrl = await bgysFileToDataUrl(file);
           await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
         }
-        showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'e yönlendiriliyorsun...`);
+        showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
       } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
@@ -689,7 +689,6 @@ veya sadece: B D A C ..."></textarea>
       document.getElementById('konuBaslik').value = '';
       renderKonuList();
       refreshBolumListesi();
-      setTimeout(() => { location.href = bgysWithModul(KONU_TIP_SAYFA[mode]); }, 900);
     } catch(err) {
       showMsg('konuResult', 'err', 'Kayıt hatası: ' + err.message + ' (Dosya çok büyük olabilir.)');
     }
@@ -993,7 +992,6 @@ veya sadece: B D A C ..."></textarea>
     showMsg('denemeMetinResult', 'ok', msg);
     document.getElementById('denemeBaslik').value=''; document.getElementById('denemeMetin').value='';
     renderDenemeList();
-    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 900);
   });
 
   let denemePdfFile = null;
@@ -1040,7 +1038,6 @@ veya sadece: B D A C ..."></textarea>
     document.getElementById('denemePdfCevapAnahtari').value='';
     denemePdfFile = null; document.getElementById('denemePdfInput').value=''; document.getElementById('denemePdfList').textContent='';
     renderDenemeList();
-    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 1100);
   });
 
   let denemeGorselFiles = [];
@@ -1058,7 +1055,6 @@ veya sadece: B D A C ..."></textarea>
     document.getElementById('denemeBaslik').value='';
     denemeGorselFiles = []; document.getElementById('denemeGorselInput').value=''; document.getElementById('denemeGorselList').textContent='';
     renderDenemeList();
-    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html'); }, 900);
   });
 
   async function renderDenemeList() {

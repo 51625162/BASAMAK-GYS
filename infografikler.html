@@ -118,7 +118,6 @@
     <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
     <span class="cur">İnfografikler</span>
   </div>
-  <a class="add-btn" href="icerik-ekle.html" id="addBtn">+ İçerik Ekle</a>
 </div>
 
 <section class="page-hero">
@@ -135,7 +134,7 @@
     <div class="big-icon">📥</div>
     <h3>Henüz görsel konu notu eklemedin</h3>
     <p>İnfografik görselleri buradan eklersin; PDF'ler ayrı bir sayfada (PDF Konu Notları) tutulur.</p>
-    <a class="cta" href="icerik-ekle.html" id="ctaBtn">+ İçerik Ekle</a>
+    <p style="color:var(--slate);font-size:0.85rem;margin-top:8px;">İçerik eklemek için bölüm sayfasındaki <b>"İçerik Ekle"</b> bölümünü kullan.</p>
   </div>
 </div>
 
@@ -234,8 +233,6 @@
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
-  document.getElementById('addBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
-  document.getElementById('ctaBtn').setAttribute('href', bgysWithModul('icerik-ekle.html'));
   document.getElementById('pdfLink').setAttribute('href', bgysWithModul('konu-pdf.html'));
   document.getElementById('pageH1').textContent = `${modulInfo.ad} İnfografikler`;
   document.title = `İnfografikler — ${modulInfo.ad} — Basamak GYS`;

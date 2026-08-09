@@ -79,6 +79,18 @@
   .result-btn.secondary{background:var(--cloud);color:var(--ink);}
 
   .hidden{display:none !important;}
+  .setup-group{margin-bottom:20px;}
+  .setup-group h4{font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--slate);margin:0 0 10px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;color:var(--ink);background:var(--white);}
+  .chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+  .start-btn{width:100%;margin-top:8px;padding:14px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;font-weight:700;font-size:0.95rem;text-align:center;border:none;cursor:pointer;}
+  .topic-check-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--mist);border-radius:12px;cursor:pointer;}
+  .topic-check-row input{width:18px;height:18px;}
+  .result-msg{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:0.85rem;}
+  .result-msg.ok{display:block;background:rgba(34,197,94,0.1);color:#16803C;}
+  .result-msg.err{display:block;background:rgba(239,68,68,0.1);color:#C0392B;}
+  .result-msg.warn{display:block;background:rgba(245,166,35,0.12);color:#B0740F;}
 </style>
 </head>
 <body>
@@ -95,9 +107,47 @@
 
   <div id="listScreen">
     <h1 style="font-size:1.4rem;">Deneme Sınavları</h1>
-    <p style="color:var(--slate);margin-bottom:20px;">Eklediğin denemeler burada listelenir. Yeni deneme eklemek için <a href="icerik-ekle.html" id="ekleLink1" style="color:var(--teal-dark);font-weight:700;">İçerik Ekle</a> sayfasını kullan.</p>
+    <p style="color:var(--slate);margin-bottom:20px;">Eklediğin denemeler burada listelenir.</p>
+
+    <div class="q-card" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" id="autoCreateToggle">
+        <div>
+          <h3 style="margin:0 0 4px;font-size:1.05rem;">✨ Otomatik Deneme Oluştur</h3>
+          <p style="margin:0;color:var(--slate);font-size:0.85rem;">Kendi soru bankandan karışık, süreli bir deneme oluştur.</p>
+        </div>
+        <span id="autoCreateArrow" style="font-size:1.2rem;color:var(--slate);">▾</span>
+      </div>
+
+      <div id="autoCreatePanel" style="display:none;margin-top:20px;">
+        <div class="setup-group">
+          <h4>Soru Sayısı</h4>
+          <div class="chip-row" id="autoCountChips">
+            <button class="chip active" data-val="25">25 Soru</button>
+            <button class="chip" data-val="50">50 Soru</button>
+            <button class="chip" data-val="100">100 Soru</button>
+          </div>
+        </div>
+        <div class="setup-group">
+          <h4>Zorluk</h4>
+          <div class="chip-row" id="autoDiffChips">
+            <button class="chip active" data-val="all">Karışık (Kolay+Orta+Zor)</button>
+            <button class="chip" data-val="1">🟢 Sadece Kolay</button>
+            <button class="chip" data-val="2">🟡 Sadece Orta</button>
+            <button class="chip" data-val="3">🔴 Sadece Zor</button>
+          </div>
+        </div>
+        <div class="setup-group">
+          <h4>Konular</h4>
+          <div id="autoTopicChecks" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+        <button class="start-btn" id="autoCreateBtn">Deneme Oluştur ve Başla</button>
+        <div class="result-msg" id="autoCreateResult"></div>
+      </div>
+    </div>
+
     <div id="denemeListArea"></div>
   </div>
+
 
   <div id="quizScreen" class="hidden">
     <div class="timer-row" id="timerRow">
@@ -144,16 +194,121 @@
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
   document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
-  document.getElementById('ekleLink1').setAttribute('href', bgysWithModul('icerik-ekle.html'));
   document.getElementById('donLink').setAttribute('href', bgysWithModul('deneme-sinavi.html'));
   document.title = `Deneme Sınavı — ${modulInfo.ad} — Basamak GYS`;
 
   async function init() {
     if (denemeId === null) {
       await showList();
+      await setupAutoCreatePanel();
+      if (params.get('olustur') === '1') {
+        document.getElementById('autoCreatePanel').style.display = 'block';
+        document.getElementById('autoCreateArrow').textContent = '▴';
+        document.getElementById('autoCreatePanel').scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
       await loadDeneme(denemeId);
     }
+  }
+
+  document.getElementById('autoCreateToggle').addEventListener('click', () => {
+    const panel = document.getElementById('autoCreatePanel');
+    const acik = panel.style.display !== 'none';
+    panel.style.display = acik ? 'none' : 'block';
+    document.getElementById('autoCreateArrow').textContent = acik ? '▾' : '▴';
+  });
+
+  let autoCount = 25, autoDiff = 'all';
+  document.querySelectorAll('#autoCountChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#autoCountChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      autoCount = parseInt(c.dataset.val);
+    });
+  });
+  document.querySelectorAll('#autoDiffChips .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#autoDiffChips .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      autoDiff = c.dataset.val;
+    });
+  });
+
+  async function setupAutoCreatePanel() {
+    const sorular = await bgysGetAllByModul('sorular');
+    const genelPool = sorular.filter(s => s.denemeId === undefined || s.denemeId === null);
+    const konular = Array.from(new Set(genelPool.map(s => s.bolum).filter(Boolean))).sort();
+    const el = document.getElementById('autoTopicChecks');
+    if (konular.length === 0) {
+      el.innerHTML = '<p style="color:var(--slate);font-size:0.85rem;">Henüz sorun yok — önce İçerik Ekle\'den soru ekle.</p>';
+      return;
+    }
+    el.innerHTML = `
+      <div class="topic-check-row" onclick="document.getElementById('topic-all').click()">
+        <input type="checkbox" id="topic-all" checked onclick="event.stopPropagation();toggleAllTopics(this.checked)">
+        <label style="font-weight:700;">Tümü (${konular.length} konu)</label>
+      </div>
+    ` + konular.map(k => `
+      <div class="topic-check-row" onclick="document.getElementById('topic-${btoa(unescape(encodeURIComponent(k)))}').click()">
+        <input type="checkbox" class="topic-item" id="topic-${btoa(unescape(encodeURIComponent(k)))}" value="${k.replace(/"/g,'&quot;')}" checked onclick="event.stopPropagation()">
+        <label>${k}</label>
+      </div>
+    `).join('');
+  }
+
+  window.toggleAllTopics = (checked) => {
+    document.querySelectorAll('.topic-item').forEach(cb => cb.checked = checked);
+  };
+
+  function shuffleArr(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  document.getElementById('autoCreateBtn').addEventListener('click', async () => {
+    const secilenKonular = Array.from(document.querySelectorAll('.topic-item:checked')).map(cb => cb.value);
+    if (secilenKonular.length === 0) { showAutoMsg('err', 'En az bir konu seç.'); return; }
+    showAutoMsg('warn', 'Deneme oluşturuluyor...');
+
+    const sorular = await bgysGetAllByModul('sorular');
+    let pool = sorular.filter(s => (s.denemeId === undefined || s.denemeId === null) && secilenKonular.includes(s.bolum));
+    if (autoDiff !== 'all') pool = pool.filter(s => s.difficulty === parseInt(autoDiff));
+    pool = shuffleArr(pool);
+    const secilenSorular = pool.slice(0, Math.min(autoCount, pool.length));
+
+    if (secilenSorular.length === 0) { showAutoMsg('err', 'Bu kriterlere uyan soru bulunamadı.'); return; }
+
+    const tarih = new Date().toLocaleDateString('tr-TR');
+    const zorlukAdi = autoDiff === 'all' ? 'Karışık' : { '1':'Kolay','2':'Orta','3':'Zor' }[autoDiff];
+    const yeniDenemeId = await bgysAdd('denemeler', {
+      modul: bgysCurrentModul(), baslik: `Otomatik Deneme (${zorlukAdi}) — ${tarih}`,
+      tip: 'metin', soruSayisi: secilenSorular.length, zorluk: autoDiff === 'all' ? null : parseInt(autoDiff), otomatik: true
+    });
+    for (const s of secilenSorular) {
+      const klon = { ...s };
+      delete klon.id;
+      klon.denemeId = yeniDenemeId;
+      klon.createdAt = Date.now();
+      await bgysAdd('sorular', klon);
+    }
+
+    if (secilenSorular.length < autoCount) {
+      showAutoMsg('warn', `Sadece ${secilenSorular.length} soru bulundu (istenen ${autoCount}), yine de oluşturuldu. Başlatılıyor...`);
+    } else {
+      showAutoMsg('ok', `${secilenSorular.length} sorulu deneme oluşturuldu, başlatılıyor...`);
+    }
+    setTimeout(() => { location.href = bgysWithModul('deneme-sinavi.html?id=' + yeniDenemeId); }, 900);
+  });
+
+  function showAutoMsg(cls, text) {
+    const el = document.getElementById('autoCreateResult');
+    el.className = 'result-msg ' + cls;
+    el.textContent = text;
+    el.style.display = 'block';
   }
 
   const DENEME_ZORLUK_LABEL2 = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
@@ -162,7 +317,7 @@
     const denemeler = await bgysGetAllByModul('denemeler');
     const area = document.getElementById('denemeListArea');
     if (denemeler.length === 0) {
-      area.innerHTML = `<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br><a href="${bgysWithModul('icerik-ekle.html')}">İçerik Ekle</a> sayfasından ilk denemeni oluştur.</div>`;
+      area.innerHTML = `<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br>Bölüm sayfasındaki "İçerik Ekle" ile ekleyebilirsin.</div>`;
       return;
     }
     area.innerHTML = denemeler.reverse().map(d => {
