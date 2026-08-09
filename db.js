@@ -567,7 +567,22 @@ function bgysMergeCevapAnahtari(parsedResults, cevapListesi) {
 }
 
 /* ================= Yedekleme (JSON dışa/içe aktar) ================= */
-const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler", "soruCevap"];
+const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler", "soruCevap", "hatirlatmalar", "dersTakip"];
+
+/* ================= Hatırlatmalar (bölümden bağımsız, hesaba özel) ================= */
+// Zamanı gelmiş (tarih+saat şimdiden önce/eşit) ve henüz tamamlanmamış hatırlatmaları döner.
+async function bgysGetDueReminders() {
+  const all = await bgysGetAll('hatirlatmalar');
+  const now = Date.now();
+  return all.filter(r => !r.tamamlandi && r.zamanTs && r.zamanTs <= now)
+    .sort((a, b) => b.zamanTs - a.zamanTs);
+}
+
+async function bgysMarkReminderDone(id) {
+  await bgysInitFirebase();
+  await bgysUserCollection('hatirlatmalar').doc(String(id)).update({ tamamlandi: true, tamamlandiAt: Date.now() });
+}
+
 
 async function bgysExportAllData() {
   const data = { exportedAt: Date.now(), version: 2 };

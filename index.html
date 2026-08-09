@@ -228,7 +228,22 @@
 
 <div class="topbar">
   <div class="logo"><span class="logo-mark">B</span>Basamak GYS</div>
-  <div class="topbar-tag">Görevde Yükselme Sınavı Hazırlık Platformu</div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="topbar-tag">Görevde Yükselme Sınavı Hazırlık Platformu</div>
+    <a href="hatirlatmalar.html" id="bellLink" style="position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--cloud, #F3F7F9);">
+      <span style="font-size:1.2rem;">🔔</span>
+      <span id="bellBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:#EF4444;color:white;font-size:0.68rem;font-weight:700;min-width:18px;height:18px;border-radius:100px;align-items:center;justify-content:center;padding:0 4px;font-family:'Inter',sans-serif;">0</span>
+    </a>
+  </div>
+</div>
+
+<div id="dueRemindersBox" style="display:none;max-width:900px;margin:16px auto 0;padding:0 6vw;">
+  <div style="background:#FEECEC;border:1.5px solid #EF4444;border-radius:16px;padding:16px 20px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-weight:700;color:#C0392B;">
+      🔔 <span id="dueRemindersTitle">Zamanı gelen hatırlatmaların</span>
+    </div>
+    <div id="dueRemindersList"></div>
+  </div>
 </div>
 
 <section class="hero">
@@ -307,6 +322,42 @@
 </section>
 
 <footer>Basamak GYS — kişisel kullanım için hazırlanmaktadır.</footer>
+
+<script src="db.js"></script>
+<script>bgysRequireAuth();</script>
+<script>
+  async function loadDueReminders() {
+    try {
+      const due = await bgysGetDueReminders();
+      const badge = document.getElementById('bellBadge');
+      const box = document.getElementById('dueRemindersBox');
+      const list = document.getElementById('dueRemindersList');
+      if (due.length === 0) {
+        badge.style.display = 'none';
+        box.style.display = 'none';
+        return;
+      }
+      badge.style.display = 'flex';
+      badge.textContent = due.length;
+      box.style.display = 'block';
+      document.getElementById('dueRemindersTitle').textContent = `${due.length} hatırlatmanın zamanı geldi`;
+      list.innerHTML = due.map(r => `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:8px;">
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;color:var(--ink,#10243E);">${r.baslik}</div>
+            <div style="font-size:0.78rem;color:#5B7186;">${r.tarih} · ${r.saat}${r.not ? ' — ' + r.not : ''}</div>
+          </div>
+          <button onclick="dismissReminder('${r.id}')" style="background:#EF4444;color:white;border:none;padding:7px 14px;border-radius:100px;font-size:0.78rem;font-weight:700;cursor:pointer;">Tamamlandı</button>
+        </div>
+      `).join('');
+    } catch (e) { console.warn('Hatırlatmalar yüklenemedi', e); }
+  }
+  window.dismissReminder = async (id) => {
+    await bgysMarkReminderDone(id);
+    loadDueReminders();
+  };
+  loadDueReminders();
+</script>
 
 </body>
 </html>
