@@ -23,6 +23,21 @@ async function bgysEnsureFirebaseSdk() {
   await bgysLoadScript(`${base}/firebase-app-compat.js`);
   await bgysLoadScript(`${base}/firebase-auth-compat.js`);
   await bgysLoadScript(`${base}/firebase-firestore-compat.js`);
+  await bgysLoadScript(`${base}/firebase-storage-compat.js`);
+}
+
+/* Bir dosyayı (görsel/PDF/ses) Firestore'a değil, Firebase Storage'a yükler ve
+   indirme URL'sini döner. Firestore'un ~1MB doküman limiti burada devre dışı kalır
+   çünkü kayıtta artık büyük veri değil, kısa bir URL tutulur. */
+async function bgysUploadFile(file, klasor) {
+  await bgysInitFirebase();
+  const user = bgysCurrentUser();
+  if (!user) throw new Error("Giriş yapılmamış");
+  const temizAd = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  const yol = `users/${user.uid}/${klasor}/${Date.now()}_${temizAd}`;
+  const ref = firebase.storage().ref().child(yol);
+  const snapshot = await ref.put(file);
+  return await snapshot.ref.getDownloadURL();
 }
 
 /* ================= Firebase yapılandırması ================= */
@@ -491,11 +506,18 @@ function bgysParseCevapAnahtari(text) {
 /* ---- PDF'ten metin çıkarma ---- */
 async function bgysExtractPdfText(dataUrl) {
   if (typeof pdfjsLib === "undefined") throw new Error("PDF.js yüklenemedi");
-  const base64 = dataUrl.split(",")[1];
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+  let loadingTask;
+  if (dataUrl.startsWith("data:")) {
+    const base64 = dataUrl.split(",")[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    loadingTask = pdfjsLib.getDocument({ data: bytes });
+  } else {
+    // Firebase Storage'daki gerçek URL — doğrudan PDF.js'e URL olarak veriyoruz.
+    loadingTask = pdfjsLib.getDocument({ url: dataUrl });
+  }
+  const pdf = await loadingTask.promise;
   const allLines = [];
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
