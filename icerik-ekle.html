@@ -201,13 +201,19 @@
       </div>
 
       <div class="mode-panel active" id="konu-mode-image">
+        <div class="field" style="margin-bottom:8px;"><label>Yöntem 1 — Dosyadan Seç</label></div>
         <div class="file-drop" onclick="document.getElementById('konuImageInput').click()">
           🖼️ Görsel(ler) seçmek için tıkla (birden fazla seçilebilir)
           <input type="file" id="konuImageInput" accept="image/*" multiple>
         </div>
-        <div class="file-drop" id="konuImagePasteArea" tabindex="0" style="margin-top:10px;border-style:solid;background:var(--cloud);">
+
+        <div style="border-top:1.5px dashed var(--mist);margin:22px 0;"></div>
+
+        <div class="field" style="margin-bottom:8px;"><label>Yöntem 2 — Panodan Yapıştır</label></div>
+        <div class="file-drop" id="konuImagePasteArea" tabindex="0" style="border-style:solid;background:var(--cloud);">
           📋 Buraya tıkla, sonra <b>Ctrl+V</b> (panoya kopyaladığın görseli yapıştır)
         </div>
+
         <div class="file-list" id="konuImageList"></div>
       </div>
       <div class="mode-panel" id="konu-mode-pdf">
