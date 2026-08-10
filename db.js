@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-10-timeout-fix-v2";
+const BGYS_DB_SURUM = "2026-08-10-900kb-limit-v3";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -48,10 +48,10 @@ async function bgysUploadFile(file, klasor) {
   return await snapshot.ref.getDownloadURL();
 }
 
-// Küçük dosyalar (base64'e çevrilince ~700KB altı) Storage'a hiç gitmeden doğrudan
+// Küçük dosyalar (base64'e çevrilince ~900KB altı) Storage'a hiç gitmeden doğrudan
 // veritabanına gömülür — Storage/kredi kartı gerekmez. Büyük dosyalarda Storage denenir;
 // Storage açık değilse anlaşılır bir hata verilir (dosyayı küçültme önerisiyle).
-const BGYS_INLINE_LIMIT_BYTES = 700000; // base64 sonrası boyut, güvenlik payıyla
+const BGYS_INLINE_LIMIT_BYTES = 880000; // base64 sonrası boyut, güvenlik payıyla
 
 async function bgysUploadSmart(file, klasor) {
   // Ham dosya boyutuna (base64'e çevirmeden) önce bakıyoruz. base64 boyutu ham boyuttan
@@ -62,7 +62,7 @@ async function bgysUploadSmart(file, klasor) {
       return await bgysUploadFile(file, klasor);
     } catch (e) {
       throw new Error(
-        `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~700KB üstü). ` +
+        `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~900KB üstü). ` +
         `Ya dosyayı küçült (sıkıştır/kırp), ya da Firebase Storage'ı aç. (${e.message})`
       );
     }
@@ -75,7 +75,7 @@ async function bgysUploadSmart(file, klasor) {
     return await bgysUploadFile(file, klasor);
   } catch (e) {
     throw new Error(
-      `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~700KB üstü). ` +
+      `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~900KB üstü). ` +
       `Ya dosyayı küçült (sıkıştır/kırp), ya da Firebase Storage'ı aç. (${e.message})`
     );
   }
