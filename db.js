@@ -167,6 +167,19 @@ async function bgysRequireAuth() {
   return user;
 }
 
+// Sekme arka plandan öne gelince (kullanıcı başka sekmede/cihazda içerik eklemiş olabilir)
+// ya da sayfa geri-ileri önbelleğinden (bfcache) geri gelince verilen fonksiyonu yeniden çalıştırır.
+// Her sayfa kendi listeleme fonksiyonunu (örn. renderOwnKonular) buna verip tek satırla kullanır.
+function bgysAutoRefresh(fn) {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") fn();
+  });
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) fn();
+  });
+  window.addEventListener("focus", () => fn());
+}
+
 function bgysInjectUserBadge(user) {
   if (document.getElementById("bgysUserBadge")) return;
   const badge = document.createElement("div");

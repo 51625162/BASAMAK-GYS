@@ -1429,6 +1429,9 @@ veya sadece: B D A C ..."></textarea>
   renderSoruSetiList();
   renderDenemeList();
   refreshBolumListesi();
+  bgysAutoRefresh(() => {
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  });
 </script>
 
 </body>

@@ -201,6 +201,7 @@
     if (denemeId === null) {
       await showList();
       await setupAutoCreatePanel();
+      bgysAutoRefresh(showList);
       if (params.get('olustur') === '1') {
         document.getElementById('autoCreatePanel').style.display = 'block';
         document.getElementById('autoCreateArrow').textContent = '▴';
