@@ -3,6 +3,14 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
+const BGYS_DB_SURUM = "2026-08-10-timeout-fix-v2";
+(function () {
+  const etiket = document.createElement("div");
+  etiket.textContent = "db.js: " + BGYS_DB_SURUM;
+  etiket.style.cssText = "position:fixed;bottom:2px;left:2px;font-size:9px;color:#B0B8C0;z-index:9999;font-family:monospace;pointer-events:none;";
+  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(etiket));
+})();
+
 /* ================= Firebase SDK yükleme ================= */
 const BGYS_FIREBASE_SDK_VERSION = "10.7.1";
 let bgysFirebaseReadyPromise = null;
