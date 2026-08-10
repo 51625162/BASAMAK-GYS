@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-10-900kb-limit-v3";
+const BGYS_DB_SURUM = "2026-08-10-no-persistence-v4";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -107,11 +107,9 @@ async function bgysInitFirebase() {
     await bgysEnsureFirebaseSdk();
     if (!firebase.apps.length) {
       firebase.initializeApp(config);
-      try {
-        await firebase.firestore().enablePersistence({ synchronizeTabs: true });
-      } catch (e) {
-        console.warn("Çevrimdışı önbellek etkinleştirilemedi:", e.message);
-      }
+      // NOT: Çevrimdışı önbellek (enablePersistence) bilerek KULLANILMIYOR.
+      // Bu uygulama her zaman çevrimiçi olduğu varsayımıyla çalışıyor; önbellek
+      // eski verilerin bir süre görünüp/görünmemesine (senkron gecikmesi) yol açıyordu.
     }
     return firebase.app();
   })();
@@ -229,7 +227,7 @@ async function bgysGetAll(storeName) {
   await bgysInitFirebase();
   const user = bgysCurrentUser();
   if (!user) return [];
-  const snap = await bgysUserCollection(storeName).get();
+  const snap = await bgysUserCollection(storeName).get({ source: "server" });
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
 }
 
@@ -250,7 +248,7 @@ async function bgysGetTrashByModul(storeName) {
   await bgysInitFirebase();
   const user = bgysCurrentUser();
   if (!user) return [];
-  const snap = await bgysUserCollection(storeName).get();
+  const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const modul = bgysCurrentModul();
   return snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .filter(r => r.deleted && (r.modul || "saymanlik") === modul);
@@ -314,7 +312,7 @@ async function bgysPutAll(storeName, records) {
 
 async function bgysClearStore(storeName) {
   await bgysInitFirebase();
-  const snap = await bgysUserCollection(storeName).get();
+  const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const batch = firebase.firestore().batch();
   snap.docs.forEach(d => batch.delete(d.ref));
   await batch.commit();
@@ -417,13 +415,13 @@ async function bgysGetIncomingShares() {
   if (!user) return [];
   const snap = await firebase.firestore().collection("shares")
     .where("toEmail", "==", user.email.toLowerCase())
-    .get();
+    .get({ source: "server" });
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.sharedAt || 0) - (a.sharedAt || 0));
 }
 
 async function bgysAcceptShare(shareId) {
   await bgysInitFirebase();
-  const doc = await firebase.firestore().collection("shares").doc(shareId).get();
+  const doc = await firebase.firestore().collection("shares").doc(shareId).get({ source: "server" });
   if (!doc.exists) throw new Error("Paylaşım bulunamadı");
   const share = doc.data();
   const clone = { ...share.record, modul: bgysCurrentModul(), createdAt: Date.now() };
