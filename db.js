@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-10-no-persistence-v4";
+const BGYS_DB_SURUM = "2026-08-10-auth-sync-v5";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -34,12 +34,9 @@ async function bgysEnsureFirebaseSdk() {
   await bgysLoadScript(`${base}/firebase-storage-compat.js`);
 }
 
-/* Bir dosyayı (görsel/PDF/ses) Firestore'a değil, Firebase Storage'a yükler ve
-   indirme URL'sini döner. Firestore'un ~1MB doküman limiti burada devre dışı kalır
-   çünkü kayıtta artık büyük veri değil, kısa bir URL tutulur. */
 async function bgysUploadFile(file, klasor) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
   if (!user) throw new Error("Giriş yapılmamış");
   const temizAd = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
   const yol = `users/${user.uid}/${klasor}/${Date.now()}_${temizAd}`;
@@ -48,15 +45,9 @@ async function bgysUploadFile(file, klasor) {
   return await snapshot.ref.getDownloadURL();
 }
 
-// Küçük dosyalar (base64'e çevrilince ~900KB altı) Storage'a hiç gitmeden doğrudan
-// veritabanına gömülür — Storage/kredi kartı gerekmez. Büyük dosyalarda Storage denenir;
-// Storage açık değilse anlaşılır bir hata verilir (dosyayı küçültme önerisiyle).
-const BGYS_INLINE_LIMIT_BYTES = 880000; // base64 sonrası boyut, güvenlik payıyla
+const BGYS_INLINE_LIMIT_BYTES = 880000;
 
 async function bgysUploadSmart(file, klasor) {
-  // Ham dosya boyutuna (base64'e çevirmeden) önce bakıyoruz. base64 boyutu ham boyuttan
-  // ~%37 daha büyük olduğu için, ham dosya zaten limitin üstündeyse hiç base64'e çevirmeden
-  // doğrudan Storage'a gönderiyoruz — büyük dosyalarda gereksiz bir işlem adımı ve gecikme kalkmış olur.
   if (file.size * 1.37 > BGYS_INLINE_LIMIT_BYTES) {
     try {
       return await bgysUploadFile(file, klasor);
@@ -68,9 +59,7 @@ async function bgysUploadSmart(file, klasor) {
     }
   }
   const dataUrl = await bgysFileToDataUrl(file);
-  if (dataUrl.length <= BGYS_INLINE_LIMIT_BYTES) {
-    return dataUrl; // küçük -> doğrudan veritabanına göm, Storage'a hiç gerek yok
-  }
+  if (dataUrl.length <= BGYS_INLINE_LIMIT_BYTES) return dataUrl;
   try {
     return await bgysUploadFile(file, klasor);
   } catch (e) {
@@ -105,18 +94,13 @@ async function bgysInitFirebase() {
     const config = bgysGetFirebaseConfig();
     if (!config) return null;
     await bgysEnsureFirebaseSdk();
-    if (!firebase.apps.length) {
-      firebase.initializeApp(config);
-      // NOT: Çevrimdışı önbellek (enablePersistence) bilerek KULLANILMIYOR.
-      // Bu uygulama her zaman çevrimiçi olduğu varsayımıyla çalışıyor; önbellek
-      // eski verilerin bir süre görünüp/görünmemesine (senkron gecikmesi) yol açıyordu.
-    }
+    if (!firebase.apps.length) firebase.initializeApp(config);
     return firebase.app();
   })();
   return bgysFirebaseReadyPromise;
 }
 
-/* ================= Kimlik doğrulama (Authentication) ================= */
+/* ================= Kimlik doğrulama ================= */
 
 async function bgysSignUp(email, password) {
   await bgysInitFirebase();
@@ -143,6 +127,8 @@ async function bgysResetPassword(email) {
 async function bgysWaitForAuth() {
   const app = await bgysInitFirebase();
   if (!app) return null;
+  const mevcut = firebase.auth().currentUser;
+  if (mevcut) return mevcut;
   return new Promise((resolve) => {
     const unsub = firebase.auth().onAuthStateChanged((user) => {
       unsub();
@@ -173,17 +159,15 @@ async function bgysRequireAuth() {
   return user;
 }
 
-// Sekme arka plandan öne gelince (kullanıcı başka sekmede/cihazda içerik eklemiş olabilir)
-// ya da sayfa geri-ileri önbelleğinden (bfcache) geri gelince verilen fonksiyonu yeniden çalıştırır.
-// Her sayfa kendi listeleme fonksiyonunu (örn. renderOwnKonular) buna verip tek satırla kullanır.
 function bgysAutoRefresh(fn) {
+  const safeRefresh = () => Promise.resolve().then(() => fn()).catch(() => {});
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") fn();
+    if (document.visibilityState === "visible") safeRefresh();
   });
   window.addEventListener("pageshow", (e) => {
-    if (e.persisted) fn();
+    if (e.persisted) safeRefresh();
   });
-  window.addEventListener("focus", () => fn());
+  window.addEventListener("focus", safeRefresh);
 }
 
 function bgysInjectUserBadge(user) {
@@ -199,7 +183,7 @@ function bgysInjectUserBadge(user) {
   });
 }
 
-/* ================= Firestore veri işlemleri (eski IndexedDB fonksiyonlarının yerine) ================= */
+/* ================= Firestore veri işlemleri ================= */
 const BGYS_MAX_DOC_BYTES = 900000;
 
 function bgysUserCollection(storeName) {
@@ -210,6 +194,8 @@ function bgysUserCollection(storeName) {
 
 async function bgysAdd(storeName, record) {
   await bgysInitFirebase();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
+  if (!user) throw new Error("Giriş yapılmamış");
   record.createdAt = record.createdAt || Date.now();
   const boyut = new Blob([JSON.stringify(record)]).size;
   if (boyut > BGYS_MAX_DOC_BYTES) {
@@ -225,7 +211,7 @@ async function bgysAdd(storeName, record) {
 
 async function bgysGetAll(storeName) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
   if (!user) return [];
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
@@ -237,36 +223,30 @@ async function bgysGetAllByModul(storeName) {
   return all.filter(r => (r.modul || "saymanlik") === modul);
 }
 
-// Yumuşak silme: kayıt gerçekten silinmez, "deleted" işaretlenir — Silinenler'den geri alınabilir.
 async function bgysDelete(storeName, id) {
   await bgysInitFirebase();
   await bgysUserCollection(storeName).doc(String(id)).update({ deleted: true, deletedAt: Date.now() });
 }
 
-// Silinenler (çöp kutusu) listesini getirir — mevcut bölüme göre filtrelenir.
 async function bgysGetTrashByModul(storeName) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
   if (!user) return [];
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const modul = bgysCurrentModul();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .filter(r => r.deleted && (r.modul || "saymanlik") === modul);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.deleted && (r.modul || "saymanlik") === modul);
 }
 
-// Silinenler'den geri yükler.
 async function bgysRestoreFromTrash(storeName, id) {
   await bgysInitFirebase();
   await bgysUserCollection(storeName).doc(String(id)).update({ deleted: false, deletedAt: null });
 }
 
-// Kalıcı olarak siler (geri alınamaz).
 async function bgysPermanentDelete(storeName, id) {
   await bgysInitFirebase();
   await bgysUserCollection(storeName).doc(String(id)).delete();
 }
 
-// Bir bölümdeki (mevcut modül) tüm kayıtları toplu olarak (yumuşak) siler.
 async function bgysDeleteAllInStore(storeName) {
   const items = await bgysGetAllByModul(storeName);
   await bgysInitFirebase();
@@ -277,7 +257,6 @@ async function bgysDeleteAllInStore(storeName) {
   return items.length;
 }
 
-// Belirli bir tarih aralığındaki kayıtları toplu (yumuşak) siler. from/to: timestamp (ms).
 async function bgysDeleteByDateRange(storeName, fromTs, toTs) {
   const items = await bgysGetAllByModul(storeName);
   const hedef = items.filter(it => it.createdAt >= fromTs && it.createdAt <= toTs);
@@ -289,7 +268,6 @@ async function bgysDeleteByDateRange(storeName, fromTs, toTs) {
   return hedef.length;
 }
 
-// Çöp kutusunu (mevcut bölüm için) tamamen boşaltır — geri alınamaz.
 async function bgysEmptyTrash(storeName) {
   const items = await bgysGetTrashByModul(storeName);
   await bgysInitFirebase();
@@ -302,6 +280,7 @@ async function bgysEmptyTrash(storeName) {
 
 async function bgysPutAll(storeName, records) {
   await bgysInitFirebase();
+  await bgysWaitForAuth();
   const col = bgysUserCollection(storeName);
   for (const rec of records) {
     const { id, ...rest } = rec;
@@ -312,6 +291,7 @@ async function bgysPutAll(storeName, records) {
 
 async function bgysClearStore(storeName) {
   await bgysInitFirebase();
+  await bgysWaitForAuth();
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const batch = firebase.firestore().batch();
   snap.docs.forEach(d => batch.delete(d.ref));
@@ -342,7 +322,6 @@ async function bgysCopyDenemeToModul(denemeId, targetModul) {
   denemeClone.modul = targetModul;
   denemeClone.createdAt = Date.now();
   const newDenemeId = await bgysAdd("denemeler", denemeClone);
-
   if (deneme.tip === "metin") {
     const tumSorular = await bgysGetAll("sorular");
     const denemeSorulari = tumSorular.filter(s => s.denemeId === denemeId);
@@ -366,7 +345,7 @@ function bgysOtherModuller() {
 /* ================= Kullanıcılar arası paylaşım ================= */
 async function bgysShareItem(storeName, id, toEmail) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
   if (!user) throw new Error("Giriş yapılmamış");
   const all = await bgysGetAll(storeName);
   const record = all.find(r => r.id === id);
@@ -384,14 +363,12 @@ async function bgysShareItem(storeName, id, toEmail) {
   });
 }
 
-// Bir bölümdeki (mevcut modül) belirli bir store'daki TÜM kayıtları paylaşır.
 async function bgysShareAllInStore(storeName, toEmail) {
   const items = await bgysGetAllByModul(storeName);
   for (const it of items) await bgysShareItem(storeName, it.id, toEmail);
   return items.length;
 }
 
-// "bolum" (ders/konu) alanına göre filtrelenmiş kayıtları paylaşır.
 async function bgysShareByBolum(storeName, bolum, toEmail) {
   const items = await bgysGetAllByModul(storeName);
   const hedef = items.filter(it => it.bolum === bolum);
@@ -399,23 +376,17 @@ async function bgysShareByBolum(storeName, bolum, toEmail) {
   return hedef.length;
 }
 
-// Mevcut bölümdeki (modül) TÜM içerik türlerini (konu/soru/soru-cevap/deneme) paylaşır.
 async function bgysShareAllContent(toEmail) {
   let toplam = 0;
-  for (const store of BGYS_SYNC_STORES) {
-    toplam += await bgysShareAllInStore(store, toEmail);
-  }
+  for (const store of BGYS_SYNC_STORES) toplam += await bgysShareAllInStore(store, toEmail);
   return toplam;
 }
 
-// Gelen TÜM paylaşımları getirir (bekleyen/kabul edilen/reddedilen dahil) — kalıcı bildirim geçmişi.
 async function bgysGetIncomingShares() {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  const user = bgysCurrentUser() || await bgysWaitForAuth();
   if (!user) return [];
-  const snap = await firebase.firestore().collection("shares")
-    .where("toEmail", "==", user.email.toLowerCase())
-    .get({ source: "server" });
+  const snap = await firebase.firestore().collection("shares").where("toEmail", "==", user.email.toLowerCase()).get({ source: "server" });
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.sharedAt || 0) - (a.sharedAt || 0));
 }
 
@@ -435,7 +406,6 @@ async function bgysDeclineShare(shareId) {
   await firebase.firestore().collection("shares").doc(shareId).update({ status: "declined" });
 }
 
-// Bildirimi (kabul/red durumundan bağımsız) kalıcı olarak siler.
 async function bgysDeleteShareNotification(shareId) {
   await bgysInitFirebase();
   await firebase.firestore().collection("shares").doc(shareId).delete();
@@ -478,9 +448,7 @@ function bgysAutoInsertBlockBreaks(text) {
   lines.forEach((line, idx) => {
     const trimmed = line.trim();
     const isNewQuestion = /^\d+\s*[\.\)\-]\s*\S/.test(trimmed);
-    if (isNewQuestion && idx !== 0 && out.length > 0 && out[out.length - 1].trim() !== "") {
-      out.push("");
-    }
+    if (isNewQuestion && idx !== 0 && out.length > 0 && out[out.length - 1].trim() !== "") out.push("");
     out.push(line);
   });
   return out.join("\n");
@@ -501,41 +469,26 @@ function bgysParseSoruMetniFlexible(text, requireAnswer) {
       const optMatch = line.match(/^([A-D])\s*[\)\.\:\-]\s*(.+)$/i);
       const cevapMatch = line.match(/^(do[ğg]ru\s+)?(cevap|yan[ıi]t)\s*[:\-]\s*([A-D])\b/i);
       const acikMatch = line.match(/^(a[çc][ıi]klama|[çc]öz[üu]m|cozum)\s*[:\-]\s*(.+)$/i);
-      if (cevapMatch) {
-        correctLetter = cevapMatch[3].toUpperCase();
-      } else if (acikMatch) {
-        explanation = acikMatch[2].trim();
-      } else if (optMatch) {
-        optionLines[optMatch[1].toUpperCase()] = optMatch[2].trim();
-      } else {
-        questionLines.push(line);
-      }
+      if (cevapMatch) correctLetter = cevapMatch[3].toUpperCase();
+      else if (acikMatch) explanation = acikMatch[2].trim();
+      else if (optMatch) optionLines[optMatch[1].toUpperCase()] = optMatch[2].trim();
+      else questionLines.push(line);
     });
     const question = questionLines.join(" ").trim().replace(/^\d+\s*[\.\)\-]\s*/, "") || "(Soru metni girilmedi)";
     const eksikSik = ["A","B","C","D"].filter(l => !optionLines[l]);
-    if (eksikSik.length > 0) {
-      uyarilar.push({ block: idx + 1, not: `${eksikSik.join(", ")} şıkkı boş bırakıldı` });
-    }
+    if (eksikSik.length > 0) uyarilar.push({ block: idx + 1, not: `${eksikSik.join(", ")} şıkkı boş bırakıldı` });
     const options = ["A","B","C","D"].map(l => optionLines[l] || "(Boş bırakıldı)");
     let correct;
-    if (correctLetter) {
-      correct = "ABCD".indexOf(correctLetter);
-    } else if (requireAnswer) {
-      correct = 0;
-      uyarilar.push({ block: idx + 1, not: "Cevap belirtilmemiş, A varsayıldı" });
-    } else {
-      correct = null;
-    }
+    if (correctLetter) correct = "ABCD".indexOf(correctLetter);
+    else if (requireAnswer) { correct = 0; uyarilar.push({ block: idx + 1, not: "Cevap belirtilmemiş, A varsayıldı" }); }
+    else correct = null;
     results.push({ question, options, correct, explanation: explanation || "Açıklama eklenmedi." });
   });
   return { results, errors: uyarilar };
 }
 
-function bgysParseSoruMetni(text) {
-  return bgysParseSoruMetniFlexible(text, true);
-}
+function bgysParseSoruMetni(text) { return bgysParseSoruMetniFlexible(text, true); }
 
-/* ---- Cevap anahtarı ayrıştırıcı ---- */
 function bgysParseCevapAnahtari(text) {
   if (!text || !text.trim()) return [];
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
@@ -543,11 +496,8 @@ function bgysParseCevapAnahtari(text) {
   let allNumbered = true;
   lines.forEach(line => {
     const m = line.match(/^(\d+)[\.\)\:\-]?\s*([A-D])\b/i);
-    if (m) {
-      numberedLetters[parseInt(m[1], 10) - 1] = m[2].toUpperCase();
-    } else {
-      allNumbered = false;
-    }
+    if (m) numberedLetters[parseInt(m[1], 10) - 1] = m[2].toUpperCase();
+    else allNumbered = false;
   });
   if (allNumbered && numberedLetters.length > 0) {
     const result = [];
@@ -558,7 +508,6 @@ function bgysParseCevapAnahtari(text) {
   return matches ? matches : [];
 }
 
-/* ---- PDF'ten metin çıkarma ---- */
 async function bgysExtractPdfText(dataUrl) {
   if (typeof pdfjsLib === "undefined") throw new Error("PDF.js yüklenemedi");
   let loadingTask;
@@ -568,10 +517,7 @@ async function bgysExtractPdfText(dataUrl) {
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     loadingTask = pdfjsLib.getDocument({ data: bytes });
-  } else {
-    // Firebase Storage'daki gerçek URL — doğrudan PDF.js'e URL olarak veriyoruz.
-    loadingTask = pdfjsLib.getDocument({ url: dataUrl });
-  }
+  } else loadingTask = pdfjsLib.getDocument({ url: dataUrl });
   const pdf = await loadingTask.promise;
   const allLines = [];
   for (let p = 1; p <= pdf.numPages; p++) {
@@ -599,9 +545,6 @@ async function bgysExtractPdfText(dataUrl) {
   return withBreaks.join("\n");
 }
 
-/* ---- Soru-Cevap (flashcard) ayrıştırıcı ----
-Format: her blok bir çift, boş satırla ayrılır.
-Soru: ... satırı (ya da etiketsiz ilk satır/satırlar) + Cevap: ... satırı */
 function bgysParseSoruCevap(text) {
   const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
   const results = [];
@@ -612,17 +555,10 @@ function bgysParseSoruCevap(text) {
     lines.forEach(line => {
       const cevapMatch = line.match(/^(cevap|yan[ıi]t)\s*[:\-]\s*(.+)$/i);
       const soruMatch = line.match(/^soru\s*[:\-]\s*(.+)$/i);
-      if (cevapMatch) {
-        cevap = (cevap ? cevap + " " : "") + cevapMatch[2].trim();
-        mode = "cevap";
-      } else if (soruMatch) {
-        soru = (soru ? soru + " " : "") + soruMatch[1].trim();
-        mode = "soru";
-      } else if (mode === "cevap") {
-        cevap += (cevap ? " " : "") + line;
-      } else {
-        soru += (soru ? " " : "") + line;
-      }
+      if (cevapMatch) { cevap = (cevap ? cevap + " " : "") + cevapMatch[2].trim(); mode = "cevap"; }
+      else if (soruMatch) { soru = (soru ? soru + " " : "") + soruMatch[1].trim(); mode = "soru"; }
+      else if (mode === "cevap") cevap += (cevap ? " " : "") + line;
+      else soru += (soru ? " " : "") + line;
     });
     if (soru) results.push({ soru, cevap: cevap || "(Cevap girilmedi)" });
   });
@@ -634,25 +570,20 @@ function bgysMergeCevapAnahtari(parsedResults, cevapListesi) {
   const merged = parsedResults.map((r, i) => {
     if (r.correct !== null && r.correct !== undefined) return r;
     const letter = cevapListesi[i];
-    if (letter && "ABCD".includes(letter)) {
-      return { ...r, correct: "ABCD".indexOf(letter) };
-    }
+    if (letter && "ABCD".includes(letter)) return { ...r, correct: "ABCD".indexOf(letter) };
     eksikCevapSayisi++;
     return { ...r, correct: null };
   });
   return { results: merged, eksikCevapSayisi };
 }
 
-/* ================= Yedekleme (JSON dışa/içe aktar) ================= */
+/* ================= Yedekleme ================= */
 const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler", "soruCevap", "hatirlatmalar", "dersTakip"];
 
-/* ================= Hatırlatmalar (bölümden bağımsız, hesaba özel) ================= */
-// Zamanı gelmiş (tarih+saat şimdiden önce/eşit) ve henüz tamamlanmamış hatırlatmaları döner.
 async function bgysGetDueReminders() {
   const all = await bgysGetAll('hatirlatmalar');
   const now = Date.now();
-  return all.filter(r => !r.tamamlandi && r.zamanTs && r.zamanTs <= now)
-    .sort((a, b) => b.zamanTs - a.zamanTs);
+  return all.filter(r => !r.tamamlandi && r.zamanTs && r.zamanTs <= now).sort((a, b) => b.zamanTs - a.zamanTs);
 }
 
 async function bgysMarkReminderDone(id) {
@@ -660,12 +591,9 @@ async function bgysMarkReminderDone(id) {
   await bgysUserCollection('hatirlatmalar').doc(String(id)).update({ tamamlandi: true, tamamlandiAt: Date.now() });
 }
 
-
 async function bgysExportAllData() {
   const data = { exportedAt: Date.now(), version: 2 };
-  for (const store of BGYS_SYNC_STORES) {
-    data[store] = await bgysGetAll(store);
-  }
+  for (const store of BGYS_SYNC_STORES) data[store] = await bgysGetAll(store);
   return data;
 }
 
@@ -698,29 +626,18 @@ function bgysRestoreFromFile(file) {
   });
 }
 
-/* ================= Çözülen Soru Takibi (cihaz bazlı, localStorage) ================= */
-function bgysSolvedKey() {
-  return "bgys-solved-" + bgysCurrentModul();
-}
-
+/* ================= Çözülen Soru Takibi ================= */
+function bgysSolvedKey() { return "bgys-solved-" + bgysCurrentModul(); }
 function bgysGetSolvedMap() {
   try {
     const raw = localStorage.getItem(bgysSolvedKey());
     return raw ? JSON.parse(raw) : {};
   } catch (e) { return {}; }
 }
-
 function bgysMarkSolved(questionId, wasCorrect) {
   const map = bgysGetSolvedMap();
   map[questionId] = { correct: !!wasCorrect, solvedAt: Date.now() };
   localStorage.setItem(bgysSolvedKey(), JSON.stringify(map));
 }
-
-function bgysIsSolved(questionId) {
-  const map = bgysGetSolvedMap();
-  return !!map[questionId];
-}
-
-function bgysClearSolved() {
-  localStorage.removeItem(bgysSolvedKey());
-}
+function bgysIsSolved(questionId) { return !!bgysGetSolvedMap()[questionId]; }
+function bgysClearSolved() { localStorage.removeItem(bgysSolvedKey()); }
