@@ -205,6 +205,9 @@
           🖼️ Görsel(ler) seçmek için tıkla (birden fazla seçilebilir)
           <input type="file" id="konuImageInput" accept="image/*" multiple>
         </div>
+        <div class="file-drop" id="konuImagePasteArea" tabindex="0" style="margin-top:10px;border-style:solid;background:var(--cloud);">
+          📋 Buraya tıkla, sonra <b>Ctrl+V</b> (panoya kopyaladığın görseli yapıştır)
+        </div>
         <div class="file-list" id="konuImageList"></div>
       </div>
       <div class="mode-panel" id="konu-mode-pdf">
@@ -640,6 +643,28 @@ veya sadece: B D A C ..."></textarea>
     konuImageFiles = Array.from(e.target.files);
     document.getElementById('konuImageList').textContent = fileListLabel(konuImageFiles);
   });
+
+  document.getElementById('konuImagePasteArea').addEventListener('paste', (e) => {
+    const items = e.clipboardData ? e.clipboardData.items : [];
+    let bulundu = false;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        const dosyaAdi = `yapistirilan-${Date.now()}.png`;
+        const file = new File([blob], dosyaAdi, { type: blob.type });
+        konuImageFiles.push(file);
+        bulundu = true;
+      }
+    }
+    if (bulundu) {
+      document.getElementById('konuImageList').textContent = fileListLabel(konuImageFiles);
+      document.getElementById('konuImagePasteArea').textContent = '✅ Yapıştırıldı — tekrar yapıştırabilir ya da kaydedebilirsin.';
+    } else {
+      document.getElementById('konuImagePasteArea').textContent = '⚠️ Panoda görsel bulunamadı, önce bir görseli kopyala.';
+    }
+    e.preventDefault();
+  });
+
   let konuPdfFile = null;
   document.getElementById('konuPdfInput').addEventListener('change', (e) => {
     konuPdfFile = e.target.files[0] || null;
@@ -662,14 +687,14 @@ veya sadece: B D A C ..."></textarea>
       if (mode === 'image') {
         if (konuImageFiles.length === 0) { showMsg('konuResult', 'err', 'En az bir görsel seç.'); return; }
         for (const file of konuImageFiles) {
-          const dataUrl = await bgysUploadFile(file, 'konular');
+          const dataUrl = await bgysUploadSmart(file, 'konular');
           await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
         }
         showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
       } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
-        const dataUrl = await bgysUploadFile(konuPdfFile, 'konular');
+        const dataUrl = await bgysUploadSmart(konuPdfFile, 'konular');
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: konuPdfFile.name });
         showMsg('konuResult', 'ok', 'PDF eklendi. PDF Konu Notları\'na yönlendiriliyorsun...');
         konuPdfFile = null; document.getElementById('konuPdfInput').value = ''; document.getElementById('konuPdfList').textContent = '';
@@ -681,7 +706,7 @@ veya sadece: B D A C ..."></textarea>
         document.getElementById('konuMetinIcerik').value = '';
       } else if (mode === 'audio') {
         if (!konuAudioFile) { showMsg('konuResult', 'err', 'Bir ses dosyası seç.'); return; }
-        const dataUrl = await bgysUploadFile(konuAudioFile, 'konular');
+        const dataUrl = await bgysUploadSmart(konuAudioFile, 'konular');
         await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'audio', dataUrl, fileName: konuAudioFile.name });
         showMsg('konuResult', 'ok', 'Ses kaydı eklendi. Podcastler\'e yönlendiriliyorsun...');
         konuAudioFile = null; document.getElementById('konuAudioInput').value = ''; document.getElementById('konuAudioList').textContent = '';
@@ -806,7 +831,7 @@ veya sadece: B D A C ..."></textarea>
     const explanation = document.getElementById('soruGorselAciklama').value.trim() || 'Açıklama eklenmedi.';
     if (!question || options.some(o => !o)) { showMsg('soruGorselResult', 'err', 'Soru metni ve 4 şık zorunlu — görselden otomatik okunamadıysa elle doldur.'); return; }
     let imageDataUrl = null;
-    if (soruGorselFile) imageDataUrl = await bgysUploadFile(soruGorselFile, 'sorular');
+    if (soruGorselFile) imageDataUrl = await bgysUploadSmart(soruGorselFile, 'sorular');
     await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, question, options, correct, explanation, tip: 'image', imageDataUrl, difficulty });
     showMsg('soruGorselResult', 'ok', 'Soru eklendi.');
     ['soruGorselMetin','soruGorselA','soruGorselB','soruGorselC','soruGorselD','soruGorselAciklama'].forEach(id => document.getElementById(id).value = '');
@@ -827,7 +852,7 @@ veya sadece: B D A C ..."></textarea>
     const cevapMetni = document.getElementById('soruPdfCevapAnahtari').value;
     if (!baslik || !soruPdfFile) { showMsg('soruPdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
     showMsg('soruPdfResult', 'warn', 'PDF işleniyor, lütfen bekle...');
-    const dataUrl = await bgysUploadFile(soruPdfFile, 'soruSetleri');
+    const dataUrl = await bgysUploadSmart(soruPdfFile, 'soruSetleri');
     // Orijinal PDF her zaman görüntülenebilir şekilde saklanır
     await bgysAdd('soruSetleri', { modul: bgysCurrentModul(), bolum, baslik, tip: 'pdf', dataUrl, fileName: soruPdfFile.name });
 
@@ -1004,7 +1029,7 @@ veya sadece: B D A C ..."></textarea>
     const cevapMetni = document.getElementById('denemePdfCevapAnahtari').value;
     if (!baslik || !denemePdfFile) { showMsg('denemePdfResult', 'err', 'Başlık ve PDF gerekli.'); return; }
     showMsg('denemePdfResult', 'warn', 'PDF işleniyor, lütfen bekle...');
-    const dataUrl = await bgysUploadFile(denemePdfFile, 'denemeler');
+    const dataUrl = await bgysUploadSmart(denemePdfFile, 'denemeler');
 
     let interactiveResults = [];
     let eksikCevap = 0, extractErr = null;
@@ -1049,7 +1074,7 @@ veya sadece: B D A C ..."></textarea>
     const baslik = document.getElementById('denemeBaslik').value.trim();
     if (!baslik || denemeGorselFiles.length === 0) { showMsg('denemeGorselResult', 'err', 'Başlık ve en az bir görsel gerekli.'); return; }
     const dataUrls = [];
-    for (const f of denemeGorselFiles) dataUrls.push(await bgysUploadFile(f, 'denemeler'));
+    for (const f of denemeGorselFiles) dataUrls.push(await bgysUploadSmart(f, 'denemeler'));
     await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'gorsel', dataUrls, zorluk: denemeGorselZorluk });
     showMsg('denemeGorselResult', 'ok', 'Deneme eklendi. Deneme Sınavlarım\'a yönlendiriliyorsun...');
     document.getElementById('denemeBaslik').value='';
