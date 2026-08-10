@@ -145,7 +145,7 @@
 
   async function renderOwnKonular() {
     const all = await bgysGetAllByModul('konular');
-    const items = all.filter(it => it.tip === 'metin');
+    const items = all.filter(it => it.tip === 'metin' && it.kaynak !== 'yapistir');
     const grid = document.getElementById('ownKonuGrid');
     const empty = document.getElementById('ownKonuEmpty');
     if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }

@@ -46,6 +46,19 @@ async function bgysUploadFile(file, klasor) {
 const BGYS_INLINE_LIMIT_BYTES = 700000; // base64 sonrası boyut, güvenlik payıyla
 
 async function bgysUploadSmart(file, klasor) {
+  // Ham dosya boyutuna (base64'e çevirmeden) önce bakıyoruz. base64 boyutu ham boyuttan
+  // ~%37 daha büyük olduğu için, ham dosya zaten limitin üstündeyse hiç base64'e çevirmeden
+  // doğrudan Storage'a gönderiyoruz — büyük dosyalarda gereksiz bir işlem adımı ve gecikme kalkmış olur.
+  if (file.size * 1.37 > BGYS_INLINE_LIMIT_BYTES) {
+    try {
+      return await bgysUploadFile(file, klasor);
+    } catch (e) {
+      throw new Error(
+        `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~700KB üstü). ` +
+        `Ya dosyayı küçült (sıkıştır/kırp), ya da Firebase Storage'ı aç. (${e.message})`
+      );
+    }
+  }
   const dataUrl = await bgysFileToDataUrl(file);
   if (dataUrl.length <= BGYS_INLINE_LIMIT_BYTES) {
     return dataUrl; // küçük -> doğrudan veritabanına göm, Storage'a hiç gerek yok
@@ -181,9 +194,12 @@ async function bgysAdd(storeName, record) {
   record.createdAt = record.createdAt || Date.now();
   const boyut = new Blob([JSON.stringify(record)]).size;
   if (boyut > BGYS_MAX_DOC_BYTES) {
-    throw new Error("Dosya çok büyük (bulut depolama limiti ~900KB). Daha küçük bir dosya dene.");
+    throw new Error("Kayıt çok büyük (~900KB üstü). Bu durum normalde oluşmaz, dosya doğrudan Storage'a gitmeliydi — lütfen tekrar dene.");
   }
-  const ref = await bgysUserCollection(storeName).add(record);
+  const zamanAsimi = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Kaydetme 20 saniyede tamamlanamadı (bağlantı ya da Firestore sorunu olabilir). İnternetini kontrol edip tekrar dene.")), 20000)
+  );
+  const ref = await Promise.race([bgysUserCollection(storeName).add(record), zamanAsimi]);
   bgysScheduleCloudPush();
   return ref.id;
 }

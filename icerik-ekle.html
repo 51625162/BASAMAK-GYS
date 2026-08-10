@@ -713,12 +713,12 @@ veya sadece: B D A C ..."></textarea>
         if (konuPasteFiles.length > 0) {
           for (const file of konuPasteFiles) {
             const dataUrl = await bgysUploadSmart(file, 'konular');
-            await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+            await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', kaynak: 'yapistir', dataUrl, fileName: file.name });
           }
-          showMsg('konuResult', 'ok', `${konuPasteFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
+          showMsg('konuResult', 'ok', `${konuPasteFiles.length} görsel eklendi. Yapıştırılanlar'da görebilirsin.`);
         } else if (konuPasteText) {
-          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'metin', metin: konuPasteText });
-          showMsg('konuResult', 'ok', 'Not eklendi. Bilgi Kartları\'nda görebilirsin.');
+          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'metin', kaynak: 'yapistir', metin: konuPasteText });
+          showMsg('konuResult', 'ok', 'Not eklendi. Yapıştırılanlar\'da görebilirsin.');
         }
         konuPasteFiles = []; konuPasteText = null;
         document.getElementById('konuImagePasteList').textContent = '';
