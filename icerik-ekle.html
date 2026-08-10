@@ -209,8 +209,9 @@
         <div class="file-list" id="konuImageList"></div>
       </div>
       <div class="mode-panel" id="konu-mode-yapistir">
-        <div class="file-drop" id="konuImagePasteArea" contenteditable="true" style="border-style:solid;background:var(--cloud);outline:none;">
-          📋 Buraya dokun/tıkla, sonra <b>yapıştır</b> — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Hepsinde çalışır.
+        <div class="hint" style="margin-bottom:12px;">Görsel de yapıştırabilirsin, metin/not da — hangisini yapıştırırsan otomatik anlaşılır. Görsel → İnfografikler'de, metin → Bilgi Kartları'nda görünür.</div>
+        <div class="file-drop" id="konuImagePasteArea" contenteditable="true" style="border-style:solid;background:var(--cloud);outline:none;min-height:80px;">
+          📋 Buraya dokun/tıkla, sonra <b>yapıştır</b> — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Görsel ya da metin, ikisi de olur.
         </div>
         <div class="file-list" id="konuImagePasteList"></div>
       </div>
@@ -649,23 +650,32 @@ veya sadece: B D A C ..."></textarea>
   });
 
   let konuPasteFiles = [];
+  let konuPasteText = null;
   document.getElementById('konuImagePasteArea').addEventListener('paste', (e) => {
     const items = e.clipboardData ? e.clipboardData.items : [];
-    let bulundu = false;
+    let gorselBulundu = false;
     for (const item of items) {
       if (item.type.startsWith('image/')) {
         const blob = item.getAsFile();
         const dosyaAdi = `yapistirilan-${Date.now()}.png`;
         const file = new File([blob], dosyaAdi, { type: blob.type });
         konuPasteFiles.push(file);
-        bulundu = true;
+        gorselBulundu = true;
       }
     }
-    if (bulundu) {
+    if (gorselBulundu) {
+      konuPasteText = null;
       document.getElementById('konuImagePasteList').textContent = fileListLabel(konuPasteFiles);
-      document.getElementById('konuImagePasteArea').textContent = '✅ Yapıştırıldı — tekrar yapıştırabilir ya da kaydedebilirsin.';
+      document.getElementById('konuImagePasteArea').textContent = '✅ Görsel yapıştırıldı — İnfografikler\'de görünecek. Kaydedebilirsin.';
     } else {
-      document.getElementById('konuImagePasteArea').textContent = '⚠️ Panoda görsel bulunamadı, önce bir görseli kopyala.';
+      const metin = e.clipboardData ? e.clipboardData.getData('text/plain') : '';
+      if (metin && metin.trim()) {
+        konuPasteText = metin.trim();
+        document.getElementById('konuImagePasteList').textContent = '';
+        document.getElementById('konuImagePasteArea').textContent = '✅ Not yapıştırıldı — Bilgi Kartları\'nda görünecek. Kaydedebilirsin.\n\n"' + (metin.length > 120 ? metin.slice(0,120) + '...' : metin) + '"';
+      } else {
+        document.getElementById('konuImagePasteArea').textContent = '⚠️ Panoda görsel ya da metin bulunamadı, önce bir şeyi kopyala.';
+      }
     }
     e.preventDefault();
   });
@@ -699,14 +709,20 @@ veya sadece: B D A C ..."></textarea>
         showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
       } else if (mode === 'yapistir') {
-        if (konuPasteFiles.length === 0) { showMsg('konuResult', 'err', 'Önce bir görsel yapıştır.'); return; }
-        for (const file of konuPasteFiles) {
-          const dataUrl = await bgysUploadSmart(file, 'konular');
-          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+        if (konuPasteFiles.length === 0 && !konuPasteText) { showMsg('konuResult', 'err', 'Önce bir görsel ya da metin yapıştır.'); return; }
+        if (konuPasteFiles.length > 0) {
+          for (const file of konuPasteFiles) {
+            const dataUrl = await bgysUploadSmart(file, 'konular');
+            await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+          }
+          showMsg('konuResult', 'ok', `${konuPasteFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
+        } else if (konuPasteText) {
+          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'metin', metin: konuPasteText });
+          showMsg('konuResult', 'ok', 'Not eklendi. Bilgi Kartları\'nda görebilirsin.');
         }
-        showMsg('konuResult', 'ok', `${konuPasteFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
-        konuPasteFiles = []; document.getElementById('konuImagePasteList').textContent = '';
-        document.getElementById('konuImagePasteArea').textContent = '📋 Buraya dokun/tıkla, sonra yapıştır — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Hepsinde çalışır.';
+        konuPasteFiles = []; konuPasteText = null;
+        document.getElementById('konuImagePasteList').textContent = '';
+        document.getElementById('konuImagePasteArea').textContent = '📋 Buraya dokun/tıkla, sonra yapıştır — görsel ya da metin, ikisi de olur.';
       } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
         const dataUrl = await bgysUploadSmart(konuPdfFile, 'konular');
