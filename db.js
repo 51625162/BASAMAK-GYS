@@ -40,6 +40,26 @@ async function bgysUploadFile(file, klasor) {
   return await snapshot.ref.getDownloadURL();
 }
 
+// Küçük dosyalar (base64'e çevrilince ~700KB altı) Storage'a hiç gitmeden doğrudan
+// veritabanına gömülür — Storage/kredi kartı gerekmez. Büyük dosyalarda Storage denenir;
+// Storage açık değilse anlaşılır bir hata verilir (dosyayı küçültme önerisiyle).
+const BGYS_INLINE_LIMIT_BYTES = 700000; // base64 sonrası boyut, güvenlik payıyla
+
+async function bgysUploadSmart(file, klasor) {
+  const dataUrl = await bgysFileToDataUrl(file);
+  if (dataUrl.length <= BGYS_INLINE_LIMIT_BYTES) {
+    return dataUrl; // küçük -> doğrudan veritabanına göm, Storage'a hiç gerek yok
+  }
+  try {
+    return await bgysUploadFile(file, klasor);
+  } catch (e) {
+    throw new Error(
+      `Dosya ${(file.size / 1024 / 1024).toFixed(1)}MB, doğrudan eklemek için çok büyük (~700KB üstü). ` +
+      `Ya dosyayı küçült (sıkıştır/kırp), ya da Firebase Storage'ı aç. (${e.message})`
+    );
+  }
+}
+
 /* ================= Firebase yapılandırması ================= */
 const BGYS_FIREBASE_CONFIG_KEY = "bgys-firebase-config";
 
