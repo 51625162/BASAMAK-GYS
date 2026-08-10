@@ -195,26 +195,24 @@
 
       <div class="radio-row" id="konuModeRow">
         <button class="radio-chip active" data-mode="image">🖼️ Görsel</button>
+        <button class="radio-chip" data-mode="yapistir">📋 Yapıştır</button>
         <button class="radio-chip" data-mode="pdf">📄 PDF</button>
         <button class="radio-chip" data-mode="metin">📝 Bilgi Kartı</button>
         <button class="radio-chip" data-mode="audio">🎙️ Ses Kaydı</button>
       </div>
 
       <div class="mode-panel active" id="konu-mode-image">
-        <div class="field" style="margin-bottom:8px;"><label>Yöntem 1 — Dosyadan Seç</label></div>
         <div class="file-drop" onclick="document.getElementById('konuImageInput').click()">
           🖼️ Görsel(ler) seçmek için tıkla (birden fazla seçilebilir)
           <input type="file" id="konuImageInput" accept="image/*" multiple>
         </div>
-
-        <div style="border-top:1.5px dashed var(--mist);margin:22px 0;"></div>
-
-        <div class="field" style="margin-bottom:8px;"><label>Yöntem 2 — Panodan Yapıştır</label></div>
+        <div class="file-list" id="konuImageList"></div>
+      </div>
+      <div class="mode-panel" id="konu-mode-yapistir">
         <div class="file-drop" id="konuImagePasteArea" contenteditable="true" style="border-style:solid;background:var(--cloud);outline:none;">
           📋 Buraya dokun/tıkla, sonra <b>yapıştır</b> — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Hepsinde çalışır.
         </div>
-
-        <div class="file-list" id="konuImageList"></div>
+        <div class="file-list" id="konuImagePasteList"></div>
       </div>
       <div class="mode-panel" id="konu-mode-pdf">
         <div class="file-drop" onclick="document.getElementById('konuPdfInput').click()">
@@ -650,6 +648,7 @@ veya sadece: B D A C ..."></textarea>
     document.getElementById('konuImageList').textContent = fileListLabel(konuImageFiles);
   });
 
+  let konuPasteFiles = [];
   document.getElementById('konuImagePasteArea').addEventListener('paste', (e) => {
     const items = e.clipboardData ? e.clipboardData.items : [];
     let bulundu = false;
@@ -658,12 +657,12 @@ veya sadece: B D A C ..."></textarea>
         const blob = item.getAsFile();
         const dosyaAdi = `yapistirilan-${Date.now()}.png`;
         const file = new File([blob], dosyaAdi, { type: blob.type });
-        konuImageFiles.push(file);
+        konuPasteFiles.push(file);
         bulundu = true;
       }
     }
     if (bulundu) {
-      document.getElementById('konuImageList').textContent = fileListLabel(konuImageFiles);
+      document.getElementById('konuImagePasteList').textContent = fileListLabel(konuPasteFiles);
       document.getElementById('konuImagePasteArea').textContent = '✅ Yapıştırıldı — tekrar yapıştırabilir ya da kaydedebilirsin.';
     } else {
       document.getElementById('konuImagePasteArea').textContent = '⚠️ Panoda görsel bulunamadı, önce bir görseli kopyala.';
@@ -699,6 +698,15 @@ veya sadece: B D A C ..."></textarea>
         }
         showMsg('konuResult', 'ok', `${konuImageFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
         konuImageFiles = []; document.getElementById('konuImageInput').value = ''; document.getElementById('konuImageList').textContent = '';
+      } else if (mode === 'yapistir') {
+        if (konuPasteFiles.length === 0) { showMsg('konuResult', 'err', 'Önce bir görsel yapıştır.'); return; }
+        for (const file of konuPasteFiles) {
+          const dataUrl = await bgysUploadSmart(file, 'konular');
+          await bgysAdd('konular', { modul: bgysCurrentModul(), bolum, baslik, tip: 'image', dataUrl, fileName: file.name });
+        }
+        showMsg('konuResult', 'ok', `${konuPasteFiles.length} görsel eklendi. İnfografikler'de görebilirsin.`);
+        konuPasteFiles = []; document.getElementById('konuImagePasteList').textContent = '';
+        document.getElementById('konuImagePasteArea').textContent = '📋 Buraya dokun/tıkla, sonra yapıştır — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Hepsinde çalışır.';
       } else if (mode === 'pdf') {
         if (!konuPdfFile) { showMsg('konuResult', 'err', 'Bir PDF seç.'); return; }
         const dataUrl = await bgysUploadSmart(konuPdfFile, 'konular');
