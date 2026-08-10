@@ -210,8 +210,8 @@
         <div style="border-top:1.5px dashed var(--mist);margin:22px 0;"></div>
 
         <div class="field" style="margin-bottom:8px;"><label>Yöntem 2 — Panodan Yapıştır</label></div>
-        <div class="file-drop" id="konuImagePasteArea" tabindex="0" style="border-style:solid;background:var(--cloud);">
-          📋 Buraya tıkla, sonra <b>Ctrl+V</b> (panoya kopyaladığın görseli yapıştır)
+        <div class="file-drop" id="konuImagePasteArea" contenteditable="true" style="border-style:solid;background:var(--cloud);outline:none;">
+          📋 Buraya dokun/tıkla, sonra <b>yapıştır</b> — bilgisayarda Ctrl+V, telefon/tablette parmağını basılı tutup "Yapıştır" de. Hepsinde çalışır.
         </div>
 
         <div class="file-list" id="konuImageList"></div>
@@ -689,6 +689,7 @@ veya sadece: B D A C ..."></textarea>
     const baslik = document.getElementById('konuBaslik').value.trim();
     const mode = document.querySelector('#konuModeRow .radio-chip.active').dataset.mode;
     if (!bolum || !baslik) { showMsg('konuResult', 'err', 'Bölüm ve başlık gerekli.'); return; }
+    showMsg('konuResult', 'warn', 'Kaydediliyor, bekle...');
     try {
       if (mode === 'image') {
         if (konuImageFiles.length === 0) { showMsg('konuResult', 'err', 'En az bir görsel seç.'); return; }
