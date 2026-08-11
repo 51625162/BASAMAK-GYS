@@ -1,50 +1,64 @@
-/* Basamak GYS - Firebase veri katmanı */
-const BGYS_DB_SURUM="2026-08-11-shared-modules-v2";
-(function(){const e=document.createElement("div");e.textContent="db.js: "+BGYS_DB_SURUM;e.style.cssText="position:fixed;bottom:2px;left:2px;font-size:9px;color:#B0B8C0;z-index:9999;font-family:monospace;pointer-events:none;";document.addEventListener("DOMContentLoaded",()=>document.body.appendChild(e))})();
-const BGYS_FIREBASE_SDK_VERSION="10.7.1";let bgysFirebaseReadyPromise=null;
-function bgysLoadScript(src){return new Promise((r,j)=>{const s=document.createElement("script");s.src=src;s.onload=r;s.onerror=()=>j(new Error("Yüklenemedi: "+src));document.head.appendChild(s)})}
-async function bgysEnsureFirebaseSdk(){if(window.firebase&&window.firebase.apps)return;const b=`https://www.gstatic.com/firebasejs/${BGYS_FIREBASE_SDK_VERSION}`;await bgysLoadScript(`${b}/firebase-app-compat.js`);await bgysLoadScript(`${b}/firebase-auth-compat.js`);await bgysLoadScript(`${b}/firebase-firestore-compat.js`);await bgysLoadScript(`${b}/firebase-storage-compat.js`)}
-const BGYS_FIREBASE_CONFIG_KEY="bgys-firebase-config";
-function bgysGetFirebaseConfig(){try{const r=localStorage.getItem(BGYS_FIREBASE_CONFIG_KEY);return r?JSON.parse(r):null}catch(e){return null}}
-function bgysSetFirebaseConfig(c){localStorage.setItem(BGYS_FIREBASE_CONFIG_KEY,JSON.stringify(c))}function bgysClearFirebaseConfig(){localStorage.removeItem(BGYS_FIREBASE_CONFIG_KEY)}
-async function bgysInitFirebase(){if(bgysFirebaseReadyPromise)return bgysFirebaseReadyPromise;bgysFirebaseReadyPromise=(async()=>{const c=bgysGetFirebaseConfig();if(!c)return null;await bgysEnsureFirebaseSdk();if(!firebase.apps.length)firebase.initializeApp(c);return firebase.app()})();return bgysFirebaseReadyPromise}
-async function bgysWaitForAuth(){const a=await bgysInitFirebase();if(!a)return null;const u=firebase.auth().currentUser;if(u)return u;return new Promise(r=>{const x=firebase.auth().onAuthStateChanged(u=>{x();r(u)})})}
-function bgysCurrentUser(){return window.firebase&&firebase.apps&&firebase.apps.length?firebase.auth().currentUser:null}
-async function bgysSignUp(e,p){await bgysInitFirebase();return(await firebase.auth().createUserWithEmailAndPassword(e,p)).user}async function bgysLogIn(e,p){await bgysInitFirebase();return(await firebase.auth().signInWithEmailAndPassword(e,p)).user}async function bgysLogOut(){await bgysInitFirebase();return firebase.auth().signOut()}async function bgysResetPassword(e){await bgysInitFirebase();return firebase.auth().sendPasswordResetEmail(e)}
-async function bgysRequireAuth(){const c=bgysGetFirebaseConfig(),p=location.pathname.split("/").pop();if(p==="auth.html")return null;if(!c){location.href="auth.html?returnTo="+encodeURIComponent(location.pathname+location.search);return null}const u=await bgysWaitForAuth();if(!u){location.href="auth.html?returnTo="+encodeURIComponent(location.pathname+location.search);return null}bgysInjectUserBadge(u);return u}
-function bgysAutoRefresh(fn){let t=0;const run=()=>{clearTimeout(t);t=setTimeout(()=>Promise.resolve(fn()).catch(()=>{}),80)};run();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")run()});window.addEventListener("pageshow",run);window.addEventListener("focus",run)}
-function bgysInjectUserBadge(u){if(document.getElementById("bgysUserBadge"))return;const b=document.createElement("div");b.id="bgysUserBadge";b.style.cssText="position:fixed;bottom:14px;right:14px;background:#10243E;color:white;padding:8px 14px;border-radius:100px;font-family:Inter,sans-serif;font-size:.75rem;display:flex;align-items:center;gap:10px;z-index:800";b.innerHTML=`<span>👤 ${u.email}</span><button id="bgysLogoutBtn" style="background:rgba(255,255,255,.15);color:white;border:0;padding:5px 10px;border-radius:100px;cursor:pointer">Çıkış</button>`;document.body.appendChild(b);document.getElementById("bgysLogoutBtn").onclick=async()=>{await bgysLogOut();location.href="auth.html"}}
-const BGYS_MAX_DOC_BYTES=900000,BGYS_RECENT_KEY="bgys-recent-content-v7",BGYS_RECENT_TTL=15*60*1000;
-function bgysUserCollection(s){const u=bgysCurrentUser();if(!u)throw new Error("Giriş yapılmamış");return firebase.firestore().collection("users").doc(u.uid).collection(s)}
-function bgysRecentRead(s){try{const r=sessionStorage.getItem(`${BGYS_RECENT_KEY}-${s}`);if(!r)return[];const a=JSON.parse(r),n=Date.now();return Array.isArray(a)?a.filter(x=>x&&x._recentAt&&n-x._recentAt<BGYS_RECENT_TTL&&!x.deleted):[]}catch(e){return[]}}function bgysRecentWrite(s,r){try{const a=bgysRecentRead(s).filter(x=>x.id!==r.id);a.unshift({...r,_recentAt:Date.now()});sessionStorage.setItem(`${BGYS_RECENT_KEY}-${s}`,JSON.stringify(a.slice(0,10)))}catch(e){}}
-const BGYS_MODULLER={saymanlik:{ad:"Saymanlık",sayfa:"saymanlik.html"},"ds-sefligi":{ad:"DS Şefliği",sayfa:"ds-sefligi.html"},"idare-memuru":{ad:"İdare Memuru",sayfa:"idare-memuru.html"}};
-function bgysCurrentModul(){return new URLSearchParams(location.search).get("modul")||"saymanlik"}function bgysModulInfo(){const k=bgysCurrentModul();return{key:k,...(BGYS_MODULLER[k]||{ad:k,sayfa:"index.html"})}}function bgysWithModul(u){const m=bgysCurrentModul();return u+(u.includes("?")?"&":"?")+"modul="+encodeURIComponent(m)}function bgysOtherModuller(){const c=bgysCurrentModul();return Object.keys(BGYS_MODULLER).filter(k=>k!==c).map(k=>({key:k,...BGYS_MODULLER[k]}))}
-function bgysModulesOf(r){return [...new Set((Array.isArray(r.moduller)?r.moduller:(r.modul?[r.modul]:["saymanlik"])).filter(Boolean))]}
-function bgysSetModules(r,m){r.moduller=[...new Set(m.filter(Boolean))];if(r.moduller.length)r.modul=r.moduller[0];return r}
-function bgysFingerprint(r){const c={...r};["id","modul","moduller","createdAt","deleted","deletedAt","_recentAt"].forEach(k=>delete c[k]);return JSON.stringify(c)}
-async function bgysAdd(s,r){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)throw new Error("Giriş yapılmamış");r={...r,createdAt:r.createdAt||Date.now()};bgysSetModules(r,bgysModulesOf(r).length?bgysModulesOf(r):[bgysCurrentModul()]);if(new Blob([JSON.stringify(r)]).size>BGYS_MAX_DOC_BYTES)throw new Error("Kayıt çok büyük (~900KB üstü).");const ref=await bgysUserCollection(s).add(r);bgysRecentWrite(s,{id:ref.id,...r});return ref.id}
-async function bgysGetAll(s){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return[];let server=[];try{const snap=await bgysUserCollection(s).get({source:"server"});server=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>!r.deleted)}catch(e){}const map=new Map(server.map(r=>[r.id,r]));for(const r of bgysRecentRead(s))if(!map.has(r.id)&&!r.deleted)map.set(r.id,r);return Array.from(map.values())}
-async function bgysGetAllByModul(s){const m=bgysCurrentModul();return(await bgysGetAll(s)).filter(r=>bgysModulesOf(r).includes(m))}
-async function bgysAddModuleToExisting(s,id,m){await bgysInitFirebase();const ref=bgysUserCollection(s).doc(String(id)),snap=await ref.get({source:"server"});if(!snap.exists)throw new Error("Kayıt bulunamadı");const mods=bgysModulesOf(snap.data());if(!mods.includes(m))mods.push(m);await ref.update({moduller:mods,modul:mods[0]});return id}
-async function bgysCopyToModul(s,id,m){return bgysAddModuleToExisting(s,id,m)}
-async function bgysCopyDenemeToModul(id,m){const d=(await bgysGetAll("denemeler")).find(x=>x.id===id);if(!d)throw new Error("Deneme bulunamadı");await bgysAddModuleToExisting("denemeler",id,m);if(d.tip==="metin")for(const q of(await bgysGetAll("sorular")).filter(x=>x.denemeId===id))await bgysAddModuleToExisting("sorular",q.id,m);return id}
-async function bgysDelete(s,id){await bgysInitFirebase();const ref=bgysUserCollection(s).doc(String(id)),snap=await ref.get({source:"server"});if(!snap.exists)throw new Error("Kayıt bulunamadı");const mods=bgysModulesOf(snap.data()).filter(x=>x!==bgysCurrentModul());if(mods.length)await ref.update({moduller:mods,modul:mods[0]});else await ref.update({deleted:true,deletedAt:Date.now()})}
-async function bgysGetTrashByModul(s){await bgysInitFirebase();const m=bgysCurrentModul(),snap=await bgysUserCollection(s).get({source:"server"});return snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.deleted&&bgysModulesOf(r).includes(m))}
-async function bgysRestoreFromTrash(s,id){await bgysInitFirebase();await bgysUserCollection(s).doc(String(id)).update({deleted:false,deletedAt:null,moduller:[bgysCurrentModul()],modul:bgysCurrentModul()})}
-async function bgysPermanentDelete(s,id){await bgysInitFirebase();await bgysUserCollection(s).doc(String(id)).delete()}async function bgysDeleteAllInStore(s){const a=await bgysGetAllByModul(s);for(const r of a)await bgysDelete(s,r.id);return a.length}async function bgysDeleteByDateRange(s,f,t){const a=(await bgysGetAllByModul(s)).filter(r=>r.createdAt>=f&&r.createdAt<=t);for(const r of a)await bgysDelete(s,r.id);return a.length}async function bgysEmptyTrash(s){const a=await bgysGetTrashByModul(s);await bgysInitFirebase();const b=firebase.firestore().batch(),c=bgysUserCollection(s);a.forEach(r=>b.delete(c.doc(String(r.id))));await b.commit();return a.length}
-async function bgysPutAll(s,rs){await bgysInitFirebase();await bgysWaitForAuth();const c=bgysUserCollection(s);for(const r of rs){const{id,...x}=r;if(id)await c.doc(String(id)).set(x);else await c.add(x)}}async function bgysClearStore(s){await bgysInitFirebase();await bgysWaitForAuth();const n=await bgysUserCollection(s).get({source:"server"}),b=firebase.firestore().batch();n.docs.forEach(d=>b.delete(d.ref));await b.commit()}function bgysScheduleCloudPush(){}
-function bgysFileToDataUrl(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}async function bgysUploadFile(f,k){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)throw new Error("Giriş yapılmamış");const n=f.name.replace(/[^a-zA-Z0-9.\-_]/g,"_");const ref=firebase.storage().ref().child(`users/${u.uid}/${k}/${Date.now()}_${n}`);const s=await ref.put(f);return s.ref.getDownloadURL()}const BGYS_INLINE_LIMIT_BYTES=880000;async function bgysUploadSmart(f,k){if(f.size*1.37>BGYS_INLINE_LIMIT_BYTES)return bgysUploadFile(f,k);const d=await bgysFileToDataUrl(f);return d.length<=BGYS_INLINE_LIMIT_BYTES?d:bgysUploadFile(f,k)}
-const BGYS_SYNC_STORES=["konular","sorular","soruSetleri","denemeler","soruCevap","hatirlatmalar","dersTakip"];
-async function bgysPrepareShareRecord(r){const c={...r};delete c.id;if(c.tip!=="image"||typeof c.dataUrl!=="string"||!c.dataUrl.startsWith("data:")||c.dataUrl.length<=700000)return c;try{const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error("Görsel işlenemedi"));i.src=c.dataUrl});const maxSide=1800,scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height)),canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));canvas.height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);let out=canvas.toDataURL("image/jpeg",.78);if(out.length>700000)out=canvas.toDataURL("image/jpeg",.62);if(out.length>850000)out=canvas.toDataURL("image/jpeg",.48);c.dataUrl=out;return c}catch(e){throw new Error("Görsel paylaşılırken boyutu hazırlanamadı.")}}
-async function bgysShareItem(s,id,e){const u=bgysCurrentUser()||await bgysWaitForAuth(),r=(await bgysGetAll(s)).find(x=>x.id===id);if(!u||!r)throw new Error("Kayıt bulunamadı");const c=await bgysPrepareShareRecord(r);await firebase.firestore().collection("shares").add({storeName:s,record:c,baslikOzet:c.baslik||c.question||c.soru||"İçerik",fromEmail:u.email,toEmail:e.trim().toLowerCase(),sharedAt:Date.now(),status:"pending"})}
-async function bgysShareAllInStore(s,e){const a=await bgysGetAllByModul(s);for(const r of a)await bgysShareItem(s,r.id,e);return a.length}async function bgysShareByBolum(s,b,e){const a=(await bgysGetAllByModul(s)).filter(x=>x.bolum===b);for(const r of a)await bgysShareItem(s,r.id,e);return a.length}async function bgysShareAllContent(e){let n=0;for(const s of BGYS_SYNC_STORES)n+=await bgysShareAllInStore(s,e);return n}
-async function bgysGetIncomingShares(){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return[];const n=await firebase.firestore().collection("shares").where("toEmail","==",u.email.toLowerCase()).get({source:"server"});return n.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.sharedAt||0)-(a.sharedAt||0))}
-async function bgysAcceptShareToModul(id,m){if(!BGYS_MODULLER[m])throw new Error("Geçersiz bölüm seçimi.");const d=await firebase.firestore().collection("shares").doc(id).get({source:"server"});if(!d.exists)throw new Error("Paylaşım bulunamadı");const s=d.data();if(s.status!=="pending")throw new Error("Bu paylaşım daha önce işlendi.");const incoming={...s.record};delete incoming.id;const existing=(await bgysGetAll(s.storeName)).find(r=>bgysFingerprint(r)===bgysFingerprint(incoming));if(existing)await bgysAddModuleToExisting(s.storeName,existing.id,m);else{bgysSetModules(incoming,[m]);await bgysAdd(s.storeName,incoming)}await firebase.firestore().collection("shares").doc(id).update({status:"accepted",acceptedModul:m,acceptedAt:Date.now()})}async function bgysAcceptShare(id){return bgysAcceptShareToModul(id,bgysCurrentModul())}async function bgysDeclineShare(id){await firebase.firestore().collection("shares").doc(id).update({status:"declined"})}async function bgysDeleteShareNotification(id){await firebase.firestore().collection("shares").doc(id).delete()}
-function bgysAutoInsertBlockBreaks(t){const l=t.split("\n"),o=[];l.forEach((x,i)=>{const q=x.trim(),n=/^\d+\s*[\.\)\-]\s*\S/.test(q);if(n&&i!==0&&o.length&&o[o.length-1].trim()!=="")o.push("");o.push(x)});return o.join("\n")}
-function bgysParseSoruMetniFlexible(t,req){t=bgysAutoInsertBlockBreaks(t);const bs=t.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean),res=[],err=[];bs.forEach((b,i)=>{const ls=b.split("\n").map(x=>x.trim()).filter(Boolean),o={A:null,B:null,C:null,D:null};let c=null,e="",q=[];ls.forEach(x=>{const om=x.match(/^([A-D])\s*[\)\.\:\-]\s*(.+)$/i),cm=x.match(/^(do[ğg]ru\s+)?(cevap|yan[ıi]t)\s*[:\-]\s*([A-D])\b/i),am=x.match(/^(a[çc][ıi]klama|[çc]öz[üu]m|cozum)\s*[:\-]\s*(.+)$/i);if(cm)c=cm[3].toUpperCase();else if(am)e=am[2].trim();else if(om)o[om[1].toUpperCase()]=om[2].trim();else q.push(x)});const qq=q.join(" ").trim().replace(/^\d+\s*[\.\)\-]\s*/,"")||"(Soru metni girilmedi)",ex=["A","B","C","D"].filter(x=>!o[x]);if(ex.length)err.push({block:i+1,not:`${ex.join(", ")} şıkkı boş bırakıldı`});let cr=c?"ABCD".indexOf(c):null;if(cr===null&&req){cr=0;err.push({block:i+1,not:"Cevap belirtilmemiş, A varsayıldı"})}res.push({question:qq,options:["A","B","C","D"].map(x=>o[x]||"(Boş bırakıldı)"),correct:cr,explanation:e||"Açıklama eklenmedi."})});return{results:res,errors:err}}
-function bgysParseSoruMetni(t){return bgysParseSoruMetniFlexible(t,true)}function bgysParseCevapAnahtari(t){if(!t||!t.trim())return[];const l=t.split("\n").map(x=>x.trim()).filter(Boolean),n=[];let all=l.every(x=>{const m=x.match(/^(\d+)[\.\)\:\-]?\s*([A-D])\b/i);if(!m)return false;n[parseInt(m[1],10)-1]=m[2].toUpperCase();return true});if(all&&n.length)return n;return t.toUpperCase().match(/\b[A-D]\b/g)||[]}function bgysMergeCevapAnahtari(a,c){let n=0;const r=a.map((x,i)=>{if(x.correct!==null&&x.correct!==undefined)return x;const l=c[i];if(l&&"ABCD".includes(l))return{...x,correct:"ABCD".indexOf(l)};n++;return{...x,correct:null}});return{results:r,eksikCevapSayisi:n}}
-function bgysParseSoruCevap(t){const bs=t.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean),r=[];bs.forEach(b=>{const l=b.split("\n").map(x=>x.trim()).filter(Boolean);let s="",c="",m="soru";l.forEach(x=>{const cm=x.match(/^(cevap|yan[ıi]t)\s*[:\-]\s*(.+)$/i),sm=x.match(/^soru\s*[:\-]\s*(.+)$/i);if(cm){c+=(c?" ":"")+cm[2].trim();m="cevap"}else if(sm){s+=(s?" ":"")+sm[1].trim();m="soru"}else if(m==="cevap")c+=(c?" ":"")+x;else s+=(s?" ":"")+x});if(s)r.push({soru:s,cevap:c||"(Cevap girilmedi)"})});return r}
-async function bgysExtractPdfText(d){if(typeof pdfjsLib==="undefined")throw new Error("PDF.js yüklenemedi");let l;if(d.startsWith("data:")){const b=atob(d.split(",")[1]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);l=pdfjsLib.getDocument({data:a})}else l=pdfjsLib.getDocument({url:d});const p=await l.promise,o=[];for(let i=1;i<=p.numPages;i++){const pg=await p.getPage(i),c=await pg.getTextContent();let line="",y=null;c.items.forEach(it=>{const yy=it.transform?it.transform[5]:null;if(y!==null&&yy!==null&&Math.abs(yy-y)>2){if(line.trim())o.push(line.trim());line=""}line+=it.str+" ";y=yy});if(line.trim())o.push(line.trim())}return o.join("\n")}
-async function bgysGetDueReminders(){const a=await bgysGetAll("hatirlatmalar"),n=Date.now();return a.filter(r=>!r.tamamlandi&&r.zamanTs&&r.zamanTs<=n).sort((a,b)=>b.zamanTs-a.zamanTs)}async function bgysMarkReminderDone(id){await bgysInitFirebase();await bgysUserCollection("hatirlatmalar").doc(String(id)).update({tamamlandi:true,tamamlandiAt:Date.now()})}
-async function bgysExportAllData(){const d={exportedAt:Date.now(),version:3};for(const s of BGYS_SYNC_STORES)d[s]=await bgysGetAll(s);return d}async function bgysImportAllData(d,m){m=m||"replace";for(const s of BGYS_SYNC_STORES){const r=Array.isArray(d[s])?d[s]:[];if(m==="replace")await bgysClearStore(s);await bgysPutAll(s,r)}}function bgysDownloadBackupFile(){return bgysExportAllData().then(d=>{const b=new Blob([JSON.stringify(d,null,1)],{type:"application/json"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=`basamak-gys-yedek-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)})}function bgysRestoreFromFile(f){return f.text().then(t=>bgysImportAllData(JSON.parse(t),"replace"))}
-function bgysSolvedKey(){return"bgys-solved-"+bgysCurrentModul()}function bgysGetSolvedMap(){try{const r=localStorage.getItem(bgysSolvedKey());return r?JSON.parse(r):{}}catch(e){return{}}}function bgysMarkSolved(id,c){const m=bgysGetSolvedMap();m[id]={correct:!!c,solvedAt:Date.now()};localStorage.setItem(bgysSolvedKey(),JSON.stringify(m))}function bgysIsSolved(id){return!!bgysGetSolvedMap()[id]}function bgysClearSolved(){localStorage.removeItem(bgysSolvedKey())}
+/* Basamak GYS - Firebase veri katmanı + içerik listesi görünüm düzeni */
+/*
+  Veri katmanının çalışan sürümü değişmeden korunur: aşağıdaki immutable commit'ten yüklenir.
+  Bu dosyaya yalnızca sayfa görünüm düzeltmesi eklenmiştir.
+*/
+(function () {
+  const STABLE_DB_URL = "https://raw.githubusercontent.com/51625162/BASAMAK-GYS/8c287acabae45160ad0e4edc56c0ebe01164202f/db.js";
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", STABLE_DB_URL, false);
+  xhr.send(null);
+  if (xhr.status >= 200 && xhr.status < 300 && xhr.responseText) {
+    const script = document.createElement("script");
+    script.textContent = xhr.responseText;
+    document.head.appendChild(script);
+  } else {
+    throw new Error("Basamak GYS veri katmanı yüklenemedi.");
+  }
+
+  function compactContentLists() {
+    if (!location.pathname.endsWith("/icerik-ekle.html") && !location.pathname.endsWith("icerik-ekle.html")) return;
+    if (document.getElementById("bgysCompactContentListsStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "bgysCompactContentListsStyle";
+    style.textContent = `
+      /* İçerik Ekle: listeler uzayıp sayfayı kalabalıklaştırmasın.
+         Yaklaşık iki kayıt görünür; devamı listenin kendi içinde kaydırılır. */
+      #konuList,
+      #soruList,
+      #soruCevapList,
+      #denemeList {
+        max-height: 190px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 2px 7px 4px 0;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #konuList::-webkit-scrollbar,
+      #soruList::-webkit-scrollbar,
+      #soruCevapList::-webkit-scrollbar,
+      #denemeList::-webkit-scrollbar {
+        width: 7px;
+      }
+
+      #konuList .item-card,
+      #soruList .item-card,
+      #soruCevapList .item-card,
+      #denemeList .item-card {
+        margin-bottom: 8px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", compactContentLists);
+  } else {
+    compactContentLists();
+  }
+})();
