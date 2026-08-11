@@ -8,6 +8,9 @@
   const script=document.createElement('script');
   script.textContent=xhr.responseText;
   document.head.appendChild(script);
+  const shareBatchScript=document.createElement('script');
+  shareBatchScript.src='share-batch.js?v=20260811';
+  document.head.appendChild(shareBatchScript);
 
   function addStyle(){
     if(document.getElementById('bgysDbFixStyle'))return;
