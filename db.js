@@ -9,7 +9,7 @@
   script.textContent=xhr.responseText;
   document.head.appendChild(script);
   const shareBatchScript=document.createElement('script');
-  shareBatchScript.src='share-batch.js?v=20260811';
+  shareBatchScript.src='share-batch.js?v=20260811-2';
   document.head.appendChild(shareBatchScript);
 
   function addStyle(){
@@ -71,7 +71,7 @@
         const arr=await getSavedUsers();
         if(!arr.length){list.innerHTML='<div style="color:var(--slate);font-size:.78rem">Henüz kayıtlı kullanıcı yok.</div>';return;}
         list.innerHTML=arr.map(x=>'<div class="bgys-persist-user"><button class="pick" type="button" data-email="'+x.email+'">👤 '+x.email+'</button><button class="remove" type="button" data-id="'+x.id+'" title="Sil">🗑️</button></div>').join('');
-        list.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const input=document.getElementById('bulkShareEmail');if(input)input.value=b.dataset.email;});
+        list.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const input=document.getElementById('bulkShareEmail');if(input)input.value=b.dataset.email;const batch=document.getElementById('bgysBatchShareEmail');if(batch)batch.value=b.dataset.email;});
         list.querySelectorAll('.remove').forEach(b=>b.onclick=async()=>{if(!confirm('Bu kayıtlı kullanıcı silinsin mi?'))return;try{await deleteSavedUser(b.dataset.id);await load();}catch(e){alert('Silme hatası: '+e.message);}});
       }catch(e){list.textContent='Kullanıcılar yüklenemedi: '+e.message;}
     }
