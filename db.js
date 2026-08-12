@@ -11,6 +11,9 @@
   const shareBatchScript=document.createElement('script');
   shareBatchScript.src='share-batch.js?v=20260811-2';
   document.head.appendChild(shareBatchScript);
+  const deleteFixScript=document.createElement('script');
+  deleteFixScript.src='delete-fix.js?v=20260812-1';
+  document.head.appendChild(deleteFixScript);
 
   function addStyle(){
     if(document.getElementById('bgysDbFixStyle'))return;
