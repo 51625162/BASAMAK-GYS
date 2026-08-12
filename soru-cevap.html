@@ -38,6 +38,14 @@
   .content{max-width:1180px;margin:0 auto;padding:36px 6vw 90px;}
 
   .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+  .sc-group{background:var(--white);border:1px solid var(--mist);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+  .sc-group-head{width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--white);padding:14px 18px;cursor:pointer;text-align:left;border:none;}
+  .sc-group-title{font-weight:800;font-size:0.95rem;}
+  .sc-group-count{font-size:0.72rem;color:var(--slate);margin-left:8px;font-weight:600;}
+  .sc-group-arrow{transition:transform 0.18s;color:var(--slate);}
+  .sc-group.open .sc-group-arrow{transform:rotate(180deg);}
+  .sc-group-body{display:none;padding:0 16px 16px;max-height:520px;overflow-y:auto;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .sc-group.open .sc-group-body{display:grid;}
   .g-card{
     background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);
     overflow:hidden;display:flex;flex-direction:column;
@@ -162,6 +170,9 @@
     });
   });
 
+  function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function safeGid(v) { return String(v).replace(/[^a-zA-Z0-9_-]/g, '_'); }
+
   async function renderOwnKonular() {
     let items = await bgysGetAllByModul('soruCevap');
     if (statusFiltre === 'unsolved') items = items.filter(it => !bgysIsSolved(it.id));
@@ -169,24 +180,40 @@
     const grid = document.getElementById('ownKonuGrid');
     const empty = document.getElementById('ownKonuEmpty');
     if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
-    empty.style.display = 'none'; grid.style.display = 'grid';
+    empty.style.display = 'none'; grid.style.display = 'block'; grid.className = '';
     items.forEach(it => konuDataMap[it.id] = it);
-    grid.innerHTML = items.reverse().map(it => {
-      const cozulmeSayisi = bgysGetSolvedCount(it.id);
-      const cozulduEtiket = cozulmeSayisi > 0 ? `<span class="g-tag" style="background:rgba(34,197,94,0.12);color:#16803C;margin-left:6px;">✓ ${cozulmeSayisi}. kez</span>` : '';
-      return `
-      <div class="g-card" style="cursor:pointer;" onclick="toggleCevap('${it.id}')">
-        <div class="g-info" style="padding-top:20px;">
-          <span class="g-tag">${it.bolum}</span>${cozulduEtiket}
-          <h3>${it.soru}</h3>
-          <p id="cevap-${it.id}" style="display:none;font-size:0.9rem;color:var(--teal-dark);font-weight:700;line-height:1.6;white-space:pre-line;border-top:1px dashed var(--mist);padding-top:10px;margin-top:6px;">💡 ${it.cevap}</p>
-          <div class="g-actions">
-            <button class="g-btn view" id="toggleBtn-${it.id}" onclick="event.stopPropagation();toggleCevap('${it.id}')">👁️ Cevabı Gör</button>
-            <button class="g-btn view" onclick="event.stopPropagation();cozulduIsaretle('${it.id}')">✓ Çözdüm</button>
+    const gruplar = {};
+    items.forEach(it => {
+      const k = (it.bolum || 'Diğer').trim() || 'Diğer';
+      (gruplar[k] ??= []).push(it);
+    });
+    grid.innerHTML = Object.entries(gruplar).map(([bolum, arr], gi) => {
+      const gid = 'sc-grp-' + safeGid(bolum) + '-' + gi;
+      const kartlar = arr.slice().reverse().map(it => {
+        const cozulmeSayisi = bgysGetSolvedCount(it.id);
+        const cozulduEtiket = cozulmeSayisi > 0 ? `<span class="g-tag" style="background:rgba(34,197,94,0.12);color:#16803C;margin-left:6px;">✓ ${cozulmeSayisi}. kez</span>` : '';
+        return `
+        <div class="g-card" style="cursor:pointer;" onclick="toggleCevap('${it.id}')">
+          <div class="g-info" style="padding-top:20px;">
+            ${cozulduEtiket}
+            <h3>${esc(it.soru)}</h3>
+            <p id="cevap-${it.id}" style="display:none;font-size:0.9rem;color:var(--teal-dark);font-weight:700;line-height:1.6;white-space:pre-line;border-top:1px dashed var(--mist);padding-top:10px;margin-top:6px;">💡 ${esc(it.cevap)}</p>
+            <div class="g-actions">
+              <button class="g-btn view" id="toggleBtn-${it.id}" onclick="event.stopPropagation();toggleCevap('${it.id}')">👁️ Cevabı Gör</button>
+              <button class="g-btn view" onclick="event.stopPropagation();cozulduIsaretle('${it.id}')">✓ Çözdüm</button>
+            </div>
           </div>
+        </div>`;
+      }).join('');
+      return `
+        <div class="sc-group open" id="${gid}">
+          <button class="sc-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
+            <span><span class="sc-group-title">${esc(bolum)}</span><span class="sc-group-count">${arr.length} çift</span></span>
+            <span class="sc-group-arrow">▼</span>
+          </button>
+          <div class="sc-group-body">${kartlar}</div>
         </div>
-      </div>
-    `;
+      `;
     }).join('');
   }
 
