@@ -4,33 +4,113 @@
   const xhr=new XMLHttpRequest(); xhr.open('GET',STABLE_DB_URL,false); xhr.send(null);
   if(xhr.status<200||xhr.status>=300||!xhr.responseText)throw new Error('Basamak GYS veri katmanı yüklenemedi.');
   const script=document.createElement('script'); script.textContent=xhr.responseText; document.head.appendChild(script);
-  if(typeof bgysUserCollection==='function'){
-    const bgysOriginalRecentRead=window.bgysRecentRead;
-    window.bgysGetAll=async function(storeName){
-      await bgysInitFirebase(); const user=bgysCurrentUser()||await bgysWaitForAuth(); if(!user)return[];
-      let docs=[]; try{let snap;try{snap=await bgysUserCollection(storeName).get({source:'server'});}catch(e){snap=await bgysUserCollection(storeName).get();}
-        docs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>!r.deleted);
-      }catch(e){console.warn('BGYS veri okuma uyarısı:',storeName,e);}
-      const map=new Map(docs.map(r=>[String(r.id),r]));
-      try{const recent=typeof bgysOriginalRecentRead==='function'?bgysOriginalRecentRead(storeName):[];for(const r of recent){if(r&&r.id&&!r.deleted&&!map.has(String(r.id)))map.set(String(r.id),r);}}catch(e){}
-      return Array.from(map.values()).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0));
-    };
-    window.bgysGetAllByModul=async function(storeName){
-      const modul=bgysCurrentModul(); const rows=await window.bgysGetAll(storeName);
-      return rows.filter(r=>{const modules=typeof bgysModulesOf==='function'?bgysModulesOf(r):(Array.isArray(r.moduller)?r.moduller:(r.modul?[r.modul]:[]));return modules.includes(modul);});
-    };
-    window.bgysRefreshAllContentSafely=async function(){const stores=['konular','sorular','soruSetleri','soruCevap','denemeler'];const out={};for(const s of stores)out[s]=await window.bgysGetAll(s);return out;};
+
+  /* ================================================================
+     VERİ KORUMA KİLİDİ
+     Yeni evrak/belge/görsel eklenmesi mevcut kaydın üzerine yazamaz.
+     Her yeni kayıt daima Firestore add() ile ayrı belge olarak oluşturulur.
+     Dosya yükleme yolu da her seferinde benzersizdir; aynı isimli yeni
+     bir dosya eski Storage dosyasını asla ezmez.
+  ================================================================ */
+  const _originalAdd=window.bgysAdd;
+  const _originalUploadFile=window.bgysUploadFile;
+  const _originalUploadSmart=window.bgysUploadSmart;
+
+  window.bgysAdd=async function(store,record){
+    const copy={...(record||{})};
+    /* Yeni içerikte mevcut bir id verilse bile onu güncelleme anahtarı olarak
+       kullanma. Bu fonksiyonun görevi YENİ kayıt eklemektir. */
+    delete copy.id;
+    delete copy._recentAt;
+    copy.createdAt=Number(copy.createdAt)||Date.now();
+    copy.contentRevisionId=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
+    return _originalAdd(store,copy);
+  };
+
+  window.bgysUploadFile=async function(file,folder){
+    await bgysInitFirebase();
+    const u=bgysCurrentUser()||await bgysWaitForAuth();
+    if(!u)throw new Error('Giriş yapılmamış');
+    const clean=(file.name||'dosya').replace(/[^a-zA-Z0-9.\-_]/g,'_');
+    const unique=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(36).slice(2);
+    const path=`users/${u.uid}/${folder}/${Date.now()}_${unique}_${clean}`;
+    const ref=firebase.storage().ref().child(path);
+    const snap=await ref.put(file);
+    return snap.ref.getDownloadURL();
+  };
+
+  window.bgysUploadSmart=async function(file,folder){
+    /* Küçük dosyalarda mevcut hızlı inline davranışı; büyüklerde benzersiz
+       Storage yolu. Her iki durumda da eski dosyaya dokunulmaz. */
+    if(file && file.size*1.37>880000)return window.bgysUploadFile(file,folder);
+    const dataUrl=await bgysFileToDataUrl(file);
+    return dataUrl.length<=880000?dataUrl:window.bgysUploadFile(file,folder);
+  };
+
+  /* Eski içerikleri yalnızca listelemek için oku. Eksik/önbellek verisi
+     geldiğinde mevcut kayıtları yanlışlıkla silme veya değiştirme yok. */
+  window.bgysGetAll=async function(storeName){
+    await bgysInitFirebase();
+    const user=bgysCurrentUser()||await bgysWaitForAuth();
+    if(!user)return[];
+    let docs=[];
+    try{
+      let snap;
+      try{snap=await bgysUserCollection(storeName).get({source:'server'});}catch(e){snap=await bgysUserCollection(storeName).get();}
+      docs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>!r.deleted);
+    }catch(e){console.warn('BGYS okuma:',storeName,e);}
+    const map=new Map(docs.map(r=>[String(r.id),r]));
+    try{
+      const recent=typeof bgysRecentRead==='function'?bgysRecentRead(storeName):[];
+      for(const r of recent){if(r&&r.id&&!r.deleted&&!map.has(String(r.id)))map.set(String(r.id),r);}
+    }catch(e){}
+    return Array.from(map.values()).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0));
+  };
+  window.bgysGetAllByModul=async function(storeName){
+    const modul=bgysCurrentModul();
+    return (await window.bgysGetAll(storeName)).filter(r=>bgysModulesOf(r).includes(modul));
+  };
+
+  /* İçe aktarma mevcut dosyaları ezmesin: aynı id ile gelen kayıt da yeni
+     bir belge olarak alınır. Orijinal yedek dosyası değişmez. */
+  window.bgysPutAll=async function(storeName,records){
+    await bgysInitFirebase();
+    const user=bgysCurrentUser()||await bgysWaitForAuth();
+    if(!user)throw new Error('Giriş yapılmamış');
+    for(const source of (records||[])){
+      const copy={...(source||{})};
+      delete copy.id; delete copy._recentAt;
+      copy.createdAt=Number(copy.createdAt)||Date.now();
+      copy.contentRevisionId=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
+      await _originalAdd(storeName,copy);
+    }
+  };
+
+  /* Paylaşım/gönderim için kullanılan mevcut kayda ait güncelleme fonksiyonları
+     sadece ilgili alanları değiştirir; evrakın kendisi korunur. */
+  window.bgysSafeUpdateMeta=async function(store,id,fields){
+    await bgysInitFirebase();
+    const ref=bgysUserCollection(store).doc(String(id));
+    const snap=await ref.get({source:'server'});
+    if(!snap.exists)throw new Error('Kayıt bulunamadı');
+    const safe={...fields};
+    delete safe.id; delete safe.dataUrl; delete safe.fileUrl; delete safe.downloadURL; delete safe.fileName; delete safe.metin;
+    await ref.update(safe);
+  };
+
+  /* Önceki yardımcı düzeltmeler */
+  const shareBatchScript=document.createElement('script'); shareBatchScript.src='share-batch.js?v=20260812-4'; document.head.appendChild(shareBatchScript);
+  const deleteFixScript=document.createElement('script'); deleteFixScript.src='delete-fix.js?v=20260812-4'; document.head.appendChild(deleteFixScript);
+  const imageFixScript=document.createElement('script'); imageFixScript.src='icerik-gorsel-fix.js?v=20260812-4'; document.head.appendChild(imageFixScript);
+  const infographicFixScript=document.createElement('script'); infographicFixScript.src='infografik-fix.js?v=20260812-4'; document.head.appendChild(infographicFixScript);
+
+  function addStyle(){
+    if(document.getElementById('bgysDbFixStyle'))return;
+    const st=document.createElement('style'); st.id='bgysDbFixStyle'; st.textContent=`
+      #konuList,#soruList,#soruSetiList,#soruCevapList,#denemeList{display:block!important;height:190px!important;max-height:190px!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding:2px 8px 4px 0!important;margin:0!important;-webkit-overflow-scrolling:touch;}
+      #konuList .item-card,#soruList .item-card,#soruSetiList .item-card,#soruCevapList .item-card,#denemeList .item-card{margin-bottom:8px!important;flex-shrink:0!important;}
+    `; document.head.appendChild(st);
   }
-  ['share-batch.js?v=20260811-2','delete-fix.js?v=20260812-2'].forEach(src=>{const s=document.createElement('script');s.src=src;document.head.appendChild(s);});
-  function addStyle(){if(document.getElementById('bgysDbFixStyle'))return;const st=document.createElement('style');st.id='bgysDbFixStyle';st.textContent=`#konuList,#soruList,#soruSetiList,#soruCevapList,#denemeList{display:block!important;height:190px!important;max-height:190px!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding:2px 8px 4px 0!important;margin:0!important;-webkit-overflow-scrolling:touch;}#konuList .item-card,#soruList .item-card,#soruSetiList .item-card,#soruCevapList .item-card,#denemeList .item-card{margin-bottom:8px!important;flex-shrink:0!important;}#bgysGroupShareCard,#bgysSavedShareCard,#bgysQuickShareCard{display:none!important;}#bgysPersistentSavedUsers{border:1px solid var(--mist);background:var(--cloud);border-radius:16px;padding:16px;margin:16px 0;}#bgysPersistentSavedUsers h4{margin:0 0 5px;font-size:.98rem;}#bgysPersistentSavedUsers .help{margin:0 0 12px;color:var(--slate);font-size:.78rem;line-height:1.45;}#bgysPersistentSavedUsersList{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}.bgys-persist-user{display:flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--mist);border-radius:12px;padding:8px 9px;}.bgys-persist-user .pick{flex:1;text-align:left;background:transparent;color:var(--ink);font-size:.8rem;font-weight:700;padding:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.bgys-persist-user .remove{background:rgba(239,68,68,.1);color:#C0392B;border-radius:9px;padding:6px 8px;font-weight:800;}#bgysPersistentSavedUsersAdd{display:flex;gap:7px;}#bgysPersistentSavedUsersEmail{flex:1;min-width:0;padding:10px 12px;border-radius:11px;border:1.5px solid var(--mist);background:var(--white);font-size:.84rem;}#bgysPersistentSavedUsersAddBtn{background:var(--ink);color:#fff;border-radius:11px;padding:10px 13px;font-weight:700;font-size:.8rem;}#bgysBolumSecimWrap,#bgysSoruBolumSecimWrap{margin:-5px 0 16px;padding:12px 14px;border:1px solid var(--mist);border-radius:14px;background:var(--cloud);}#bgysBolumSecimWrap label,#bgysSoruBolumSecimWrap label{display:block;font-size:.8rem;font-weight:800;color:var(--ink);margin-bottom:6px;}#bgysBolumSecim,#bgysSoruBolumSecim{width:100%;padding:10px 12px;border-radius:11px;border:1.5px solid var(--mist);background:#fff;color:var(--ink);font-size:.88rem;}#bgysBolumSecimHint,#bgysSoruBolumSecimHint{margin:6px 0 0;color:var(--slate);font-size:.72rem;line-height:1.4;}`;document.head.appendChild(st);}
-  async function getSavedUsers(){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return[];const snap=await bgysUserCollection('paylasimKullanicilari').get({source:'server'});return snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.email||'').localeCompare(b.email||'','tr'));}
-  async function saveSavedUser(email){const e=String(email||'').trim().toLowerCase();if(!e||!e.includes('@'))throw new Error('Geçerli bir e-posta yaz.');await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)throw new Error('Giriş yapılmamış.');const id=encodeURIComponent(e).replace(/%/g,'_');await bgysUserCollection('paylasimKullanicilari').doc(id).set({email:e,createdAt:Date.now()},{merge:true});}
-  async function deleteSavedUser(id){await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)throw new Error('Giriş yapılmamış.');await bgysUserCollection('paylasimKullanicilari').doc(String(id)).delete();}
-  function installSavedUsers(){const bulk=document.getElementById('bulkShareResult');if(!bulk||document.getElementById('bgysPersistentSavedUsers'))return;const card=document.createElement('div');card.id='bgysPersistentSavedUsers';card.innerHTML='<h4>👥 Kayıtlı Kullanıcılar</h4><p class="help">Buraya eklediğin kullanıcılar sen silene kadar hesabında kayıtlı kalır.</p><div id="bgysPersistentSavedUsersList">Yükleniyor...</div><div id="bgysPersistentSavedUsersAdd"><input id="bgysPersistentSavedUsersEmail" type="email" placeholder="kullanici@mail.com"><button id="bgysPersistentSavedUsersAddBtn">+ Kullanıcı Ekle</button></div>';bulk.parentNode.insertBefore(card,bulk.nextSibling);const list=document.getElementById('bgysPersistentSavedUsersList');async function load(){try{const arr=await getSavedUsers();if(!arr.length){list.innerHTML='<div style="color:var(--slate);font-size:.78rem">Henüz kayıtlı kullanıcı yok.</div>';return;}list.innerHTML=arr.map(x=>'<div class="bgys-persist-user"><button class="pick" type="button" data-email="'+x.email+'">👤 '+x.email+'</button><button class="remove" type="button" data-id="'+x.id+'">🗑️</button></div>').join('');list.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const a=document.getElementById('bulkShareEmail');if(a)a.value=b.dataset.email;const c=document.getElementById('bgysBatchShareEmail');if(c)c.value=b.dataset.email;});list.querySelectorAll('.remove').forEach(b=>b.onclick=async()=>{if(!confirm('Bu kayıtlı kullanıcı silinsin mi?'))return;await deleteSavedUser(b.dataset.id);await load();});}catch(e){list.textContent='Kullanıcılar yüklenemedi: '+e.message;}}document.getElementById('bgysPersistentSavedUsersAddBtn').onclick=async()=>{const i=document.getElementById('bgysPersistentSavedUsersEmail');try{await saveSavedUser(i.value);i.value='';await load();}catch(e){alert(e.message);}};load();}
-  const BOLUM_STORAGE='bgys_kayitli_bolumler_v1';let bolumCloudWriteTimer=null;function readLocalBolumler(){try{const a=JSON.parse(localStorage.getItem(BOLUM_STORAGE)||'[]');return Array.isArray(a)?a.filter(Boolean):[]}catch(e){return[]}}function writeLocalBolumler(a){try{localStorage.setItem(BOLUM_STORAGE,JSON.stringify(a))}catch(e){}}function mergeBolumler(a){const out=[];const seen=new Set();[...readLocalBolumler(),...(a||[])].forEach(v=>{const x=String(v||'').trim(),k=x.toLocaleLowerCase('tr-TR');if(x&&!seen.has(k)){seen.add(k);out.push(x)}});out.sort((a,b)=>a.localeCompare(b,'tr'));writeLocalBolumler(out);return out}async function cloudBolumler(){try{await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return[];const snap=await bgysUserCollection('kayitliBolumler').get({source:'server'});return snap.docs.map(d=>d.data().ad).filter(Boolean)}catch(e){return[]}}async function saveBolumCloud(ad){const x=String(ad||'').trim();if(!x)return;try{await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return;const id=encodeURIComponent(x.toLocaleLowerCase('tr-TR')).replace(/%/g,'_');await bgysUserCollection('kayitliBolumler').doc(id).set({ad:x,updatedAt:Date.now()},{merge:true})}catch(e){console.warn(e)}}function populateBolumSelects(list){['bgysBolumSecim','bgysSoruBolumSecim'].map(id=>document.getElementById(id)).filter(Boolean).forEach(sel=>{const current=sel.value;sel.innerHTML='<option value="">— Kayıtlı Bölüm / Kısım seç —</option>'+list.map(x=>'<option value="'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')+'">'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');if(list.includes(current))sel.value=current})}async function refreshPersistentBolumler(){const k=await bgysGetAllByModul('konular'),s=await bgysGetAllByModul('sorular');let list=mergeBolumler([...k,...s].map(x=>x.bolum).filter(Boolean));list=mergeBolumler(await cloudBolumler());populateBolumSelects(list);const dl=document.getElementById('bolumListesi');if(dl)dl.innerHTML=list.map(b=>'<option value="'+String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">').join('')}
-  function addBolumSelector(inputId,wrapId,selectId,hintId){const input=document.getElementById(inputId);if(!input||document.getElementById(wrapId))return;const wrap=document.createElement('div');wrap.id=wrapId;wrap.innerHTML='<label for="'+selectId+'">📚 Kayıtlı Bölüm / Kısım</label><select id="'+selectId+'"><option value="">— Kayıtlı Bölüm / Kısım seç —</option></select><p id="'+hintId+'">Daha önce eklediğin bölüm burada kalır. Seçtiğinde yukarıdaki alana aktarılır.</p>';input.parentNode.insertBefore(wrap,input);wrap.querySelector('select').addEventListener('change',e=>{if(e.target.value)input.value=e.target.value})}
-  function hookBolumSaveButton(id,inputId){const b=document.getElementById(id),i=document.getElementById(inputId);if(!b||!i||b.dataset.bgysBolumHooked)return;b.dataset.bgysBolumHooked='1';b.addEventListener('click',()=>{const v=i.value.trim();if(!v)return;mergeBolumler([v]);clearTimeout(bolumCloudWriteTimer);bolumCloudWriteTimer=setTimeout(()=>saveBolumCloud(v),250);setTimeout(refreshPersistentBolumler,350)},true)}function installBolumFeatures(){if(!document.getElementById('konuBolum')&&!document.getElementById('soruBolum'))return;addStyle();addBolumSelector('konuBolum','bgysBolumSecimWrap','bgysBolumSecim','bgysBolumSecimHint');addBolumSelector('soruBolum','bgysSoruBolumSecimWrap','bgysSoruBolumSecim','bgysSoruBolumSecimHint');hookBolumSaveButton('konuKaydetBtn','konuBolum');hookBolumSaveButton('soruMetinEkleBtn','soruBolum');hookBolumSaveButton('soruGorselEkleBtn','soruBolum');hookBolumSaveButton('soruPdfEkleBtn','soruBolum');refreshPersistentBolumler()}
-  function loadPageFixes(){const scripts=['icerik-gorsel-fix.js?v=20260812-3','infografik-fix.js?v=20260812-3'];scripts.forEach(src=>{const s=document.createElement('script');s.src=src;document.head.appendChild(s);});}
-  function start(){addStyle();installSavedUsers();installBolumFeatures();loadPageFixes();setTimeout(addStyle,100);setTimeout(installSavedUsers,300);setTimeout(installBolumFeatures,500);}
+  function start(){addStyle();setTimeout(addStyle,200);setTimeout(addStyle,1000)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
