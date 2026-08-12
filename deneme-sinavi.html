@@ -159,6 +159,7 @@
       <div class="q-progress-label mono"><span id="qIndex">1</span>/<span id="qTotal">0</span></div>
     </div>
     <div class="q-card">
+      <div id="qTags" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;"></div>
       <div id="qImgWrap"></div>
       <div class="q-text" id="qText"></div>
       <div id="qOptions"></div>
@@ -381,6 +382,12 @@
     const q = quiz[qIdx];
     document.getElementById('qIndex').textContent = qIdx + 1;
     document.getElementById('qBarFill').style.width = (qIdx / quiz.length * 100) + '%';
+    const tagsEl = document.getElementById('qTags');
+    if (tagsEl) {
+      const oncedenCozuldu = bgysIsSolved(q.id);
+      const cozulmeSayisi = bgysGetSolvedCount(q.id);
+      tagsEl.innerHTML = oncedenCozuldu ? `<span class="q-tag" style="font-size:0.68rem;font-weight:700;padding:4px 11px;border-radius:100px;background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : '';
+    }
     const imgWrap = document.getElementById('qImgWrap');
     imgWrap.innerHTML = (q.tip === 'image' && q.imageDataUrl) ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
     document.getElementById('qText').textContent = q.question;
@@ -408,7 +415,9 @@
       if (idx === q.correct) el.classList.add('correct');
       if (idx !== q.correct) el.classList.add('dim');
     });
-    if (i === q.correct) correctCount++; else { btn.classList.remove('dim'); btn.classList.add('wrong'); wrongCount++; }
+    const doguMuydu = (i === q.correct);
+    if (doguMuydu) correctCount++; else { btn.classList.remove('dim'); btn.classList.add('wrong'); wrongCount++; }
+    bgysMarkSolved(q.id, doguMuydu);
     document.getElementById('solutionToggle').classList.add('show');
     document.getElementById('nextBtn').classList.add('show');
   }

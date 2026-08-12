@@ -400,13 +400,14 @@
 
     const tagsEl = document.getElementById('qTags');
     const oncedenCozuldu = bgysIsSolved(q.id);
+    const cozulmeSayisi = bgysGetSolvedCount(q.id);
     tagsEl.innerHTML = `
       <span class="q-tag madde">${q.madde}</span>
       <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
       <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
       ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
       ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
-      ${oncedenCozuldu ? '<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ Çözüldü</span>' : ''}
+      ${oncedenCozuldu ? `<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : ''}
     `;
 
     document.getElementById('qImgWrap').innerHTML = q.imageDataUrl ? `<img class="q-img" src="${q.imageDataUrl}">` : '';

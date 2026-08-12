@@ -484,6 +484,10 @@ veya sadece: B D A C ..."></textarea>
 
       <div class="sync-divider"></div>
 
+      <a class="btn secondary" href="kullanicilar.html" style="width:100%;justify-content:center;display:flex;">👥 Kayıtlı Kullanıcılar (sık paylaştıkların)</a>
+
+      <div class="sync-divider"></div>
+
       <h4>📤 Toplu Paylaşım</h4>
       <p class="sync-lead">Tek tek değil, bir kerede paylaş.</p>
       <div class="field">
@@ -1181,12 +1185,7 @@ veya sadece: B D A C ..."></textarea>
           </div>
           <div class="item-actions">
             ${s.status === 'pending' ? `
-              <select class="share-target-select" id="shareTarget-${s.id}" onclick="event.stopPropagation()" style="padding:8px 10px;border-radius:9px;border:1px solid var(--mist);font-weight:700;font-size:.78rem;background:white;color:var(--ink);">
-                <option value="saymanlik">Saymanlık</option>
-                <option value="ds-sefligi">DS Şefliği</option>
-                <option value="idare-memuru">İdare Memuru</option>
-              </select>
-              <button class="btn primary small" onclick="acceptIncomingShare('${s.id}', document.getElementById('shareTarget-${s.id}').value)">Kabul Et</button>
+              <button class="btn primary small" onclick="acceptIncomingShare('${s.id}')">Kabul Et</button>
               <button class="btn danger small" onclick="declineIncomingShare('${s.id}')">Reddet</button>
             ` : ''}
             <button class="btn danger small" onclick="deleteIncomingShareNotif('${s.id}')">🗑️</button>
@@ -1198,28 +1197,10 @@ veya sadece: B D A C ..."></textarea>
     }
   }
 
-  async function bgysAcceptShareToModul(shareId, targetModul) {
-    const allowed = ['saymanlik', 'ds-sefligi', 'idare-memuru'];
-    if (!allowed.includes(targetModul)) throw new Error('Geçersiz bölüm seçimi.');
-    await bgysInitFirebase();
-    const doc = await firebase.firestore().collection('shares').doc(shareId).get({source:'server'});
-    if (!doc.exists) throw new Error('Paylaşım bulunamadı');
-    const share = doc.data();
-    if (share.status !== 'pending') throw new Error('Bu paylaşım daha önce işlendi.');
-    const clone = {...share.record, modul: targetModul, createdAt: Date.now()};
-    delete clone.denemeId;
-    await bgysAdd(share.storeName, clone);
-    await firebase.firestore().collection('shares').doc(shareId).update({status:'accepted', acceptedModul:targetModul, acceptedAt:Date.now()});
-  }
-
-  window.acceptIncomingShare = async (shareId, targetModul) => {
-    try {
-      await bgysAcceptShareToModul(shareId, targetModul || 'saymanlik');
-      await refreshIncomingShares();
-      renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
-    } catch (e) {
-      alert('Paylaşım alınamadı: ' + e.message);
-    }
+  window.acceptIncomingShare = async (shareId) => {
+    await bgysAcceptShare(shareId);
+    await refreshIncomingShares();
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
   };
   window.declineIncomingShare = async (shareId) => {
     await bgysDeclineShare(shareId);
