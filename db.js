@@ -33,6 +33,14 @@
       #bgysPersistentSavedUsersAdd{display:flex;gap:7px;}
       #bgysPersistentSavedUsersEmail{flex:1;min-width:0;padding:10px 12px;border-radius:11px;border:1.5px solid var(--mist);background:var(--white);font-size:.84rem;}
       #bgysPersistentSavedUsersAddBtn{background:var(--ink);color:#fff;border-radius:11px;padding:10px 13px;font-weight:700;font-size:.8rem;}
+      #bgysBolumSecimWrap{margin:-5px 0 16px;padding:12px 14px;border:1px solid var(--mist);border-radius:14px;background:var(--cloud);}
+      #bgysBolumSecimWrap label{display:block;font-size:.8rem;font-weight:800;color:var(--ink);margin-bottom:6px;}
+      #bgysBolumSecim{width:100%;padding:10px 12px;border-radius:11px;border:1.5px solid var(--mist);background:#fff;color:var(--ink);font-size:.88rem;}
+      #bgysBolumSecimHint{margin:6px 0 0;color:var(--slate);font-size:.72rem;line-height:1.4;}
+      #bgysSoruBolumSecimWrap{margin:-5px 0 16px;padding:12px 14px;border:1px solid var(--mist);border-radius:14px;background:var(--cloud);}
+      #bgysSoruBolumSecimWrap label{display:block;font-size:.8rem;font-weight:800;color:var(--ink);margin-bottom:6px;}
+      #bgysSoruBolumSecim{width:100%;padding:10px 12px;border-radius:11px;border:1.5px solid var(--mist);background:#fff;color:var(--ink);font-size:.88rem;}
+      #bgysSoruBolumSecimHint{margin:6px 0 0;color:var(--slate);font-size:.72rem;line-height:1.4;}
     `;
     document.head.appendChild(st);
   }
@@ -86,6 +94,81 @@
     load();
   }
 
+  /* İçerik Ekle: Bölüm/Kısım kayıtları */
+  const BOLUM_STORAGE='bgys_kayitli_bolumler_v1';
+  let bolumCloudWriteTimer=null;
+  function readLocalBolumler(){
+    try{const a=JSON.parse(localStorage.getItem(BOLUM_STORAGE)||'[]');return Array.isArray(a)?a.filter(Boolean):[];}catch(e){return[];}
+  }
+  function writeLocalBolumler(arr){try{localStorage.setItem(BOLUM_STORAGE,JSON.stringify(arr));}catch(e){}}
+  function mergeBolumler(arr){
+    const out=[];const seen=new Set();
+    [...readLocalBolumler(),...(arr||[])].forEach(v=>{const x=String(v||'').trim();const k=x.toLocaleLowerCase('tr-TR');if(x&&!seen.has(k)){seen.add(k);out.push(x);}});
+    out.sort((a,b)=>a.localeCompare(b,'tr'));writeLocalBolumler(out);return out;
+  }
+  async function cloudBolumler(){
+    try{
+      await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return[];
+      const snap=await bgysUserCollection('kayitliBolumler').get({source:'server'});
+      return snap.docs.map(d=>d.data().ad).filter(Boolean);
+    }catch(e){return[];}
+  }
+  async function saveBolumCloud(ad){
+    const x=String(ad||'').trim();if(!x)return;
+    try{
+      await bgysInitFirebase();const u=bgysCurrentUser()||await bgysWaitForAuth();if(!u)return;
+      const id=encodeURIComponent(x.toLocaleLowerCase('tr-TR')).replace(/%/g,'_');
+      await bgysUserCollection('kayitliBolumler').doc(id).set({ad:x,updatedAt:Date.now()},{merge:true});
+    }catch(e){console.warn('Bölüm kaydı buluta yazılamadı',e);}
+  }
+  function populateBolumSelects(list){
+    const selects=['bgysBolumSecim','bgysSoruBolumSecim'].map(id=>document.getElementById(id)).filter(Boolean);
+    selects.forEach(sel=>{
+      const current=sel.value;
+      sel.innerHTML='<option value="">— Kayıtlı Bölüm / Kısım seç —</option>'+list.map(x=>'<option value="'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')+'">'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');
+      if(list.includes(current))sel.value=current;
+    });
+  }
+  async function refreshPersistentBolumler(){
+    const konular=typeof bgysGetAllByModul==='function'?await bgysGetAllByModul('konular'):[];
+    const sorular=typeof bgysGetAllByModul==='function'?await bgysGetAllByModul('sorular'):[];
+    const fromContent=[...konular,...sorular].map(x=>x.bolum).filter(Boolean);
+    let list=mergeBolumler(fromContent);
+    const cloud=await cloudBolumler();
+    list=mergeBolumler(cloud);
+    populateBolumSelects(list);
+    const dl=document.getElementById('bolumListesi');if(dl)dl.innerHTML=list.map(b=>'<option value="'+String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">').join('');
+  }
+  function addBolumSelector(inputId,wrapId,selectId,hintId){
+    const input=document.getElementById(inputId);if(!input||document.getElementById(wrapId))return;
+    const wrap=document.createElement('div');wrap.id=wrapId;
+    wrap.innerHTML='<label for="'+selectId+'">📚 Kayıtlı Bölüm / Kısım</label><select id="'+selectId+'"><option value="">— Kayıtlı Bölüm / Kısım seç —</option></select><p id="'+hintId+'">Daha önce eklediğin bölüm burada kalır. Seçtiğinde yukarıdaki alana aktarılır.</p>';
+    input.parentNode.insertBefore(wrap,input);
+    const sel=wrap.querySelector('select');
+    sel.addEventListener('change',()=>{if(sel.value)input.value=sel.value;});
+  }
+  function hookBolumSaveButton(buttonId,inputId){
+    const btn=document.getElementById(buttonId),input=document.getElementById(inputId);if(!btn||!input||btn.dataset.bgysBolumHooked)return;
+    btn.dataset.bgysBolumHooked='1';
+    btn.addEventListener('click',()=>{
+      const value=input.value.trim();if(!value)return;
+      mergeBolumler([value]);
+      clearTimeout(bolumCloudWriteTimer);bolumCloudWriteTimer=setTimeout(()=>saveBolumCloud(value),250);
+      setTimeout(refreshPersistentBolumler,350);
+    },true);
+  }
+  function installBolumFeatures(){
+    if(!document.getElementById('konuBolum')&&!document.getElementById('soruBolum'))return;
+    addStyle();
+    addBolumSelector('konuBolum','bgysBolumSecimWrap','bgysBolumSecim','bgysBolumSecimHint');
+    addBolumSelector('soruBolum','bgysSoruBolumSecimWrap','bgysSoruBolumSecim','bgysSoruBolumSecimHint');
+    hookBolumSaveButton('konuKaydetBtn','konuBolum');
+    hookBolumSaveButton('soruMetinEkleBtn','soruBolum');
+    hookBolumSaveButton('soruGorselEkleBtn','soruBolum');
+    hookBolumSaveButton('soruPdfEkleBtn','soruBolum');
+    refreshPersistentBolumler();
+  }
+
   function start(){
     addStyle();
     installSavedUsers();
@@ -93,6 +176,9 @@
     setTimeout(installSavedUsers,100);
     setTimeout(addStyle,500);
     setTimeout(installSavedUsers,500);
+    setTimeout(installBolumFeatures,100);
+    setTimeout(installBolumFeatures,500);
+    setTimeout(installBolumFeatures,1200);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
