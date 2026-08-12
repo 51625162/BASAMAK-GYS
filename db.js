@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-12-auth-race-fix-v5";
+const BGYS_DB_SURUM = "2026-08-12-shared-modul-v8";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -243,7 +243,48 @@ async function bgysGetAll(storeName) {
 async function bgysGetAllByModul(storeName) {
   const all = await bgysGetAll(storeName);
   const modul = bgysCurrentModul();
-  return all.filter(r => (r.modul || "saymanlik") === modul);
+  // Kayıt "moduller" dizisine sahipse (birden fazla bölümde ortak gösteriliyorsa) onu kontrol et,
+  // yoksa eski tek-bölümlü "modul" alanına bak (geriye dönük uyumluluk).
+  return all.filter(r => Array.isArray(r.moduller) ? r.moduller.includes(modul) : (r.modul || "saymanlik") === modul);
+}
+
+// Bir kaydı BAŞKA bir bölümde de (kopyalamadan, tek kayıt olarak) görünür kılar.
+// Kayıt daha önce sadece tek bölümdeyse önce "moduller" dizisine çevrilir.
+async function bgysAddModulToItem(storeName, id, hedefModul) {
+  await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  const all = await bgysGetAll(storeName);
+  const record = all.find(r => r.id === id);
+  if (!record) throw new Error("Kayıt bulunamadı");
+  let mevcutModuller = Array.isArray(record.moduller) ? record.moduller.slice() : [record.modul || "saymanlik"];
+  if (!mevcutModuller.includes(hedefModul)) mevcutModuller.push(hedefModul);
+  await bgysUserCollection(storeName).doc(String(id)).update({ moduller: mevcutModuller });
+}
+
+// Bir kaydı belirli bir bölümün görünümünden çıkarır (kayıt diğer bölümlerde/varsa kalmaya devam eder).
+// En az bir bölümde kalmalı — hepsinden çıkarmaya çalışılırsa hata verir (silmek için bgysDelete kullanılmalı).
+async function bgysRemoveModulFromItem(storeName, id, cikarilacakModul) {
+  await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  const all = await bgysGetAll(storeName);
+  const record = all.find(r => r.id === id);
+  if (!record) throw new Error("Kayıt bulunamadı");
+  let mevcutModuller = Array.isArray(record.moduller) ? record.moduller.slice() : [record.modul || "saymanlik"];
+  mevcutModuller = mevcutModuller.filter(m => m !== cikarilacakModul);
+  if (mevcutModuller.length === 0) throw new Error("Bir kayıt en az bir bölümde kalmalı. Tamamen kaldırmak için Sil'i kullan.");
+  await bgysUserCollection(storeName).doc(String(id)).update({ moduller: mevcutModuller });
+}
+
+// Bir denemeyi (ve ona bağlı TÜM soruları) başka bir bölümde de kopyalamadan görünür kılar.
+async function bgysAddModulToDeneme(denemeId, hedefModul) {
+  await bgysAddModulToItem("denemeler", denemeId, hedefModul);
+  const tumSorular = await bgysGetAll("sorular");
+  const baglıSorular = tumSorular.filter(s => s.denemeId === denemeId);
+  for (const s of baglıSorular) {
+    await bgysAddModulToItem("sorular", s.id, hedefModul);
+  }
 }
 
 // Yumuşak silme: kayıt gerçekten silinmez, "deleted" işaretlenir — Silinenler'den geri alınabilir.
@@ -425,6 +466,33 @@ async function bgysShareAllContent(toEmail) {
   return toplam;
 }
 
+// Sorularımdan rastgele/ilk N tanesini gönderir (10/20/50/100'er gibi). count=null ise tümünü gönderir.
+async function bgysShareSorularBatch(toEmail, count, bolum) {
+  let items = await bgysGetAllByModul('sorular');
+  if (bolum) items = items.filter(it => it.bolum === bolum);
+  items = items.filter(it => it.denemeId === undefined || it.denemeId === null); // deneme klonlarını haric tut
+  const hedef = count ? items.slice(0, count) : items;
+  for (const it of hedef) await bgysShareItem('sorular', it.id, toEmail);
+  return hedef.length;
+}
+
+// Sadece "Yapıştır" moduyla eklenen içerikleri gönderir (kaynak:'yapistir').
+async function bgysShareYapistirilanlar(toEmail, bolum) {
+  let items = await bgysGetAllByModul('konular');
+  items = items.filter(it => it.kaynak === 'yapistir');
+  if (bolum) items = items.filter(it => it.bolum === bolum);
+  for (const it of items) await bgysShareItem('konular', it.id, toEmail);
+  return items.length;
+}
+
+// Denemelerimi soru sayısına göre (25/50/100'lük) gönderir. soruSayisi=null ise tüm boyutlar.
+async function bgysShareDenemeBySize(toEmail, soruSayisi) {
+  let items = await bgysGetAllByModul('denemeler');
+  if (soruSayisi) items = items.filter(it => it.soruSayisi === soruSayisi);
+  for (const it of items) await bgysShareItem('denemeler', it.id, toEmail);
+  return items.length;
+}
+
 // Gelen TÜM paylaşımları getirir (bekleyen/kabul edilen/reddedilen dahil) — kalıcı bildirim geçmişi.
 async function bgysGetIncomingShares() {
   await bgysInitFirebase();
@@ -437,12 +505,12 @@ async function bgysGetIncomingShares() {
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.sharedAt || 0) - (a.sharedAt || 0));
 }
 
-async function bgysAcceptShare(shareId) {
+async function bgysAcceptShare(shareId, hedefModul) {
   await bgysInitFirebase();
   const doc = await firebase.firestore().collection("shares").doc(shareId).get({ source: "server" });
   if (!doc.exists) throw new Error("Paylaşım bulunamadı");
   const share = doc.data();
-  const clone = { ...share.record, modul: bgysCurrentModul(), createdAt: Date.now() };
+  const clone = { ...share.record, modul: hedefModul || bgysCurrentModul(), createdAt: Date.now() };
   delete clone.denemeId;
   await bgysAdd(share.storeName, clone);
   await firebase.firestore().collection("shares").doc(shareId).update({ status: "accepted" });
@@ -662,7 +730,7 @@ function bgysMergeCevapAnahtari(parsedResults, cevapListesi) {
 }
 
 /* ================= Yedekleme (JSON dışa/içe aktar) ================= */
-const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler", "soruCevap", "hatirlatmalar", "dersTakip"];
+const BGYS_SYNC_STORES = ["konular", "sorular", "soruSetleri", "denemeler", "soruCevap", "hatirlatmalar", "dersTakip", "notlarim"];
 
 /* ================= Hatırlatmalar (bölümden bağımsız, hesaba özel) ================= */
 // Zamanı gelmiş (tarih+saat şimdiden önce/eşit) ve henüz tamamlanmamış hatırlatmaları döner.
@@ -745,6 +813,63 @@ function bgysIsSolved(questionId) {
   return !!map[questionId];
 }
 
+/* ---- Deneme sınavının kendisinin (tüm deneme, tek tek soru değil) çözülme takibi ---- */
+function bgysDenemeSolvedKey() {
+  return "bgys-deneme-solved-" + bgysCurrentModul();
+}
+
+function bgysGetDenemeSolvedMap() {
+  try {
+    const raw = localStorage.getItem(bgysDenemeSolvedKey());
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+
+function bgysMarkDenemeSolved(denemeId, score, total) {
+  const map = bgysGetDenemeSolvedMap();
+  const oncekiSayi = (map[denemeId] && map[denemeId].count) || 0;
+  map[denemeId] = { count: oncekiSayi + 1, lastScore: score, lastTotal: total, solvedAt: Date.now() };
+  localStorage.setItem(bgysDenemeSolvedKey(), JSON.stringify(map));
+}
+
+function bgysIsDenemeSolved(denemeId) {
+  return !!bgysGetDenemeSolvedMap()[denemeId];
+}
+
+function bgysGetDenemeSolvedCount(denemeId) {
+  const m = bgysGetDenemeSolvedMap()[denemeId];
+  return m ? m.count : 0;
+}
+
+
 function bgysClearSolved() {
   localStorage.removeItem(bgysSolvedKey());
 }
+
+/* ---- Favori soru işaretleme ---- */
+function bgysFavoriteKey() {
+  return "bgys-favorites-" + bgysCurrentModul();
+}
+
+function bgysGetFavoriteIds() {
+  try {
+    const raw = localStorage.getItem(bgysFavoriteKey());
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function bgysIsFavorite(questionId) {
+  return bgysGetFavoriteIds().includes(questionId);
+}
+
+function bgysToggleFavorite(questionId) {
+  let list = bgysGetFavoriteIds();
+  if (list.includes(questionId)) {
+    list = list.filter(id => id !== questionId);
+  } else {
+    list.push(questionId);
+  }
+  localStorage.setItem(bgysFavoriteKey(), JSON.stringify(list));
+  return list.includes(questionId);
+}
+
