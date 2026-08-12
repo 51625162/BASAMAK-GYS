@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giriş Yap — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
+    --coral:#FF6B5D; --violet:#8B6BF2;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;min-height:100vh;background:linear-gradient(160deg,var(--ink) 0%,var(--teal-dark) 100%);
+    color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  h1,h2{font-family:'Sora',sans-serif;letter-spacing:-0.01em;}
+  a{color:inherit;}
+
+  .card{background:var(--white);border-radius:24px;max-width:420px;width:100%;padding:32px;box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+  .logo .icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .logo b{font-family:'Sora';font-size:1.05rem;}
+
+  h1{font-size:1.3rem;margin:0 0 6px;}
+  .sub{color:var(--slate);font-size:0.88rem;margin:0 0 22px;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .tab-btn{flex:1;padding:10px;border-radius:100px;background:var(--cloud);border:none;font-weight:700;font-size:0.85rem;color:var(--slate);cursor:pointer;}
+  .tab-btn.active{background:var(--ink);color:white;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:0.82rem;font-weight:700;margin-bottom:6px;}
+  .field input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--cloud);}
+
+  .btn{width:100%;padding:13px;border-radius:100px;font-weight:700;font-size:0.92rem;border:none;cursor:pointer;margin-top:6px;}
+  .btn.primary{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;}
+  .btn.link{background:none;color:var(--teal-dark);font-size:0.85rem;padding:8px;}
+
+  .msg{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:0.85rem;display:none;}
+  .msg.ok{display:block;background:rgba(34,197,94,0.1);color:#16803C;}
+  .msg.err{display:block;background:rgba(239,68,68,0.1);color:#C0392B;}
+  .msg.warn{display:block;background:rgba(245,166,35,0.12);color:#B0740F;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .setup-box{background:var(--cloud);border-radius:14px;padding:16px;font-size:0.83rem;line-height:1.6;margin-bottom:18px;}
+  .setup-box textarea{width:100%;min-height:110px;font-family:monospace;font-size:0.78rem;border-radius:10px;border:1.5px solid var(--mist);padding:10px;margin-top:8px;}
+  .setup-box a{color:var(--teal-dark);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo"><div class="icon">🪜</div><b>Basamak GYS</b></div>
+
+  <!-- İLK KURULUM: Firebase yapılandırması girilmemişse burası görünür -->
+  <div id="setupPanel" style="display:none;">
+    <h1>Bulut Kurulumu</h1>
+    <p class="sub">Hesaplı sisteme geçmeden önce bir kere Firebase projeni bağlaman gerekiyor.</p>
+    <div class="setup-box">
+      1) <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a>'a git, ücretsiz yeni proje oluştur.<br>
+      2) Sol menüden <b>Authentication</b> → "Get started" → <b>Email/Password</b> sağlayıcısını aç.<br>
+      3) Sol menüden <b>Firestore Database</b> → "Create database" (test modunda başlat).<br>
+      4) Proje ayarlarından (⚙️ → Project settings → Genel) "Web uygulaması ekle" (&lt;/&gt; simgesi) ile bir web app oluştur, sana verdiği <b>firebaseConfig</b> nesnesini aşağı yapıştır:
+      <textarea id="configInput" placeholder='{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  ...
+}'></textarea>
+    </div>
+    <button class="btn primary" id="saveConfigBtn">Kaydet ve Devam Et</button>
+    <div class="msg" id="setupMsg"></div>
+  </div>
+
+  <!-- GİRİŞ / KAYIT / ŞİFRE SIFIRLAMA -->
+  <div id="authPanel" style="display:none;">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login">Giriş Yap</button>
+      <button class="tab-btn" data-tab="signup">Kayıt Ol</button>
+    </div>
+
+    <div class="panel active" id="panel-login">
+      <h1>Tekrar hoş geldin</h1>
+      <p class="sub">E-posta ve şifrenle giriş yap.</p>
+      <div class="field"><label>E-posta</label><input type="email" id="loginEmail" placeholder="ornek@mail.com"></div>
+      <div class="field"><label>Şifre</label><input type="password" id="loginPassword"></div>
+      <button class="btn primary" id="loginBtn">Giriş Yap</button>
+      <button class="btn link" id="forgotBtn">Şifremi unuttum</button>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+
+    <div class="panel" id="panel-signup">
+      <h1>Hesap Oluştur</h1>
+      <p class="sub">E-posta ve şifre belirleyerek başla.</p>
+      <div class="field"><label>E-posta</label><input type="email" id="signupEmail" placeholder="ornek@mail.com"></div>
+      <div class="field"><label>Şifre</label><input type="password" id="signupPassword" placeholder="En az 6 karakter"></div>
+      <button class="btn primary" id="signupBtn">Kayıt Ol</button>
+      <div class="msg" id="signupMsg"></div>
+    </div>
+
+    <div class="panel" id="panel-forgot">
+      <h1>Şifreni Sıfırla</h1>
+      <p class="sub">E-postana bir sıfırlama bağlantısı gönderelim.</p>
+      <div class="field"><label>E-posta</label><input type="email" id="forgotEmail" placeholder="ornek@mail.com"></div>
+      <button class="btn primary" id="forgotSendBtn">Sıfırlama Bağlantısı Gönder</button>
+      <button class="btn link" id="backToLoginBtn">← Girişe dön</button>
+      <div class="msg" id="forgotMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script src="db.js?v=1786350782"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const returnTo = params.get('returnTo') || 'index.html';
+
+  function showMsg(id, cls, text) {
+    const el = document.getElementById(id);
+    el.className = 'msg ' + cls;
+    el.textContent = text;
+  }
+
+  async function init() {
+    const config = bgysGetFirebaseConfig();
+    if (!config) {
+      document.getElementById('setupPanel').style.display = 'block';
+    } else {
+      document.getElementById('authPanel').style.display = 'block';
+      const user = await bgysWaitForAuth();
+      if (user) location.href = returnTo;
+    }
+  }
+  init();
+
+  document.getElementById('saveConfigBtn').addEventListener('click', () => {
+    const raw = document.getElementById('configInput').value.trim();
+    try {
+      const config = JSON.parse(raw);
+      if (!config.apiKey || !config.projectId) throw new Error('Eksik alanlar var');
+      bgysSetFirebaseConfig(config);
+      showMsg('setupMsg', 'ok', 'Kaydedildi, yönlendiriliyorsun...');
+      setTimeout(() => location.reload(), 800);
+    } catch (e) {
+      showMsg('setupMsg', 'err', 'Geçersiz yapılandırma: ' + e.message);
+    }
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showMsg('loginMsg', 'err', 'E-posta ve şifre gerekli.'); return; }
+    showMsg('loginMsg', 'warn', 'Giriş yapılıyor...');
+    try {
+      await bgysLogIn(email, password);
+      showMsg('loginMsg', 'ok', 'Giriş başarılı, yönlendiriliyorsun...');
+      setTimeout(() => location.href = returnTo, 500);
+    } catch (e) {
+      showMsg('loginMsg', 'err', 'Giriş başarısız: ' + e.message);
+    }
+  });
+
+  document.getElementById('signupBtn').addEventListener('click', async () => {
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if (!email || !password) { showMsg('signupMsg', 'err', 'E-posta ve şifre gerekli.'); return; }
+    if (password.length < 6) { showMsg('signupMsg', 'err', 'Şifre en az 6 karakter olmalı.'); return; }
+    showMsg('signupMsg', 'warn', 'Hesap oluşturuluyor...');
+    try {
+      await bgysSignUp(email, password);
+      showMsg('signupMsg', 'ok', 'Hesap oluşturuldu, yönlendiriliyorsun...');
+      setTimeout(() => location.href = returnTo, 500);
+    } catch (e) {
+      showMsg('signupMsg', 'err', 'Kayıt başarısız: ' + e.message);
+    }
+  });
+
+  document.getElementById('forgotBtn').addEventListener('click', () => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-forgot').classList.add('active');
+  });
+  document.getElementById('backToLoginBtn').addEventListener('click', () => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-login').classList.add('active');
+    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+  });
+  document.getElementById('forgotSendBtn').addEventListener('click', async () => {
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) { showMsg('forgotMsg', 'err', 'E-posta gerekli.'); return; }
+    showMsg('forgotMsg', 'warn', 'Gönderiliyor...');
+    try {
+      await bgysResetPassword(email);
+      showMsg('forgotMsg', 'ok', 'Sıfırlama bağlantısı e-postana gönderildi. Gelen kutunu (ve spam klasörünü) kontrol et.');
+    } catch (e) {
+      showMsg('forgotMsg', 'err', 'Hata: ' + e.message);
+    }
+  });
+</script>
+
+</body>
+</html>

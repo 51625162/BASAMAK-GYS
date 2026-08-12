@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilgi Kartları — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --amber:#F5A623;
+    --coral:#FF6B5D; --violet:#8B6BF2; --pink:#EC6FA0;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186;
+    --radius-lg:22px; --radius-md:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',system-ui,-apple-system,sans-serif;letter-spacing:-0.01em;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.88rem;color:var(--slate);font-weight:600;flex-wrap:wrap;}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+  .add-btn{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;padding:9px 18px;border-radius:100px;font-weight:700;font-size:0.85rem;}
+
+  .page-hero{padding:40px 6vw 8px;max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;}
+  .page-hero .icon{
+    width:58px;height:58px;border-radius:16px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--violet),#7C5CE0);
+    display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:white;
+  }
+  .page-hero h1{font-size:clamp(1.5rem,3vw,2rem);margin:0 0 4px;}
+  .page-hero p{margin:0;color:var(--slate);font-size:0.95rem;}
+
+  .content{max-width:1180px;margin:0 auto;padding:36px 6vw 90px;}
+
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+  .g-card{
+    background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);
+    overflow:hidden;display:flex;flex-direction:column;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .g-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px -16px rgba(16,36,62,0.2);}
+  .g-thumb{display:block;aspect-ratio:1500/1000;background:var(--cloud);overflow:hidden;}
+  .g-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .g-info{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex-grow:1;}
+  .g-tag{
+    align-self:flex-start;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;
+    padding:4px 10px;border-radius:100px;background:rgba(14,158,151,0.12);color:var(--teal-dark);
+  }
+  .g-info h3{margin:0;font-size:0.98rem;line-height:1.35;}
+  .g-actions{display:flex;gap:8px;margin-top:auto;}
+  .g-btn{
+    flex:1;text-align:center;padding:10px 10px;border-radius:100px;font-weight:700;font-size:0.82rem;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .g-btn.view{background:var(--white);color:var(--violet);border:1.5px solid var(--violet);}
+  .g-btn.view:hover{background:rgba(139,107,242,0.08);}
+  .g-btn.view.opened{background:var(--violet);color:white;}
+  .g-btn.download{background:linear-gradient(135deg,var(--amber),#E0951A);color:white;border:1.5px solid transparent;}
+  .g-btn svg{width:14px;height:14px;flex-shrink:0;}
+
+  .g-expand{display:none;padding:0 18px 16px;}
+  .g-expand.open{display:block;}
+  .g-expand img{width:100%;border-radius:14px;display:block;}
+  .g-expand iframe{width:100%;height:420px;border:none;border-radius:14px;}
+
+  .empty-card{
+    background:var(--white);border:1.5px dashed var(--mist);border-radius:var(--radius-lg);
+    padding:48px 24px;text-align:center;color:var(--slate);
+  }
+  .empty-card .big-icon{font-size:2.4rem;margin-bottom:12px;}
+  .empty-card h3{color:var(--ink);margin:0 0 8px;font-size:1.1rem;}
+  .empty-card p{margin:0 0 18px;font-size:0.92rem;}
+  .empty-card a.cta{
+    display:inline-flex;padding:12px 24px;border-radius:100px;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;font-weight:700;font-size:0.9rem;
+  }
+
+  /* Lightbox - tam ekran görüntüleyici */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(16,36,62,0.94);z-index:1000;
+    display:none;flex-direction:column;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox-toolbar{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:14px;flex-shrink:0;
+  }
+  .lb-btn{
+    background:rgba(255,255,255,0.12);color:white;border:none;border-radius:100px;
+    padding:10px 16px;font-weight:700;font-size:0.9rem;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;
+  }
+  .lb-btn:hover{background:rgba(255,255,255,0.22);}
+  .lb-btn.close{background:var(--coral);}
+  .lb-zoom-label{color:white;font-family:'IBM Plex Mono';font-size:0.85rem;min-width:52px;text-align:center;}
+  .lightbox-stage{
+    flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;
+    cursor:grab;padding:20px;
+  }
+  .lightbox-stage img{
+    max-width:none;transition:transform .12s ease;user-select:none;
+  }
+  .lightbox-stage iframe{
+    width:92vw;height:88vh;border:none;border-radius:12px;background:white;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span>
+    <a href="saymanlik.html" id="crumbModul">Saymanlık</a><span class="sep">/</span>
+    <span class="cur">Soru-Cevap</span>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="icon" style="background:linear-gradient(135deg,#F49AC1,#E0629C);">📇</div>
+  <div>
+    <h1 id="pageH1">Soru-Cevap</h1>
+    <p>Karta tıkla, cevabı gör — hızlı kendi kendine test için.</p>
+  </div>
+</section>
+
+<div class="content">
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;" id="statusFilterRow">
+    <button class="chip active" data-val="unsolved" style="padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;background:var(--white);">Çözülmemişler</button>
+    <button class="chip" data-val="solved" style="padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;background:var(--white);">Çözdüklerim</button>
+    <button class="chip" data-val="all" style="padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;background:var(--white);">Hepsi</button>
+  </div>
+  <div id="ownKonuGrid" class="gallery-grid"></div>
+  <div id="ownKonuEmpty" class="empty-card" style="display:none;">
+    <div class="big-icon">📥</div>
+    <h3>Henüz soru-cevap eklemedin</h3>
+    <p>Şıksız, kısa cevaplı soru-cevap çiftlerini buradan ekleyebilirsin.</p>
+    <p style="color:var(--slate);font-size:0.85rem;margin-top:8px;">İçerik eklemek için bölüm sayfasındaki <b>"İçerik Ekle"</b> bölümünü kullan.</p>
+  </div>
+</div>
+
+<style>
+  .chip.active{background:var(--teal) !important;border-color:var(--teal) !important;color:white !important;}
+</style>
+
+<script src="db.js?v=1786350782"></script>
+<script>bgysRequireAuth();</script>
+<script>
+  const konuDataMap = {};
+  let statusFiltre = 'unsolved';
+
+  document.querySelectorAll('#statusFilterRow .chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#statusFilterRow .chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      statusFiltre = c.dataset.val;
+      renderOwnKonular();
+    });
+  });
+
+  async function renderOwnKonular() {
+    let items = await bgysGetAllByModul('soruCevap');
+    if (statusFiltre === 'unsolved') items = items.filter(it => !bgysIsSolved(it.id));
+    else if (statusFiltre === 'solved') items = items.filter(it => bgysIsSolved(it.id));
+    const grid = document.getElementById('ownKonuGrid');
+    const empty = document.getElementById('ownKonuEmpty');
+    if (items.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
+    empty.style.display = 'none'; grid.style.display = 'grid';
+    items.forEach(it => konuDataMap[it.id] = it);
+    grid.innerHTML = items.reverse().map(it => {
+      const cozulmeSayisi = bgysGetSolvedCount(it.id);
+      const cozulduEtiket = cozulmeSayisi > 0 ? `<span class="g-tag" style="background:rgba(34,197,94,0.12);color:#16803C;margin-left:6px;">✓ ${cozulmeSayisi}. kez</span>` : '';
+      return `
+      <div class="g-card" style="cursor:pointer;" onclick="toggleCevap('${it.id}')">
+        <div class="g-info" style="padding-top:20px;">
+          <span class="g-tag">${it.bolum}</span>${cozulduEtiket}
+          <h3>${it.soru}</h3>
+          <p id="cevap-${it.id}" style="display:none;font-size:0.9rem;color:var(--teal-dark);font-weight:700;line-height:1.6;white-space:pre-line;border-top:1px dashed var(--mist);padding-top:10px;margin-top:6px;">💡 ${it.cevap}</p>
+          <div class="g-actions">
+            <button class="g-btn view" id="toggleBtn-${it.id}" onclick="event.stopPropagation();toggleCevap('${it.id}')">👁️ Cevabı Gör</button>
+            <button class="g-btn view" onclick="event.stopPropagation();cozulduIsaretle('${it.id}')">✓ Çözdüm</button>
+          </div>
+        </div>
+      </div>
+    `;
+    }).join('');
+  }
+
+  function toggleCevap(id) {
+    const p = document.getElementById('cevap-' + id);
+    const btn = document.getElementById('toggleBtn-' + id);
+    if (!p) return;
+    const acik = p.style.display !== 'none';
+    p.style.display = acik ? 'none' : 'block';
+    btn.textContent = acik ? '👁️ Cevabı Gör' : '🙈 Cevabı Gizle';
+  }
+
+  function cozulduIsaretle(id) {
+    bgysMarkSolved(id, true);
+    renderOwnKonular();
+  }
+
+  const modulInfo = bgysModulInfo();
+  document.getElementById('crumbModul').textContent = modulInfo.ad;
+  document.getElementById('crumbModul').setAttribute('href', modulInfo.sayfa);
+  document.getElementById('pageH1').textContent = `${modulInfo.ad} Soru-Cevap`;
+  document.title = `Soru-Cevap — ${modulInfo.ad} — Basamak GYS`;
+
+  renderOwnKonular();
+  bgysAutoRefresh(renderOwnKonular);
+</script>
+
+</body>
+</html>
