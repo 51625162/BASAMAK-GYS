@@ -37,3 +37,47 @@
   setTimeout(install,500);
   setTimeout(install,1500);
 })();
+
+/* İçerik Ekle - eski/alternatif görsel alanlarını da gösterme düzeltmesi */
+(function(){
+  function imageSrc(it){
+    return [it&&it.dataUrl,it&&it.imageDataUrl,it&&it.downloadURL,it&&it.fileUrl,it&&it.imageUrl,it&&it.gorselUrl,it&&it.url,it&&it.src,it&&it.image]
+      .find(v=>typeof v==='string' && v.trim());
+  }
+  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  async function repairKonuImages(){
+    if(!location.pathname.endsWith('icerik-ekle.html'))return;
+    const list=document.getElementById('konuList');
+    if(!list || typeof bgysGetAllByModul!=='function')return;
+    try{
+      const items=(await bgysGetAllByModul('konular')).filter(x=>x.tip==='image');
+      const cards=[...list.querySelectorAll('.item-card')];
+      cards.forEach(card=>{
+        const title=(card.querySelector('.item-info h4')?.textContent||'').trim();
+        const section=(card.querySelector('.item-info .tag')?.textContent||'').trim();
+        const fileText=(card.querySelector('.item-info p')?.textContent||'').trim();
+        const candidates=items.filter(it=>String(it.baslik||'').trim()===title && String(it.bolum||'').trim()===section);
+        const item=candidates.find(it=>it.fileName && fileText.includes(it.fileName))||candidates[0];
+        if(!item)return;
+        const src=imageSrc(item);
+        const img=card.querySelector('img.item-thumb');
+        if(!img)return;
+        if(src && (!img.getAttribute('src') || img.getAttribute('src')==='undefined' || img.getAttribute('src')==='null')) img.src=src;
+        img.onerror=()=>{
+          const fallback=imageSrc(item);
+          if(fallback && img.src!==fallback){img.src=fallback;return;}
+          img.onerror=null;
+          img.style.objectFit='contain';
+          img.alt='Görsel yüklenemedi';
+        };
+      });
+    }catch(e){console.warn('Görsel liste düzeltmesi:',e)}
+  }
+  function start(){
+    repairKonuImages();
+    [250,700,1500,3000].forEach(ms=>setTimeout(repairKonuImages,ms));
+    const list=document.getElementById('konuList');
+    if(list && window.MutationObserver){new MutationObserver(()=>repairKonuImages()).observe(list,{childList:true,subtree:true});}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
