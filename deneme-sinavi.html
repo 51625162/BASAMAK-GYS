@@ -29,6 +29,16 @@
   .wrap{max-width:760px;margin:0 auto;padding:28px 6vw 90px;}
 
   .list-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+  .konu-group{background:var(--white);border:1px solid var(--mist);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+  .konu-group-head{width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--white);padding:14px 18px;cursor:pointer;text-align:left;border:none;}
+  .konu-group-title{font-weight:800;font-size:0.95rem;}
+  .konu-group-count{font-size:0.72rem;color:var(--slate);margin-left:8px;font-weight:600;}
+  .konu-group-arrow{transition:transform 0.18s;color:var(--slate);}
+  .konu-group.open .konu-group-arrow{transform:rotate(180deg);}
+  .konu-group-body{display:none;padding:0 14px 14px;max-height:420px;overflow-y:auto;}
+  .konu-group.open .konu-group-body{display:block;}
+  .status-chip{padding:9px 16px;border-radius:100px;border:1.5px solid var(--mist);font-size:0.85rem;font-weight:600;background:var(--white);cursor:pointer;}
+  .status-chip.active{background:var(--teal);border-color:var(--teal);color:white;}
   .list-card .icon{width:48px;height:48px;border-radius:12px;background:var(--cloud);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
   .list-card .info{flex-grow:1;}
   .list-card h3{margin:0;font-size:1rem;}
@@ -145,7 +155,12 @@
       </div>
     </div>
 
-    <div id="denemeListArea" style="max-height:200px;overflow-y:auto;padding-right:4px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;" id="denemeStatusRow">
+      <button class="status-chip active" data-val="all">Hepsi</button>
+      <button class="status-chip" data-val="unsolved">Çözülmemiş</button>
+      <button class="status-chip" data-val="solved">Çözülmüş</button>
+    </div>
+    <div id="denemeListArea"></div>
   </div>
 
 
@@ -174,6 +189,7 @@
       <div style="font-size:2.2rem;">🎯</div>
       <div class="big-score" id="finalScore">0 / 0</div>
       <p id="finalMsg"></p>
+      <div id="reviewBtnArea"></div>
       <div class="result-actions">
         <a class="result-btn secondary" href="deneme-sinavi.html" id="donLink">Denemelere Dön</a>
       </div>
@@ -191,6 +207,9 @@
 
   let quiz = [];
   let qIdx = 0, correctCount = 0, wrongCount = 0, answered = false;
+  let sonucDizisi = [];
+  let incelemeModu = false;
+  let mevcutDenemeId = null;
 
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
@@ -315,24 +334,74 @@
 
   const DENEME_ZORLUK_LABEL2 = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
 
+  function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  const ZORLUK_TIER_ADI = { '1': 'Kolay', '2': 'Orta', '3': 'Zor', 'null': 'Karışık' };
+  let denemeStatusFiltre = 'all';
+
+  document.querySelectorAll('#denemeStatusRow .status-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#denemeStatusRow .status-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      denemeStatusFiltre = c.dataset.val;
+      showList();
+    });
+  });
+
   async function showList() {
-    const denemeler = await bgysGetAllByModul('denemeler');
+    let denemeler = await bgysGetAllByModul('denemeler');
+    if (denemeStatusFiltre === 'unsolved') denemeler = denemeler.filter(d => !bgysIsDenemeSolved(d.id));
+    else if (denemeStatusFiltre === 'solved') denemeler = denemeler.filter(d => bgysIsDenemeSolved(d.id));
+
     const area = document.getElementById('denemeListArea');
     if (denemeler.length === 0) {
-      area.innerHTML = `<div class="empty-card">Henüz bir deneme sınavı eklemedin.<br>Bölüm sayfasındaki "İçerik Ekle" ile ekleyebilirsin.</div>`;
+      area.innerHTML = `<div class="empty-card">Bu filtreye uyan bir deneme sınavı yok.<br>Bölüm sayfasındaki "İçerik Ekle" ile ekleyebilirsin.</div>`;
       return;
     }
-    area.innerHTML = denemeler.reverse().map(d => {
-      let action;
-      if (d.tip === 'metin') action = `<a class="go" href="${bgysWithModul('deneme-sinavi.html?id=' + d.id)}">Çöz</a>`;
-      else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
-      else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
-      const zorlukEtiket = d.zorluk ? ` · ${DENEME_ZORLUK_LABEL2[d.zorluk]}` : '';
-      return `<div class="list-card">
-        <div class="icon">${d.tip === 'metin' ? '📝' : d.tip === 'pdf' ? '📄' : '🖼️'}</div>
-        <div class="info"><h3>${d.baslik}</h3><p>${d.tip === 'metin' ? d.soruSayisi + ' soru' : d.tip.toUpperCase()}${zorlukEtiket}</p></div>
-        ${action}
-      </div>`;
+
+    // Tier icinde numaralama icin, TUM (filtresiz) denemeleri eskiden yeniye sirala
+    const tumDenemeler = await bgysGetAllByModul('denemeler');
+    const kronolojik = tumDenemeler.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    const numaraMap = {}; // denemeId -> "Kolay 2" gibi
+    const tierSayaci = {};
+    kronolojik.forEach(d => {
+      const tierKey = d.zorluk ? String(d.zorluk) : 'null';
+      tierSayaci[tierKey] = (tierSayaci[tierKey] || 0) + 1;
+      numaraMap[d.id] = `${ZORLUK_TIER_ADI[tierKey]} ${tierSayaci[tierKey]}`;
+    });
+
+    const gruplar = {};
+    denemeler.forEach(d => {
+      const tierKey = d.zorluk ? String(d.zorluk) : 'null';
+      (gruplar[tierKey] ??= []).push(d);
+    });
+
+    const tierSira = ['1', '2', '3', 'null'];
+    area.innerHTML = tierSira.filter(k => gruplar[k]).map((tierKey, gi) => {
+      const arr = gruplar[tierKey].slice().reverse();
+      const gid = 'deneme-tier-' + tierKey;
+      const kartlar = arr.map(d => {
+        let action;
+        if (d.tip === 'metin') action = `<a class="go" href="${bgysWithModul('deneme-sinavi.html?id=' + d.id)}">Çöz</a>`;
+        else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
+        else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
+        const cozulmeSayisi = bgysGetDenemeSolvedCount(d.id);
+        const cozulduEtiket = cozulmeSayisi > 0 ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(34,197,94,0.12);color:#16803C;margin-left:6px;">✓ ${cozulmeSayisi}. kez</span>` : '';
+        return `<div class="list-card">
+          <div class="icon">${d.tip === 'metin' ? '📝' : d.tip === 'pdf' ? '📄' : '🖼️'}</div>
+          <div class="info"><h3>${numaraMap[d.id] || esc(d.baslik)}${cozulduEtiket}</h3><p>${esc(d.baslik)} · ${d.tip === 'metin' ? d.soruSayisi + ' soru' : d.tip.toUpperCase()}</p></div>
+          ${action}
+        </div>`;
+      }).join('');
+      return `
+        <div class="konu-group open" id="${gid}">
+          <button class="konu-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
+            <span><span class="konu-group-title">${ZORLUK_TIER_ADI[tierKey]}</span><span class="konu-group-count">${arr.length} deneme</span></span>
+            <span class="konu-group-arrow">▼</span>
+          </button>
+          <div class="konu-group-body">${kartlar}</div>
+        </div>
+      `;
     }).join('');
   }
 
@@ -369,11 +438,28 @@
       document.getElementById('denemeListArea').innerHTML = '<div class="empty-card">Bu deneme bulunamadı veya sorusu yok.</div>';
       return;
     }
+    mevcutDenemeId = id;
+    incelemeModu = false;
     document.getElementById('listScreen').classList.add('hidden');
     document.getElementById('quizScreen').classList.remove('hidden');
+    document.getElementById('timerRow').style.display = '';
     document.getElementById('qTotal').textContent = quiz.length;
     qIdx = 0; correctCount = 0; wrongCount = 0;
+    sonucDizisi = new Array(quiz.length).fill(null);
     startTimer(quiz.length);
+    renderQuestion();
+  }
+
+  function startReview(sorularListesi) {
+    quiz = sorularListesi;
+    sonucDizisi = new Array(quiz.length).fill(null);
+    qIdx = 0; correctCount = 0; wrongCount = 0;
+    incelemeModu = true;
+    clearInterval(timerInterval);
+    document.getElementById('timerRow').style.display = 'none';
+    document.getElementById('resultScreen').classList.add('hidden');
+    document.getElementById('quizScreen').classList.remove('hidden');
+    document.getElementById('qTotal').textContent = quiz.length;
     renderQuestion();
   }
 
@@ -417,6 +503,7 @@
     });
     const doguMuydu = (i === q.correct);
     if (doguMuydu) correctCount++; else { btn.classList.remove('dim'); btn.classList.add('wrong'); wrongCount++; }
+    sonucDizisi[qIdx] = doguMuydu ? 'correct' : 'wrong';
     bgysMarkSolved(q.id, doguMuydu);
     document.getElementById('solutionToggle').classList.add('show');
     document.getElementById('nextBtn').classList.add('show');
@@ -444,7 +531,21 @@
     let msg = `%${pct} başarı`;
     if (unanswered > 0) msg += ` · ${unanswered} soru cevaplanmadı`;
     if (timeUp) msg = `⏱️ Süre doldu! ` + msg;
+    if (incelemeModu) msg = `🔁 İnceleme turu — ` + msg;
     document.getElementById('finalMsg').textContent = msg;
+
+    if (!incelemeModu && mevcutDenemeId) {
+      bgysMarkDenemeSolved(mevcutDenemeId, correctCount, total);
+    }
+
+    const yanlisVeyaBos = quiz.filter((q, i) => sonucDizisi[i] !== 'correct');
+    const reviewBtnArea = document.getElementById('reviewBtnArea');
+    if (yanlisVeyaBos.length > 0) {
+      reviewBtnArea.innerHTML = `<button class="result-btn" id="reviewBtn" style="background:linear-gradient(135deg,var(--amber),#D6870F);color:white;width:100%;margin-bottom:10px;">🔁 Yanlış/Boş ${yanlisVeyaBos.length} Soruyu Süresiz Tekrar Çöz</button>`;
+      document.getElementById('reviewBtn').addEventListener('click', () => startReview(yanlisVeyaBos));
+    } else {
+      reviewBtnArea.innerHTML = '';
+    }
   }
 
   init();

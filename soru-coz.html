@@ -295,7 +295,30 @@
       }
     } catch(e) { console.warn('Kullanıcı soruları yüklenemedi', e); }
   }
-  loadUserQuestions();
+  loadUserQuestions().then(() => {
+    const ozelMod = new URLSearchParams(location.search).get('mod');
+    if (ozelMod === 'yanlis' || ozelMod === 'favori') {
+      let pool;
+      if (ozelMod === 'yanlis') {
+        const solvedMap = bgysGetSolvedMap();
+        pool = mergedBank.filter(q => solvedMap[q.id] && solvedMap[q.id].correct === false);
+      } else {
+        const favIds = bgysGetFavoriteIds();
+        pool = mergedBank.filter(q => favIds.includes(q.id));
+      }
+      if (pool.length === 0) {
+        document.getElementById('setupScreen').innerHTML = `<div class="empty-note" style="padding:40px 0;text-align:center;color:var(--slate);">${ozelMod === 'yanlis' ? 'Henüz yanlış çözdüğün bir soru yok.' : 'Henüz favori işaretlediğin bir soru yok — bir soruyu çözerken ☆ butonuna tıklayarak favorilere ekleyebilirsin.'}</div>`;
+        return;
+      }
+      quiz = shuffle(pool);
+      qIdx = 0; correctCount = 0; wrongCount = 0;
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      document.getElementById('liveScore').style.display = 'flex';
+      document.getElementById('qTotal').textContent = quiz.length;
+      renderQuestion();
+    }
+  });
 
   // Sekme arka plandan öne gelince (kullanıcı başka sekmede içerik eklemiş olabilir)
   // ya da sayfa geri-ileri önbelleğinden (bfcache) geri gelince verileri tazele.
@@ -356,6 +379,12 @@
     return a;
   }
 
+  window.favToggle = (id) => {
+    const yeniDurum = bgysToggleFavorite(id);
+    const btn = document.getElementById('favBtn');
+    if (btn) btn.textContent = yeniDurum ? '⭐' : '☆';
+  };
+
   document.getElementById('startBtn').addEventListener('click', () => {
     let pool = mergedBank.slice();
     if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
@@ -401,6 +430,7 @@
     const tagsEl = document.getElementById('qTags');
     const oncedenCozuldu = bgysIsSolved(q.id);
     const cozulmeSayisi = bgysGetSolvedCount(q.id);
+    const favoriMi = bgysIsFavorite(q.id);
     tagsEl.innerHTML = `
       <span class="q-tag madde">${q.madde}</span>
       <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
@@ -408,6 +438,7 @@
       ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
       ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
       ${oncedenCozuldu ? `<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : ''}
+      <button id="favBtn" onclick="favToggle('${q.id}')" style="border:none;background:none;cursor:pointer;font-size:1.1rem;padding:2px 4px;">${favoriMi ? '⭐' : '☆'}</button>
     `;
 
     document.getElementById('qImgWrap').innerHTML = q.imageDataUrl ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
