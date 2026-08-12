@@ -507,16 +507,38 @@ veya sadece: B D A C ..."></textarea>
         <label>Ne paylaşılsın?</label>
         <select id="bulkShareScope" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
           <option value="all">Bu bölümdeki tüm içeriklerim (konu+soru+soru-cevap+deneme)</option>
-          <option value="konular">Sadece konu notlarım</option>
-          <option value="sorular">Sadece sorularım</option>
+          <option value="konular">Sadece konu notlarım (görsel/PDF)</option>
+          <option value="yapistir">Sadece Yapıştırılanlar</option>
+          <option value="sorular">Sadece sorularım — hepsi</option>
+          <option value="sorular-batch">Sorularımdan belirli sayıda (10/20/50/100)</option>
           <option value="soruCevap">Sadece soru-cevap kartlarım</option>
-          <option value="denemeler">Sadece denemelerim</option>
+          <option value="denemeler">Sadece denemelerim — hepsi</option>
+          <option value="deneme-size">Denemelerimden belirli boyutta (25/50/100'lük)</option>
           <option value="bolum">Belirli bir ders/konuya ait olanlar</option>
         </select>
       </div>
       <div class="field" id="bulkShareBolumField" style="display:none;">
-        <label>Ders / Konu adı</label>
-        <input type="text" id="bulkShareBolum" placeholder="Örn. Anayasa - Genel Esaslar">
+        <label id="bulkShareBolumLabel">Ders / Konu adı</label>
+        <input type="text" id="bulkShareBolum" placeholder="Örn. 5510, 5275, T.C. Anayasası...">
+      </div>
+      <div class="field" id="bulkShareCountField" style="display:none;">
+        <label>Kaç tane?</label>
+        <select id="bulkShareCount" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="">Tümü</option>
+        </select>
+      </div>
+      <div class="field" id="bulkShareSizeField" style="display:none;">
+        <label>Kaç soruluk denemeler?</label>
+        <select id="bulkShareSize" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+          <option value="25">25'lik</option>
+          <option value="50">50'lik</option>
+          <option value="100">100'lük</option>
+          <option value="">Hepsi (her boyut)</option>
+        </select>
       </div>
       <button class="btn primary" id="bulkShareBtn" style="width:100%;">Toplu Paylaş</button>
       <div class="result-msg" id="bulkShareResult"></div>
@@ -791,7 +813,7 @@ veya sadece: B D A C ..."></textarea>
         <div class="item-actions">
           ${gorBtn}
           ${indirBtn}
-          <button class="btn secondary small" onclick="openTransferModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openTransferModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
           <button class="btn secondary small" onclick="openShareModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
           <button class="btn danger small" onclick="bgysDeleteKonu('${it.id}')">Sil</button>
         </div>
@@ -1011,7 +1033,7 @@ veya sadece: B D A C ..."></textarea>
             <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
           </div>
           <div class="item-actions">
-            <button class="btn secondary small" onclick="openTransferModal('sorular', '${it.id}', '${esc(it.question).replace(/'/g,"\\'").slice(0,40)}')">↔ Aktar</button>
+            <button class="btn secondary small" onclick="openTransferModal('sorular', '${it.id}', '${esc(it.question).replace(/'/g,"\\'").slice(0,40)}')">🔗 Ortak Göster</button>
             <button class="btn secondary small" onclick="openShareModal('sorular', '${it.id}', '${esc(it.question).replace(/'/g,"\\'")}')">📤</button>
             <button class="btn danger small" onclick="bgysDeleteSoru('${it.id}')">Sil</button>
           </div>
@@ -1044,7 +1066,7 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           <button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>
-          <button class="btn secondary small" onclick="openTransferModal('soruSetleri', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openTransferModal('soruSetleri', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
           <button class="btn danger small" onclick="bgysDeleteSoruSeti('${it.id}')">Sil</button>
         </div>
       </div>
@@ -1185,7 +1207,7 @@ veya sadece: B D A C ..."></textarea>
         </div>
         <div class="item-actions">
           ${actionHtml}
-          <button class="btn secondary small" onclick="openTransferModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">↔ Aktar</button>
+          <button class="btn secondary small" onclick="openTransferModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
           <button class="btn secondary small" onclick="openShareModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
           <button class="btn danger small" onclick="bgysDeleteDeneme('${it.id}')">Sil</button>
         </div>
@@ -1217,12 +1239,26 @@ veya sadece: B D A C ..."></textarea>
 
   const SHARE_STATUS_LABEL = { pending: '⏳ Bekliyor', accepted: '✅ Kabul Edildi', declined: '🚫 Reddedildi' };
 
+  const BOLUM_SECENEKLERI = [
+    { key: 'saymanlik', ad: 'Saymanlık' },
+    { key: 'ds-sefligi', ad: 'DS Şefliği' },
+    { key: 'idare-memuru', ad: 'İdare Memuru' }
+  ];
+
   async function refreshIncomingShares() {
     const el = document.getElementById('incomingSharesList');
     try {
       const shares = await bgysGetIncomingShares();
       if (shares.length === 0) { el.textContent = 'Sana paylaşılan bir şey yok.'; return; }
-      el.innerHTML = shares.map(s => `
+      const bekleyenSayisi = shares.filter(s => s.status === 'pending').length;
+      const topluBtn = bekleyenSayisi > 1 ? `
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <select id="topluKabulBolum" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid var(--mist);font-size:0.85rem;">
+            ${BOLUM_SECENEKLERI.map(b => `<option value="${b.key}">${b.ad}</option>`).join('')}
+          </select>
+          <button class="btn primary small" onclick="acceptAllIncomingShares()">Bekleyen ${bekleyenSayisi} Tanesini Kabul Et</button>
+        </div>` : '';
+      el.innerHTML = topluBtn + shares.map(s => `
         <div class="item-card" style="margin-bottom:8px;">
           <div class="item-icon">📥</div>
           <div class="item-info">
@@ -1231,6 +1267,9 @@ veya sadece: B D A C ..."></textarea>
           </div>
           <div class="item-actions">
             ${s.status === 'pending' ? `
+              <select id="bolumSec-${s.id}" style="padding:6px 8px;border-radius:8px;border:1.5px solid var(--mist);font-size:0.75rem;">
+                ${BOLUM_SECENEKLERI.map(b => `<option value="${b.key}" ${b.key === bgysCurrentModul() ? 'selected' : ''}>${b.ad}</option>`).join('')}
+              </select>
               <button class="btn primary small" onclick="acceptIncomingShare('${s.id}')">Kabul Et</button>
               <button class="btn danger small" onclick="declineIncomingShare('${s.id}')">Reddet</button>
             ` : ''}
@@ -1244,10 +1283,25 @@ veya sadece: B D A C ..."></textarea>
   }
 
   window.acceptIncomingShare = async (shareId) => {
-    await bgysAcceptShare(shareId);
+    const secim = document.getElementById('bolumSec-' + shareId);
+    const hedefModul = secim ? secim.value : bgysCurrentModul();
+    await bgysAcceptShare(shareId, hedefModul);
     await refreshIncomingShares();
     renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
   };
+
+  window.acceptAllIncomingShares = async () => {
+    const bolumSec = document.getElementById('topluKabulBolum');
+    const hedefModul = bolumSec ? bolumSec.value : bgysCurrentModul();
+    const shares = await bgysGetIncomingShares();
+    const bekleyenler = shares.filter(s => s.status === 'pending');
+    for (const s of bekleyenler) {
+      await bgysAcceptShare(s.id, hedefModul);
+    }
+    await refreshIncomingShares();
+    renderKonuList(); renderSoruList(); renderSoruCevapList(); renderSoruSetiList(); renderDenemeList(); refreshBolumListesi();
+  };
+
   window.declineIncomingShare = async (shareId) => {
     await bgysDeclineShare(shareId);
     await refreshIncomingShares();
@@ -1274,7 +1328,14 @@ veya sadece: B D A C ..."></textarea>
 
   // ===== TOPLU PAYLAŞIM =====
   document.getElementById('bulkShareScope').addEventListener('change', (e) => {
-    document.getElementById('bulkShareBolumField').style.display = e.target.value === 'bolum' ? 'block' : 'none';
+    const scope = e.target.value;
+    const konuGerekliZorunlu = scope === 'bolum';
+    const konuIsteğeBağlı = scope === 'sorular-batch' || scope === 'yapistir';
+    document.getElementById('bulkShareBolumField').style.display = (konuGerekliZorunlu || konuIsteğeBağlı) ? 'block' : 'none';
+    document.getElementById('bulkShareBolumLabel').textContent = konuGerekliZorunlu ? 'Ders / Konu adı' : 'Ders / Konu adı (boş bırakırsan tüm konular)';
+    document.getElementById('bulkShareBolum').placeholder = konuGerekliZorunlu ? 'Örn. Anayasa - Genel Esaslar' : 'Örn. 5510 (boş = tüm konular)';
+    document.getElementById('bulkShareCountField').style.display = scope === 'sorular-batch' ? 'block' : 'none';
+    document.getElementById('bulkShareSizeField').style.display = scope === 'deneme-size' ? 'block' : 'none';
   });
   document.getElementById('bulkShareBtn').addEventListener('click', async () => {
     const email = document.getElementById('bulkShareEmail').value.trim();
@@ -1284,7 +1345,17 @@ veya sadece: B D A C ..."></textarea>
     try {
       let sayi = 0;
       if (scope === 'all') sayi = await bgysShareAllContent(email);
-      else if (scope === 'bolum') {
+      else if (scope === 'yapistir') {
+        const konuVal = document.getElementById('bulkShareBolum').value.trim();
+        sayi = await bgysShareYapistirilanlar(email, konuVal || null);
+      } else if (scope === 'sorular-batch') {
+        const countVal = document.getElementById('bulkShareCount').value;
+        const konuVal = document.getElementById('bulkShareBolum').value.trim();
+        sayi = await bgysShareSorularBatch(email, countVal ? parseInt(countVal) : null, konuVal || null);
+      } else if (scope === 'deneme-size') {
+        const sizeVal = document.getElementById('bulkShareSize').value;
+        sayi = await bgysShareDenemeBySize(email, sizeVal ? parseInt(sizeVal) : null);
+      } else if (scope === 'bolum') {
         const bolum = document.getElementById('bulkShareBolum').value.trim();
         if (!bolum) { showMsg('bulkShareResult', 'err', 'Ders/konu adı gerekli.'); return; }
         for (const store of ['konular','sorular','soruCevap','denemeler']) {
@@ -1433,7 +1504,7 @@ veya sadece: B D A C ..."></textarea>
 
   window.openTransferModal = function(store, id, name) {
     transferState = { store, id };
-    document.getElementById('transferItemName').textContent = `"${name}" öğesini kopyala:`;
+    document.getElementById('transferItemName').textContent = `"${name}" öğesini şu bölümlerde de (kopyalamadan, aynı kayıt olarak) göster:`;
     const others = bgysOtherModuller();
     document.getElementById('transferCheckList').innerHTML = others.map(m => `
       <div class="transfer-check-row" onclick="document.getElementById('tf-${m.key}').click()">
@@ -1456,17 +1527,17 @@ veya sadece: B D A C ..."></textarea>
     if (!transferState) return;
     const checked = Array.from(document.querySelectorAll('#transferCheckList input:checked')).map(c => c.value);
     if (checked.length === 0) { showMsg('transferResult', 'err', 'En az bir bölüm seç.'); return; }
-    showMsg('transferResult', 'warn', 'Aktarılıyor...');
+    showMsg('transferResult', 'warn', 'İşleniyor...');
     try {
       for (const targetModul of checked) {
         if (transferState.store === 'denemeler') {
-          await bgysCopyDenemeToModul(transferState.id, targetModul);
+          await bgysAddModulToDeneme(transferState.id, targetModul);
         } else {
-          await bgysCopyToModul(transferState.store, transferState.id, targetModul);
+          await bgysAddModulToItem(transferState.store, transferState.id, targetModul);
         }
       }
       const isimler = checked.map(k => BGYS_MODULLER[k].ad).join(', ');
-      showMsg('transferResult', 'ok', `Aktarıldı: ${isimler}`);
+      showMsg('transferResult', 'ok', `Şimdi ortak görünüyor: ${isimler}`);
       setTimeout(() => document.getElementById('transferOverlay').classList.remove('open'), 1200);
     } catch (e) {
       showMsg('transferResult', 'err', 'Hata: ' + e.message);
