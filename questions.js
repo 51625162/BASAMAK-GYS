@@ -1,1 +1,0 @@
-const QUESTION_BANK = [];
