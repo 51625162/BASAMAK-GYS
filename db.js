@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-10-no-persistence-v4";
+const BGYS_DB_SURUM = "2026-08-12-auth-race-fix-v5";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -39,7 +39,8 @@ async function bgysEnsureFirebaseSdk() {
    çünkü kayıtta artık büyük veri değil, kısa bir URL tutulur. */
 async function bgysUploadFile(file, klasor) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   if (!user) throw new Error("Giriş yapılmamış");
   const temizAd = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
   const yol = `users/${user.uid}/${klasor}/${Date.now()}_${temizAd}`;
@@ -210,6 +211,9 @@ function bgysUserCollection(storeName) {
 
 async function bgysAdd(storeName, record) {
   await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  if (!user) throw new Error("Giriş yapılmamış. Sayfayı yenileyip tekrar dene.");
   record.createdAt = record.createdAt || Date.now();
   const boyut = new Blob([JSON.stringify(record)]).size;
   if (boyut > BGYS_MAX_DOC_BYTES) {
@@ -225,7 +229,12 @@ async function bgysAdd(storeName, record) {
 
 async function bgysGetAll(storeName) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  // NOT: Sayfa ilk yüklenirken firebase.auth().currentUser henüz dolmamış olabilir
+  // (Firebase'in kendi oturum bilgisini yüklemesi bir adım gecikmeli olabiliyor).
+  // Senkron kontrol boşsa, gerçekten bitene kadar BEKLEYEREK tekrar deniyoruz —
+  // aksi halde sayfa "boşmuş gibi" render olup bir daha hiç kendini düzeltmiyordu.
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   if (!user) return [];
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
@@ -240,13 +249,16 @@ async function bgysGetAllByModul(storeName) {
 // Yumuşak silme: kayıt gerçekten silinmez, "deleted" işaretlenir — Silinenler'den geri alınabilir.
 async function bgysDelete(storeName, id) {
   await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   await bgysUserCollection(storeName).doc(String(id)).update({ deleted: true, deletedAt: Date.now() });
 }
 
 // Silinenler (çöp kutusu) listesini getirir — mevcut bölüme göre filtrelenir.
 async function bgysGetTrashByModul(storeName) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   if (!user) return [];
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const modul = bgysCurrentModul();
@@ -302,6 +314,8 @@ async function bgysEmptyTrash(storeName) {
 
 async function bgysPutAll(storeName, records) {
   await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   const col = bgysUserCollection(storeName);
   for (const rec of records) {
     const { id, ...rest } = rec;
@@ -312,6 +326,8 @@ async function bgysPutAll(storeName, records) {
 
 async function bgysClearStore(storeName) {
   await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   const snap = await bgysUserCollection(storeName).get({ source: "server" });
   const batch = firebase.firestore().batch();
   snap.docs.forEach(d => batch.delete(d.ref));
@@ -366,7 +382,8 @@ function bgysOtherModuller() {
 /* ================= Kullanıcılar arası paylaşım ================= */
 async function bgysShareItem(storeName, id, toEmail) {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   if (!user) throw new Error("Giriş yapılmamış");
   const all = await bgysGetAll(storeName);
   const record = all.find(r => r.id === id);
@@ -411,7 +428,8 @@ async function bgysShareAllContent(toEmail) {
 // Gelen TÜM paylaşımları getirir (bekleyen/kabul edilen/reddedilen dahil) — kalıcı bildirim geçmişi.
 async function bgysGetIncomingShares() {
   await bgysInitFirebase();
-  const user = bgysCurrentUser();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
   if (!user) return [];
   const snap = await firebase.firestore().collection("shares")
     .where("toEmail", "==", user.email.toLowerCase())
