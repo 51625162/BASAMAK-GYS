@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İnfografikler — Basamak GYS</title>
+<style>
+:root{--ink:#10243E;--teal:#0E9E97;--teal-dark:#0B7F79;--coral:#FF6B5D;--violet:#8B6BF2;--cloud:#F3F7F9;--white:#FFF;--mist:#E1EAEE;--slate:#5B7186;--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--cloud);color:var(--ink);font-family:Inter,Arial,sans-serif}.topbar{padding:18px 6vw;background:#fff;border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10}.crumb{display:flex;gap:10px;align-items:center;font-size:.88rem;color:var(--slate);font-weight:600}.crumb a{text-decoration:none;color:inherit}.content{max-width:1180px;margin:auto;padding:36px 6vw 90px}.hero{max-width:1180px;margin:auto;padding:40px 6vw 8px}.hero h1{margin:0 0 5px}.hero p{margin:0;color:var(--slate)}
+.group{background:#fff;border:1px solid var(--mist);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}.group-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;padding:16px 18px;text-align:left;cursor:pointer}.group-head-main{display:flex;align-items:center;gap:10px;min-width:0}.group-title{font-weight:800;font-size:1rem}.group-count{font-size:.75rem;color:var(--slate);margin-left:8px}.group-arrow{font-size:1rem;transition:transform .18s}.group.open .group-arrow{transform:rotate(180deg)}.group-tools{display:flex;align-items:center;gap:7px;flex-shrink:0}.reorder-toggle{padding:7px 10px;border-radius:100px;background:var(--cloud);color:var(--violet);border:1.5px solid #cfc5fb;font-size:.72rem;font-weight:800;cursor:pointer}.reorder-toggle.active{background:var(--violet);color:#fff;border-color:var(--violet)}.group-body{display:none;padding:0 14px 14px}.group.open .group-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:620px;overflow-y:auto;padding-bottom:14px;}.g-card{background:var(--cloud);border:1px solid var(--mist);border-radius:14px;overflow:hidden;position:relative}.g-thumb{aspect-ratio:1500/1000;background:#e9f0f3;overflow:hidden;cursor:zoom-in}.g-thumb img{width:100%;height:100%;object-fit:cover;display:block}.g-info{padding:12px 14px}.g-tag{display:inline-block;font-size:.67rem;font-weight:700;padding:4px 9px;border-radius:100px;background:rgba(14,158,151,.12);color:var(--teal-dark)}.g-info h3{margin:8px 0;font-size:.92rem}.g-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.g-btn{padding:8px 12px;border-radius:100px;font-weight:700;font-size:.78rem;color:var(--violet);background:#fff;border:1.5px solid var(--violet)}.g-delete{padding:8px 12px;border-radius:100px;font-weight:700;font-size:.78rem;color:#C0392B;background:#fff;border:1.5px solid #EF4444}.reorder-controls{display:none;gap:6px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--mist)}.group.reorder-open .reorder-controls{display:flex}.reorder-btn{width:36px;height:32px;border-radius:9px;background:#fff;border:1.5px solid var(--mist);color:var(--ink);font-weight:900;cursor:pointer}.reorder-btn:hover:not(:disabled){border-color:var(--violet);color:var(--violet)}.reorder-btn:disabled{opacity:.35;cursor:not-allowed}.order-label{font-size:.72rem;color:var(--slate);font-weight:700;display:flex;align-items:center;margin-left:2px}.empty{text-align:center;background:#fff;border:1.5px dashed var(--mist);border-radius:var(--radius);padding:48px 24px;color:var(--slate)}
+.lightbox{position:fixed;inset:0;background:rgba(16,36,62,.94);z-index:1000;display:none;flex-direction:column}.lightbox.open{display:flex}.toolbar{display:flex;justify-content:center;gap:8px;padding:14px}.lb{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:100px;padding:10px 14px;font-weight:700}.lb.close{background:var(--coral)}.stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:20px}.stage img{max-width:none;user-select:none}
+@media(max-width:650px){.group-head{align-items:flex-start}.group-tools{flex-direction:column;align-items:flex-end}.group.open .group-body{grid-template-columns:1fr}.g-actions{gap:6px}}
+</style></head><body>
+<div class="topbar"><div class="crumb"><a href="index.html">Basamak GYS</a><span>/</span><a href="saymanlik.html" id="crumbModul">Saymanlık</a><span>/</span><span>İnfografikler</span></div></div>
+<section class="hero"><h1 id="pageH1">İnfografikler</h1><p>Aynı bölümdeki tüm görseller tek başlık altında toplanır. İstediğin içeriği ayrı ayrı silebilir ve sırasını manuel değiştirebilirsin.</p></section>
+<div class="content"><div id="groups"></div><div id="empty" class="empty" style="display:none">📥<h3>Henüz görsel konu notu eklenmedi</h3><p>İçerik Ekle bölümünden görsel ekleyebilirsin.</p></div></div>
+<div class="lightbox" id="lightbox"><div class="toolbar"><button class="lb" onclick="zoom(-.25)">➖</button><span class="lb" id="zoomLabel">100%</span><button class="lb" onclick="zoom(.25)">➕</button><button class="lb" onclick="resetZoom()">↺</button><button class="lb close" onclick="closeLightbox()">✕ Kapat</button></div><div class="stage" id="stage"></div></div>
+<script src="db.js?v=1786350782"></script><script>bgysRequireAuth();</script><script>
+const dataMap={};let scale=1;const reorderLocks=new Set();
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;')}
+function itemOrderValue(x){return Number.isFinite(Number(x.sortOrder))?Number(x.sortOrder):-(Number(x.createdAt)||0)}
+function sortItems(arr){return arr.slice().sort((a,b)=>{const ao=itemOrderValue(a),bo=itemOrderValue(b);if(ao!==bo)return ao-bo;return String(a.id).localeCompare(String(b.id))})}
+async function ensureOrder(arr){
+const sorted=sortItems(arr);
+const needs=sorted.some((x,i)=>!Number.isFinite(Number(x.sortOrder))||Number(x.sortOrder)!==i);
+if(!needs)return sorted;
+return sorted.map((x,i)=>({...x,sortOrder:i}));
+}
+async function saveGroupOrder(arr){
+await bgysInitFirebase();
+const user=bgysCurrentUser()||await bgysWaitForAuth();
+if(!user)throw new Error('Giriş yapılmamış.');
+const updates=arr.map((x,i)=>({id:x.id,sortOrder:i}));
+for(const u of updates){await bgysUserCollection('konular').doc(String(u.id)).update({sortOrder:u.sortOrder})}
+updates.forEach(u=>{if(dataMap[u.id])dataMap[u.id].sortOrder=u.sortOrder});
+}
+async function moveItem(groupKey,id,direction){
+const lockKey=groupKey+'|'+id;if(reorderLocks.has(lockKey))return;reorderLocks.add(lockKey);
+try{
+const all=Object.values(dataMap).filter(x=>x.tip==='image');
+const group=sortItems(all.filter(x=>((x.bolum||'Diğer').trim()||'Diğer')===groupKey));
+const idx=group.findIndex(x=>String(x.id)===String(id));
+const target=idx+direction;if(idx<0||target<0||target>=group.length)return;
+[group[idx],group[target]]=[group[target],group[idx]];
+await saveGroupOrder(group);
+await render();
+const gid='g-'+safeGroupId(groupKey);const el=document.getElementById(gid);if(el){el.classList.add('open','reorder-open')}
+}catch(e){alert('Sıralama kaydedilemedi: '+e.message)}finally{reorderLocks.delete(lockKey)}
+}
+function safeGroupId(v){return String(v).replace(/[^a-zA-Z0-9_-]/g,'_')}
+async function render(){try{const all=await bgysGetAllByModul('konular');const items=all.filter(x=>x.tip==='image');const root=document.getElementById('groups'),empty=document.getElementById('empty');if(!items.length){root.innerHTML='';root.style.display='none';empty.style.display='block';return}empty.style.display='none';root.style.display='block';items.forEach(x=>dataMap[x.id]=x);const groups={};items.forEach(x=>{const key=(x.bolum||'Diğer').trim()||'Diğer';(groups[key]??=[]).push(x)});root.innerHTML=Object.entries(groups).map(([bolum,arr],gi)=>{const gid='g-'+safeGroupId(bolum)+'-'+gi;const sorted=sortItems(arr);return `<section class="group open" id="${gid}"><button class="group-head" onclick="toggleGroup('${gid}')"><span class="group-head-main"><span><span class="group-title">${esc(bolum)}</span><span class="group-count">${sorted.length} içerik</span></span></span><span class="group-tools"><span class="reorder-toggle" onclick="event.stopPropagation();toggleReorder('${gid}')">↕️ Sırala</span><span class="group-arrow">▼</span></span></button><div class="group-body">${sorted.map((it,index)=>`<article class="g-card"><div class="g-thumb" onclick="openLightbox('${it.id}')"><img src="${it.dataUrl}" alt="${esc(it.baslik||'Görsel')}"></div><div class="g-info"><span class="g-tag">${it.kaynak==='yapistir'?'📋 Yapıştır':'🖼️ Görsel'}</span><h3>${esc(it.baslik||'Görsel konu notu')}</h3><div class="g-actions"><button class="g-btn" onclick="openLightbox('${it.id}')">👁️ Görüntüle</button><button class="g-delete" onclick="deleteItem('${it.id}')">🗑️ Sil</button></div><div class="reorder-controls"><button class="reorder-btn" ${index===0?'disabled':''} title="Yukarı taşı" onclick="moveItem('${esc(bolum)}','${it.id}',-1)">⬆️</button><button class="reorder-btn" ${index===sorted.length-1?'disabled':''} title="Aşağı taşı" onclick="moveItem('${esc(bolum)}','${it.id}',1)">⬇️</button><span class="order-label">${index+1} / ${sorted.length}</span></div></div></article>`).join('')}</div></section>`}).join('');}catch(e){console.error(e)}}
+function toggleGroup(id){document.getElementById(id)?.classList.toggle('open')}
+function toggleReorder(id){const el=document.getElementById(id);if(!el)return;el.classList.toggle('reorder-open');el.classList.add('open');const btn=el.querySelector('.reorder-toggle');if(btn)btn.classList.toggle('active',el.classList.contains('reorder-open'))}
+function openLightbox(id){const it=dataMap[id];if(!it)return;scale=1;document.getElementById('stage').innerHTML=`<img id="lbImg" src="${it.dataUrl}">`;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';updateZoom()}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.getElementById('stage').innerHTML='';document.body.style.overflow=''}
+function zoom(d){scale=Math.min(5,Math.max(.25,scale+d));updateZoom()}function resetZoom(){scale=1;updateZoom()}function updateZoom(){const im=document.getElementById('lbImg');if(im)im.style.transform=`scale(${scale})`;document.getElementById('zoomLabel').textContent=Math.round(scale*100)+'%'}
+async function deleteItem(id){if(!confirm('Bu görsel konu notunu çöp kutusuna taşımak istediğine emin misin?'))return;try{await bgysDelete('konular',id);delete dataMap[id];closeLightbox();await render()}catch(e){alert('Silme hatası: '+e.message)}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox()});document.getElementById('lightbox').addEventListener('click',e=>{if(e.target.id==='lightbox'||e.target.id==='stage')closeLightbox()});
+const mi=bgysModulInfo();document.getElementById('crumbModul').textContent=mi.ad;document.getElementById('crumbModul').href=mi.sayfa;document.getElementById('pageH1').textContent=mi.ad+' İnfografikler';document.title='İnfografikler — '+mi.ad+' — Basamak GYS';render();bgysAutoRefresh(render);
+</script></body></html>
