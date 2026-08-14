@@ -1,0 +1,62 @@
+name: Retry performance fixes
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'PERF-FIX2') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply safe performance changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('db.js'); s=p.read_text(encoding='utf-8')
+          old=re.search(r'async function bgysUploadSmart\(file, klasor\) \{.*?\n\}\n\n/\* ================= Firebase yapılandırması',s,re.S)
+          if not old: raise SystemExit('upload function not found')
+          new='''async function bgysUploadSmart(file, klasor) {
+            if (file && file.type && file.type.startsWith('image/')) {
+              try {
+                const bitmap=await createImageBitmap(file), maxSide=1600;
+                const ratio=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+                const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(bitmap.width*ratio)); canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
+                canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close();
+                let q=.78, compressed=null;
+                for(let i=0;i<5;i++){const b=await new Promise(r=>canvas.toBlob(r,'image/jpeg',q)); if(!b)break; compressed=new File([b],file.name.replace(/\\.[^.]+$/,'')+'.jpg',{type:'image/jpeg'}); if(b.size*1.37<=BGYS_INLINE_LIMIT_BYTES)break; q=Math.max(.35,q-.1)}
+                if(compressed) file=compressed;
+              } catch(e){console.warn('Görsel sıkıştırma atlandı',e)}
+            }
+            if(file.size*1.37<=BGYS_INLINE_LIMIT_BYTES){const dataUrl=await bgysFileToDataUrl(file); if(dataUrl.length<=BGYS_INLINE_LIMIT_BYTES)return dataUrl;}
+            return await bgysUploadFile(file,klasor);
+          }
+
+          /* ================= Firebase yapılandırması'''
+          s=s[:old.start()]+new+s[old.end():]
+          s=s.replace('const BGYS_DB_SURUM = "2026-08-12-shared-modul-v8";','const BGYS_DB_SURUM = "2026-08-14-performance-v2";')
+          s=s.replace('firebase.initializeApp(config);','''firebase.initializeApp(config);
+      try { firebase.firestore().enablePersistence({synchronizeTabs:true}).catch(()=>{}); } catch(e) {}''',1)
+          s=s.replace('const snap = await bgysUserCollection(storeName).get({ source: "server" });','''const col = bgysUserCollection(storeName);
+  let snap = null;
+  try { snap = await col.get({ source: "cache" }); } catch(e) {}
+  if (!snap || snap.empty) snap = await col.get({ source: "server" });''',1)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('infografikler.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('<script src="db.js?v=1786350782"></script>','<script src="db.js?v=20260814perf2"></script>',1)
+          s=s.replace('<img src="${it.dataUrl}" alt="${esc(it.baslik||\'Görsel\')}">','<img loading="lazy" decoding="async" src="${it.dataUrl}" alt="${esc(it.baslik||\'Görsel\')}">')
+          s=s.replace('const dataMap={};let scale=1;','const dataMap={};let scale=1;let renderBusy=false;')
+          s=s.replace('async function render(){try{','async function render(){if(renderBusy)return;renderBusy=true;try{',1)
+          s=s.replace('}catch(e){console.error(e)}}\nfunction toggleGroup','}catch(e){console.error(e)}finally{renderBusy=false}}\nfunction toggleGroup',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add db.js infografikler.html
+          git commit -m 'PERF-FIX2: faster image save and infographic render'
+          git push
