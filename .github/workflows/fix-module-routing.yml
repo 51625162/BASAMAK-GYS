@@ -1,0 +1,36 @@
+name: Fix content module routing
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'AUTO-FIX-MODULE') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix routing without touching stored content
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('icerik-ekle.html')
+          s=p.read_text(encoding='utf-8')
+
+          # Preserve the module passed by each module page. If a cached/old link
+          # drops the query, recover it from the page that opened this screen.
+          marker='<script src="db.js?v=1786350782"></script>'
+          if marker in s:
+              bootstrap='''<script>\n(function(){\n  const params=new URLSearchParams(location.search);\n  if(!params.get("modul")){\n    const ref=document.referrer||"";\n    const m=ref.match(/(?:^|[\\/?&])(ds-sefligi|idare-memuru|saymanlik)(?:\\.html)?(?:[?#&]|$)/i);\n    if(m){\n      const key=m[1].toLowerCase();\n      history.replaceState(null,"",location.pathname+"?modul="+encodeURIComponent(key));\n    }\n  }\n})();\n</script>\n<script src="db.js?v=20260814e"></script>'''
+              s=s.replace(marker,bootstrap,1)
+
+          s=s.replace('<a href="saymanlik.html" id="crumbModul">Saymanlık</a>', '<a href="saymanlik.html" id="crumbModul">Saymanlık</a>', 1)
+          s=s.replace('.scroll-list{max-height:180px;overflow-y:auto;', '.scroll-list{max-height:430px;overflow-y:auto;', 1)
+          s=s.replace('.konu-group-body{display:none;padding:0 12px 12px;max-height:180px;overflow-y:auto;', '.konu-group-body{display:none;padding:0 12px 12px;max-height:430px;overflow-y:auto;', 1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add icerik-ekle.html
+          git commit -m 'AUTO-FIX-MODULE: preserve selected content section'
+          git push
