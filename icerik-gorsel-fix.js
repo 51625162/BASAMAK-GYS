@@ -1,77 +1,69 @@
-/* BASAMAK-GYS - İçerik Ekle görsel dayanıklılık katmanı
-   Mevcut kayıt/yazma mantığını değiştirmez. Sadece geçici okuma/yükleme hatalarında
-   yeniden dener ve görsel listelemesini güvenilir hale getirir. */
+/* BASAMAK-GYS - Görsel kayıt/listeme dayanıklılık katmanı */
 (function(){
   if(!/icerik-ekle\.html$/i.test(location.pathname)) return;
-
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
-  let patched=false;
 
-  async function withRetry(fn, attempts=4){
-    let last;
-    for(let i=0;i<attempts;i++){
-      try{return await fn();}
-      catch(e){last=e;await wait(350*(i+1));}
-    }
-    throw last;
-  }
-
-  async function refreshImages(){
+  async function imageToSafeDataUrl(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return null;
     try{
-      if(typeof bgysGetAllByModul!=='function') return;
-      const items=await withRetry(()=>bgysGetAllByModul('konular'),3);
-      const imageItems=items.filter(x=>x.tip==='image');
-      const list=document.getElementById('konuList');
-      if(!list) return;
-      list.querySelectorAll('img.item-thumb').forEach(img=>{
-        img.loading='lazy';
-        img.decoding='async';
-        img.addEventListener('error',function(){
-          if(this.dataset.bgysRetried)return;
-          this.dataset.bgysRetried='1';
-          const src=this.getAttribute('src');
-          if(src && /^https?:/i.test(src)) this.src=src+(src.includes('?')?'&':'?')+'bgysRetry='+Date.now();
-        },{once:true});
-      });
-      // Sunucudan kayıt geldiği halde liste boş kaldıysa mevcut render fonksiyonunu
-      // tekrar çalıştır. Kayıt ekleme/silme/veri şemasına dokunulmaz.
-      if(imageItems.length && !list.querySelector('.item-card')){
-        if(typeof window.renderKonuList==='function') await window.renderKonuList();
-      }
-    }catch(e){console.warn('BGYS görsel dayanıklılık kontrolü:',e)}
-  }
-
-  function patchRender(){
-    if(patched || typeof window.renderKonuList!=='function') return;
-    const original=window.renderKonuList;
-    window.renderKonuList=async function(){
-      let last;
-      for(let i=0;i<3;i++){
-        try{
-          const result=await original.apply(this,arguments);
-          await refreshImages();
-          return result;
-        }catch(e){
-          last=e;
-          await wait(400*(i+1));
+      const bitmap=await createImageBitmap(file);
+      const maxSide=1800;
+      const ratio=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+      const w=Math.max(1,Math.round(bitmap.width*ratio));
+      const h=Math.max(1,Math.round(bitmap.height*ratio));
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d',{alpha:false});
+      ctx.drawImage(bitmap,0,0,w,h);
+      bitmap.close();
+      let quality=.82;
+      for(let i=0;i<6;i++){
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));
+        if(!blob) throw new Error('Görsel sıkıştırılamadı');
+        if(blob.size*1.37<=760000){
+          return await new Promise((resolve,reject)=>{
+            const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);
+          });
         }
+        quality-=.1;
       }
-      throw last;
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.3));
+      return await new Promise((resolve,reject)=>{
+        const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);
+      });
+    }catch(e){
+      console.warn('Görsel sıkıştırma başarısız:',e);
+      return null;
+    }
+  }
+
+  const originalUpload=window.bgysUploadSmart;
+  if(typeof originalUpload==='function'){
+    window.bgysUploadSmart=async function(file,folder){
+      if(file && file.type && file.type.startsWith('image/')){
+        const safe=await imageToSafeDataUrl(file);
+        if(safe && safe.length<=780000) return safe;
+      }
+      return originalUpload(file,folder);
     };
-    patched=true;
   }
 
-  function start(){
-    patchRender();
-    setTimeout(patchRender,250);
-    setTimeout(patchRender,800);
-    setTimeout(patchRender,1500);
-    // İlk açılışta geçici Firebase/auth gecikmesi olursa listeyi birkaç kez kontrol et.
-    [700,1600,3000,5000].forEach(ms=>setTimeout(()=>{
-      patchRender();
-      refreshImages();
-    },ms));
+  function fixListHeight(){
+    document.querySelectorAll('#konuList.scroll-list').forEach(el=>{
+      el.style.maxHeight='430px';el.style.overflowY='auto';
+    });
+    document.querySelectorAll('#konuList .konu-group-body').forEach(el=>{
+      el.style.maxHeight='430px';el.style.overflowY='auto';
+    });
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  async function refresh(){
+    fixListHeight();
+    try{
+      if(typeof window.renderKonuList==='function') await window.renderKonuList();
+    }catch(e){console.warn('Konu listesi yenilenemedi:',e);}
+  }
+
+  function start(){[0,500,1200,2500].forEach(ms=>setTimeout(refresh,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
 })();
