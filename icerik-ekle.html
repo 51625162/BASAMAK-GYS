@@ -791,34 +791,51 @@ veya sadece: B D A C ..."></textarea>
   async function renderKonuList() {
     const items = await bgysGetAllByModul('konular');
     const el = document.getElementById('konuList');
+    el.classList.remove('scroll-list');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz konu notu eklemedin.</div>'; return; }
-    el.innerHTML = items.reverse().map(it => {
-      const thumb = it.tip === 'image'
-        ? `<img class="item-thumb" src="${it.dataUrl}">`
-        : `<div class="item-icon">${KONU_TIP_ICON[it.tip] || '📄'}</div>`;
-      const gorBtn = it.tip === 'metin'
-        ? `<button class="btn secondary small" onclick="alert('${(it.metin || '').replace(/'/g,"\\'").replace(/\n/g,' ')}')">👁️ Gör</button>`
-        : `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">👁️ Gör</button>`;
-      const indirBtn = it.tip === 'metin'
-        ? ''
-        : `<a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>`;
+    const gruplar = {};
+    items.forEach(it => {
+      const k = (it.bolum || 'Diğer').trim() || 'Diğer';
+      (gruplar[k] ??= []).push(it);
+    });
+    el.innerHTML = Object.entries(gruplar).map(([bolum, arr], gi) => {
+      const gid = 'konu-grp-' + safeGid(bolum) + '-' + gi;
+      const kartlar = arr.slice().reverse().map(it => {
+        const thumb = it.tip === 'image'
+          ? `<img class="item-thumb" src="${it.dataUrl}">`
+          : `<div class="item-icon">${KONU_TIP_ICON[it.tip] || '📄'}</div>`;
+        const gorBtn = it.tip === 'metin'
+          ? `<button class="btn secondary small" onclick="alert('${(it.metin || '').replace(/'/g,"\\'").replace(/\n/g,' ')}')">👁️ Gör</button>`
+          : `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">👁️ Gör</button>`;
+        const indirBtn = it.tip === 'metin'
+          ? ''
+          : `<a class="btn small" style="background:linear-gradient(135deg,var(--amber),#E0951A);color:white;" href="${it.dataUrl}" download="${it.fileName || it.baslik}">⬇️ İndir</a>`;
+        return `
+        <div class="item-card">
+          ${thumb}
+          <div class="item-info">
+            <h4>${esc(it.baslik)}</h4>
+            <p>${KONU_TIP_LABEL[it.tip] || it.tip} ${it.fileName ? '· ' + esc(it.fileName) : ''}</p>
+          </div>
+          <div class="item-actions">
+            ${gorBtn}
+            ${indirBtn}
+            <button class="btn secondary small" onclick="openTransferModal('konular', '${it.id}', '${esc(it.baslik).replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
+            <button class="btn secondary small" onclick="openShareModal('konular', '${it.id}', '${esc(it.baslik).replace(/'/g,"\\'")}')">📤</button>
+            <button class="btn danger small" onclick="bgysDeleteKonu('${it.id}')">Sil</button>
+          </div>
+        </div>
+      `;
+      }).join('');
       return `
-      <div class="item-card">
-        ${thumb}
-        <div class="item-info">
-          <div class="tag">${it.bolum}</div>
-          <h4>${it.baslik}</h4>
-          <p>${KONU_TIP_LABEL[it.tip] || it.tip} ${it.fileName ? '· ' + it.fileName : ''}</p>
+        <div class="konu-group" id="${gid}">
+          <button class="konu-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
+            <span><span class="konu-group-title">${esc(bolum)}</span><span class="konu-group-count">${arr.length} içerik</span></span>
+            <span class="konu-group-arrow">▼</span>
+          </button>
+          <div class="konu-group-body" style="max-height:460px;">${kartlar}</div>
         </div>
-        <div class="item-actions">
-          ${gorBtn}
-          ${indirBtn}
-          <button class="btn secondary small" onclick="openTransferModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
-          <button class="btn secondary small" onclick="openShareModal('konular', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
-          <button class="btn danger small" onclick="bgysDeleteKonu('${it.id}')">Sil</button>
-        </div>
-      </div>
-    `;
+      `;
     }).join('');
   }
   window.bgysDeleteKonu = async (id) => { await bgysDelete('konular', id); renderKonuList(); };
