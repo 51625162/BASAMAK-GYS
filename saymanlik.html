@@ -228,22 +228,29 @@
 <script src="db.js?v=1786350782"></script>
 <script>bgysRequireAuth();</script>
 <script>
-  const STORE_KEY = 'basamak-gys-saymanlik-stats';
+  async function renderStats(){
+    const solvedMap = await bgysGetSolvedMap();
+    const kayitlar = Object.values(solvedMap);
+    const solved = kayitlar.length;
+    const correct = kayitlar.filter(r => r.correct).length;
+    const acc = solved > 0 ? Math.round((correct / solved) * 100) : 0;
 
-  function loadStats(){
-    try{
-      const raw = localStorage.getItem(STORE_KEY);
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
-    return { solved:0, correct:0, streak:0 };
-  }
+    // Gunluk seri: cozulen sorularin (solvedAt) gununu tekillestirip, bugunden
+    // (ya da dunden) geriye dogru kesintisiz kac gun cozum yapilmis onu sayiyoruz.
+    const gunler = new Set(kayitlar.map(r => new Date(r.solvedAt).toDateString()));
+    let streak = 0;
+    let gosterge = new Date();
+    if (!gunler.has(gosterge.toDateString())) {
+      gosterge.setDate(gosterge.getDate() - 1); // bugun cozum yoksa dunden basla
+    }
+    while (gunler.has(gosterge.toDateString())) {
+      streak++;
+      gosterge.setDate(gosterge.getDate() - 1);
+    }
 
-  function renderStats(){
-    const s = loadStats();
-    document.getElementById('statSolved').textContent = s.solved;
-    const acc = s.solved > 0 ? Math.round((s.correct / s.solved) * 100) : 0;
+    document.getElementById('statSolved').textContent = solved;
     document.getElementById('statAccuracy').textContent = '%' + acc;
-    document.getElementById('statStreak').textContent = s.streak;
+    document.getElementById('statStreak').textContent = streak;
   }
 
   function showToast(msg){
@@ -261,6 +268,7 @@
   });
 
   renderStats();
+  bgysAutoRefresh(renderStats);
 </script>
 
 </body>

@@ -103,13 +103,15 @@
 
   async function render() {
     const sorular = await bgysGetAllByModul('sorular');
-    const solvedMap = bgysGetSolvedMap();
-    const denemeSolvedMap = bgysGetDenemeSolvedMap();
+    const solvedMap = await bgysGetSolvedMap();
+    const denemeSolvedMap = await bgysGetDenemeSolvedMap();
     const denemeler = await bgysGetAllByModul('denemeler');
 
     const genelSorular = sorular.filter(s => s.denemeId === undefined || s.denemeId === null);
-    const cozulenler = genelSorular.filter(s => solvedMap[s.id]);
-    const dogruSayisi = cozulenler.filter(s => solvedMap[s.id].correct).length;
+    // NOT: Soru Çöz sayfası, hazır soru bankasıyla senin sorularının ID'leri çakışmasın diye
+    // kendi sorularına başına "u" ekliyor (örn. "uAbc123") — çözülme kaydı o adla tutuluyor.
+    const cozulenler = genelSorular.filter(s => solvedMap[s.id] || solvedMap["u" + s.id]);
+    const dogruSayisi = cozulenler.filter(s => (solvedMap[s.id] || solvedMap["u" + s.id]).correct).length;
     const yanlisSayisi = cozulenler.length - dogruSayisi;
     const cozulmeyenSayisi = genelSorular.length - cozulenler.length;
     const basariYuzdesi = cozulenler.length > 0 ? Math.round((dogruSayisi / cozulenler.length) * 100) : 0;
@@ -171,8 +173,9 @@
       const k = (s.bolum || 'Diğer').trim() || 'Diğer';
       (konuGruplari[k] ??= { toplam: 0, dogru: 0, yanlis: 0 });
       konuGruplari[k].toplam++;
-      if (solvedMap[s.id]) {
-        if (solvedMap[s.id].correct) konuGruplari[k].dogru++;
+      const kayit = solvedMap[s.id] || solvedMap["u" + s.id];
+      if (kayit) {
+        if (kayit.correct) konuGruplari[k].dogru++;
         else konuGruplari[k].yanlis++;
       }
     });

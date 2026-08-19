@@ -298,15 +298,15 @@
       }
     } catch(e) { console.warn('Kullanıcı soruları yüklenemedi', e); }
   }
-  loadUserQuestions().then(() => {
+  loadUserQuestions().then(async () => {
     const ozelMod = new URLSearchParams(location.search).get('mod');
     if (ozelMod === 'yanlis' || ozelMod === 'favori') {
       let pool;
       if (ozelMod === 'yanlis') {
-        const solvedMap = bgysGetSolvedMap();
+        const solvedMap = await bgysGetSolvedMap();
         pool = mergedBank.filter(q => solvedMap[q.id] && solvedMap[q.id].correct === false);
       } else {
-        const favIds = bgysGetFavoriteIds();
+        const favIds = await bgysGetFavoriteIds();
         pool = mergedBank.filter(q => favIds.includes(q.id));
       }
       if (pool.length === 0) {
@@ -319,7 +319,7 @@
       document.getElementById('quizScreen').classList.remove('hidden');
       document.getElementById('liveScore').style.display = 'flex';
       document.getElementById('qTotal').textContent = quiz.length;
-      renderQuestion();
+      await renderQuestion();
     }
   });
 
@@ -352,8 +352,8 @@
     });
   });
 
-  function updateSolvedCount() {
-    const solvedMap = bgysGetSolvedMap();
+  async function updateSolvedCount() {
+    const solvedMap = await bgysGetSolvedMap();
     const solvedIdsInBank = mergedBank.filter(q => solvedMap[q.id]).length;
     document.getElementById('solvedCount').textContent = solvedIdsInBank;
   }
@@ -405,16 +405,16 @@
     return a;
   }
 
-  window.favToggle = (id) => {
-    const yeniDurum = bgysToggleFavorite(id);
+  window.favToggle = async (id) => {
+    const yeniDurum = await bgysToggleFavorite(id);
     const btn = document.getElementById('favBtn');
     if (btn) btn.textContent = yeniDurum ? '⭐' : '☆';
   };
 
-  document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('startBtn').addEventListener('click', async () => {
     let pool = mergedBank.slice();
     if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
-    const solvedMap = bgysGetSolvedMap();
+    const solvedMap = await bgysGetSolvedMap();
     if (selectedStatus === "unsolved") pool = pool.filter(q => !solvedMap[q.id]);
     else if (selectedStatus === "solved") pool = pool.filter(q => !!solvedMap[q.id]);
     const selectedTopic = document.getElementById('topicSelect').value;
@@ -444,19 +444,20 @@
     document.getElementById('quizScreen').classList.remove('hidden');
     document.getElementById('liveScore').style.display = 'flex';
     document.getElementById('qTotal').textContent = quiz.length;
-    renderQuestion();
+    await renderQuestion();
   });
 
-  function renderQuestion(){
+  async function renderQuestion(){
     answered = false;
     const q = quiz[qIdx];
     document.getElementById('qIndex').textContent = qIdx + 1;
     document.getElementById('qBarFill').style.width = ((qIdx) / quiz.length * 100) + '%';
 
     const tagsEl = document.getElementById('qTags');
-    const oncedenCozuldu = bgysIsSolved(q.id);
-    const cozulmeSayisi = bgysGetSolvedCount(q.id);
-    const favoriMi = bgysIsFavorite(q.id);
+    const [solvedMap, favIds] = await Promise.all([bgysGetSolvedMap(), bgysGetFavoriteIds()]);
+    const oncedenCozuldu = bgysIsSolved(solvedMap, q.id);
+    const cozulmeSayisi = bgysGetSolvedCount(solvedMap, q.id);
+    const favoriMi = favIds.includes(q.id);
     tagsEl.innerHTML = `
       <span class="q-tag madde">${q.madde}</span>
       <span class="q-tag diff-${q.difficulty}">${DIFF_LABELS[q.difficulty]}</span>
@@ -487,7 +488,7 @@
     document.getElementById('nextBtn').classList.remove('show');
   }
 
-  function selectAnswer(i, btn){
+  async function selectAnswer(i, btn){
     if(answered) return;
     answered = true;
     const q = quiz[qIdx];
@@ -507,7 +508,7 @@
       wrongCount++;
       wasCorrect = false;
     }
-    bgysMarkSolved(q.id, wasCorrect);
+    await bgysMarkSolved(q.id, wasCorrect);
     document.getElementById('okCount').textContent = correctCount;
     document.getElementById('noCount').textContent = wrongCount;
     document.getElementById('solutionToggle').classList.add('show');
@@ -522,12 +523,12 @@
     btn.textContent = box.classList.contains('show') ? '💡 Çözümü Gizle' : '💡 Çözümü Gör';
   });
 
-  document.getElementById('nextBtn').addEventListener('click', () => {
+  document.getElementById('nextBtn').addEventListener('click', async () => {
     qIdx++;
     if(qIdx >= quiz.length){
       showResults();
     } else {
-      renderQuestion();
+      await renderQuestion();
     }
   });
 

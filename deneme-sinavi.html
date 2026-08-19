@@ -350,8 +350,9 @@
 
   async function showList() {
     let denemeler = await bgysGetAllByModul('denemeler');
-    if (denemeStatusFiltre === 'unsolved') denemeler = denemeler.filter(d => !bgysIsDenemeSolved(d.id));
-    else if (denemeStatusFiltre === 'solved') denemeler = denemeler.filter(d => bgysIsDenemeSolved(d.id));
+    const denemeSolvedMap = await bgysGetDenemeSolvedMap();
+    if (denemeStatusFiltre === 'unsolved') denemeler = denemeler.filter(d => !bgysIsDenemeSolved(denemeSolvedMap, d.id));
+    else if (denemeStatusFiltre === 'solved') denemeler = denemeler.filter(d => bgysIsDenemeSolved(denemeSolvedMap, d.id));
 
     const area = document.getElementById('denemeListArea');
     if (denemeler.length === 0) {
@@ -385,7 +386,7 @@
         if (d.tip === 'metin') action = `<a class="go" href="${bgysWithModul('deneme-sinavi.html?id=' + d.id)}">Çöz</a>`;
         else if (d.tip === 'pdf') action = `<button class="go" onclick="window.open('${d.dataUrl}','_blank')">Gör</button>`;
         else action = `<button class="go" onclick="window.open('${d.dataUrls[0]}','_blank')">Gör</button>`;
-        const cozulmeSayisi = bgysGetDenemeSolvedCount(d.id);
+        const cozulmeSayisi = bgysGetDenemeSolvedCount(denemeSolvedMap, d.id);
         const cozulduEtiket = cozulmeSayisi > 0 ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(34,197,94,0.12);color:#16803C;margin-left:6px;">✓ ${cozulmeSayisi}. kez</span>` : '';
         return `<div class="list-card">
           <div class="icon">${d.tip === 'metin' ? '📝' : d.tip === 'pdf' ? '📄' : '🖼️'}</div>
@@ -447,10 +448,10 @@
     qIdx = 0; correctCount = 0; wrongCount = 0;
     sonucDizisi = new Array(quiz.length).fill(null);
     startTimer(quiz.length);
-    renderQuestion();
+    await renderQuestion();
   }
 
-  function startReview(sorularListesi) {
+  async function startReview(sorularListesi) {
     quiz = sorularListesi;
     sonucDizisi = new Array(quiz.length).fill(null);
     qIdx = 0; correctCount = 0; wrongCount = 0;
@@ -460,18 +461,19 @@
     document.getElementById('resultScreen').classList.add('hidden');
     document.getElementById('quizScreen').classList.remove('hidden');
     document.getElementById('qTotal').textContent = quiz.length;
-    renderQuestion();
+    await renderQuestion();
   }
 
-  function renderQuestion() {
+  async function renderQuestion() {
     answered = false;
     const q = quiz[qIdx];
     document.getElementById('qIndex').textContent = qIdx + 1;
     document.getElementById('qBarFill').style.width = (qIdx / quiz.length * 100) + '%';
     const tagsEl = document.getElementById('qTags');
     if (tagsEl) {
-      const oncedenCozuldu = bgysIsSolved(q.id);
-      const cozulmeSayisi = bgysGetSolvedCount(q.id);
+      const solvedMap = await bgysGetSolvedMap();
+      const oncedenCozuldu = bgysIsSolved(solvedMap, q.id);
+      const cozulmeSayisi = bgysGetSolvedCount(solvedMap, q.id);
       tagsEl.innerHTML = oncedenCozuldu ? `<span class="q-tag" style="font-size:0.68rem;font-weight:700;padding:4px 11px;border-radius:100px;background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : '';
     }
     const imgWrap = document.getElementById('qImgWrap');
@@ -493,7 +495,7 @@
     document.getElementById('nextBtn').classList.remove('show');
   }
 
-  function selectAnswer(i, btn, q) {
+  async function selectAnswer(i, btn, q) {
     if (answered) return;
     answered = true;
     document.querySelectorAll('#qOptions .opt').forEach((el, idx) => {
@@ -504,7 +506,7 @@
     const doguMuydu = (i === q.correct);
     if (doguMuydu) correctCount++; else { btn.classList.remove('dim'); btn.classList.add('wrong'); wrongCount++; }
     sonucDizisi[qIdx] = doguMuydu ? 'correct' : 'wrong';
-    bgysMarkSolved(q.id, doguMuydu);
+    await bgysMarkSolved(q.id, doguMuydu);
     document.getElementById('solutionToggle').classList.add('show');
     document.getElementById('nextBtn').classList.add('show');
   }
@@ -515,12 +517,12 @@
     document.getElementById('solutionToggle').textContent = box.classList.contains('show') ? '💡 Çözümü Gizle' : '💡 Çözümü Gör';
   });
 
-  document.getElementById('nextBtn').addEventListener('click', () => {
+  document.getElementById('nextBtn').addEventListener('click', async () => {
     qIdx++;
-    if (qIdx >= quiz.length) showResults(); else renderQuestion();
+    if (qIdx >= quiz.length) await showResults(); else await renderQuestion();
   });
 
-  function showResults(timeUp) {
+  async function showResults(timeUp) {
     clearInterval(timerInterval);
     document.getElementById('quizScreen').classList.add('hidden');
     document.getElementById('resultScreen').classList.remove('hidden');
@@ -535,7 +537,7 @@
     document.getElementById('finalMsg').textContent = msg;
 
     if (!incelemeModu && mevcutDenemeId) {
-      bgysMarkDenemeSolved(mevcutDenemeId, correctCount, total);
+      await bgysMarkDenemeSolved(mevcutDenemeId, correctCount, total);
     }
 
     const yanlisVeyaBos = quiz.filter((q, i) => sonucDizisi[i] !== 'correct');
