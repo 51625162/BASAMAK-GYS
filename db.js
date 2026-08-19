@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-12-shared-modul-v8";
+const BGYS_DB_SURUM = "2026-08-13-cross-device-sync-v11";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -219,12 +219,22 @@ async function bgysAdd(storeName, record) {
   if (boyut > BGYS_MAX_DOC_BYTES) {
     throw new Error("Kayıt çok büyük (~900KB üstü). Bu durum normalde oluşmaz, dosya doğrudan Storage'a gitmeliydi — lütfen tekrar dene.");
   }
-  const zamanAsimi = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Kaydetme 20 saniyede tamamlanamadı (bağlantı ya da Firestore sorunu olabilir). İnternetini kontrol edip tekrar dene.")), 20000)
-  );
-  const ref = await Promise.race([bgysUserCollection(storeName).add(record), zamanAsimi]);
-  bgysScheduleCloudPush();
-  return ref.id;
+  // Bağlantı aralıklı/yavaşsa tek seferde pes etmesin diye 3 deneme hakkı (aralarında kısa bekleme).
+  let sonHata = null;
+  for (let deneme = 1; deneme <= 3; deneme++) {
+    const zamanAsimi = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`Kaydetme ${deneme}. denemede de 20 saniyede tamamlanamadı (bağlantı ya da Firestore sorunu olabilir). İnternetini/ağını kontrol edip tekrar dene.`)), 20000)
+    );
+    try {
+      const ref = await Promise.race([bgysUserCollection(storeName).add(record), zamanAsimi]);
+      bgysScheduleCloudPush();
+      return ref.id;
+    } catch (e) {
+      sonHata = e;
+      if (deneme < 3) await new Promise(r => setTimeout(r, 1500)); // tekrar denemeden önce kısa bekleme
+    }
+  }
+  throw sonHata;
 }
 
 async function bgysGetAll(storeName) {
@@ -621,6 +631,50 @@ function bgysParseSoruMetni(text) {
   return bgysParseSoruMetniFlexible(text, true);
 }
 
+/* ---- İKİNCİ FORMAT: her şey (soru+şıklar+cevap) TEK satırda/paragrafta,
+   sorular birbirinden sadece boş satırla ayrılıyor. Örn:
+   "Soru metni? A) ... B) ... C) ... D) ... Çözüm: A) ..." */
+function bgysParseSoruMetniInline(text) {
+  const blocks = text.split(/\n\s*\n/).map(b => b.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const results = [];
+  const uyarilar = [];
+  blocks.forEach((block, idx) => {
+    const cevapSplit = block.split(/\s*(?:Çözüm|Cozum|Cevap|Yan[ıi]t)\s*[:\-]\s*/i);
+    const soruVeSiklar = cevapSplit[0];
+    const cevapKismi = (cevapSplit[1] || "").trim();
+
+    const parts = soruVeSiklar.split(/\s*\b([A-D])\s*[\)\.\:]\s*/);
+    const question = (parts[0] || "").trim().replace(/^\d+\s*[\.\)\-]\s*/, "") || "(Soru metni girilmedi)";
+    const optionMap = {};
+    for (let i = 1; i < parts.length; i += 2) {
+      const letter = parts[i];
+      const val = (parts[i + 1] || "").trim();
+      if (letter && val) optionMap[letter] = val;
+    }
+    const eksikSik = ["A", "B", "C", "D"].filter(l => !optionMap[l]);
+    if (eksikSik.length > 0) {
+      uyarilar.push({ block: idx + 1, not: `${eksikSik.join(", ")} şıkkı bulunamadı` });
+    }
+    const options = ["A", "B", "C", "D"].map(l => optionMap[l] || "(Boş bırakıldı)");
+
+    let correct;
+    if (cevapKismi) {
+      const letterMatch = cevapKismi.match(/^([A-D])\b/i);
+      if (letterMatch) {
+        correct = "ABCD".indexOf(letterMatch[1].toUpperCase());
+      } else {
+        correct = 0;
+        uyarilar.push({ block: idx + 1, not: "Cevap harfi bulunamadı, A varsayıldı" });
+      }
+    } else {
+      correct = 0;
+      uyarilar.push({ block: idx + 1, not: "Cevap belirtilmemiş, A varsayıldı" });
+    }
+    results.push({ question, options, correct, explanation: "Açıklama eklenmedi." });
+  });
+  return { results, errors: uyarilar };
+}
+
 /* ---- Cevap anahtarı ayrıştırıcı ---- */
 function bgysParseCevapAnahtari(text) {
   if (!text || !text.trim()) return [];
@@ -784,92 +838,96 @@ function bgysRestoreFromFile(file) {
   });
 }
 
-/* ================= Çözülen Soru Takibi (cihaz bazlı, localStorage) ================= */
-function bgysSolvedKey() {
-  return "bgys-solved-" + bgysCurrentModul();
+/* ================= Çözülen Soru Takibi (Firestore, cihazlar arası senkron) ================= */
+// NOT: Önceden bu bilgi sadece localStorage'da (cihaza özel) tutuluyordu, bu yüzden
+// telefonda çözülen soru bilgisayarda "çözülmemiş" görünüyordu. Artık Firestore'da,
+// diğer tüm içerikler gibi kullanıcının hesabına bağlı olarak saklanıyor.
+async function bgysGetSolvedMap() {
+  const all = await bgysGetAll("cozulenSorular");
+  const map = {};
+  all.forEach(r => { map[r.id] = r; });
+  return map;
 }
 
-function bgysGetSolvedMap() {
-  try {
-    const raw = localStorage.getItem(bgysSolvedKey());
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) { return {}; }
+async function bgysMarkSolved(questionId, wasCorrect) {
+  await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  if (!user) return;
+  const ref = bgysUserCollection("cozulenSorular").doc(String(questionId));
+  const doc = await ref.get();
+  const oncekiSayi = (doc.exists && doc.data().count) || 0;
+  await ref.set({ correct: !!wasCorrect, solvedAt: Date.now(), count: oncekiSayi + 1 });
 }
 
-function bgysMarkSolved(questionId, wasCorrect) {
-  const map = bgysGetSolvedMap();
-  const oncekiSayi = (map[questionId] && map[questionId].count) || 0;
-  map[questionId] = { correct: !!wasCorrect, solvedAt: Date.now(), count: oncekiSayi + 1 };
-  localStorage.setItem(bgysSolvedKey(), JSON.stringify(map));
-}
-
-function bgysGetSolvedCount(questionId) {
-  const map = bgysGetSolvedMap();
+// map, önceden bgysGetSolvedMap() ile çekilmiş olmalı (her soru için tekrar tekrar
+// Firestore'a gitmemek için) — soru-coz.html/deneme-sinavi.html/soru-cevap.html bunu
+// setup aşamasında bir kez çekip renderQuestion() içinde bu fonksiyonlara veriyor.
+function bgysGetSolvedCount(map, questionId) {
   return (map[questionId] && map[questionId].count) || 0;
 }
 
-function bgysIsSolved(questionId) {
-  const map = bgysGetSolvedMap();
+function bgysIsSolved(map, questionId) {
   return !!map[questionId];
 }
 
 /* ---- Deneme sınavının kendisinin (tüm deneme, tek tek soru değil) çözülme takibi ---- */
-function bgysDenemeSolvedKey() {
-  return "bgys-deneme-solved-" + bgysCurrentModul();
+async function bgysGetDenemeSolvedMap() {
+  const all = await bgysGetAll("cozulenDenemeler");
+  const map = {};
+  all.forEach(r => { map[r.id] = r; });
+  return map;
 }
 
-function bgysGetDenemeSolvedMap() {
-  try {
-    const raw = localStorage.getItem(bgysDenemeSolvedKey());
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) { return {}; }
+async function bgysMarkDenemeSolved(denemeId, score, total) {
+  await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  if (!user) return;
+  const ref = bgysUserCollection("cozulenDenemeler").doc(String(denemeId));
+  const doc = await ref.get();
+  const oncekiSayi = (doc.exists && doc.data().count) || 0;
+  await ref.set({ count: oncekiSayi + 1, lastScore: score, lastTotal: total, solvedAt: Date.now() });
 }
 
-function bgysMarkDenemeSolved(denemeId, score, total) {
-  const map = bgysGetDenemeSolvedMap();
-  const oncekiSayi = (map[denemeId] && map[denemeId].count) || 0;
-  map[denemeId] = { count: oncekiSayi + 1, lastScore: score, lastTotal: total, solvedAt: Date.now() };
-  localStorage.setItem(bgysDenemeSolvedKey(), JSON.stringify(map));
+function bgysIsDenemeSolved(map, denemeId) {
+  return !!map[denemeId];
 }
 
-function bgysIsDenemeSolved(denemeId) {
-  return !!bgysGetDenemeSolvedMap()[denemeId];
-}
-
-function bgysGetDenemeSolvedCount(denemeId) {
-  const m = bgysGetDenemeSolvedMap()[denemeId];
+function bgysGetDenemeSolvedCount(map, denemeId) {
+  const m = map[denemeId];
   return m ? m.count : 0;
 }
 
 
-function bgysClearSolved() {
-  localStorage.removeItem(bgysSolvedKey());
+async function bgysClearSolved() {
+  await bgysClearStore("cozulenSorular");
 }
 
-/* ---- Favori soru işaretleme ---- */
-function bgysFavoriteKey() {
-  return "bgys-favorites-" + bgysCurrentModul();
+/* ---- Favori soru işaretleme (Firestore, cihazlar arası senkron) ---- */
+async function bgysGetFavoriteIds() {
+  const all = await bgysGetAllByModul("favoriler");
+  return all.map(r => r.soruId);
 }
 
-function bgysGetFavoriteIds() {
-  try {
-    const raw = localStorage.getItem(bgysFavoriteKey());
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
+async function bgysIsFavorite(questionId) {
+  const ids = await bgysGetFavoriteIds();
+  return ids.includes(questionId);
 }
 
-function bgysIsFavorite(questionId) {
-  return bgysGetFavoriteIds().includes(questionId);
-}
-
-function bgysToggleFavorite(questionId) {
-  let list = bgysGetFavoriteIds();
-  if (list.includes(questionId)) {
-    list = list.filter(id => id !== questionId);
+async function bgysToggleFavorite(questionId) {
+  await bgysInitFirebase();
+  let user = bgysCurrentUser();
+  if (!user) user = await bgysWaitForAuth();
+  if (!user) return false;
+  const all = await bgysGetAllByModul("favoriler");
+  const mevcut = all.find(r => r.soruId === questionId);
+  if (mevcut) {
+    await bgysDelete("favoriler", mevcut.id);
+    return false;
   } else {
-    list.push(questionId);
+    await bgysAdd("favoriler", { modul: bgysCurrentModul(), soruId: questionId });
+    return true;
   }
-  localStorage.setItem(bgysFavoriteKey(), JSON.stringify(list));
-  return list.includes(questionId);
 }
 
