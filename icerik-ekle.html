@@ -299,6 +299,14 @@ Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
 (İkinci soru buraya...)"></textarea>
           <div class="hint">Format esnek: A) A. A- A: hepsi olur, küçük harf de olabilir. "Cevap:" yerine "Doğru Cevap:" / "Yanıt:" de yazılabilir. Numaralı sorularda (1. 2. 3. ...) aralarına boş satır koymana bile gerek yok — otomatik ayrılır.</div>
         </div>
+        <div class="field">
+          <label>Yapıştırma Formatı</label>
+          <div class="radio-row" id="soruMetinFormatRow">
+            <label class="radio-chip active" data-fmt="cok-satir"><input type="radio" name="soruMetinFormat" value="cok-satir" checked style="display:none;"> Çok satırlı (soru/şık/cevap ayrı satırda)</label>
+            <label class="radio-chip" data-fmt="tek-satir"><input type="radio" name="soruMetinFormat" value="tek-satir" style="display:none;"> Tek satır (hepsi yan yana, otomatik ayır)</label>
+          </div>
+          <div class="hint">"Tek satır" seçeneği şunun gibi yapıştırmalar içindir: "Soru metni? A) ... B) ... C) ... D) ... Çözüm: A) ...". Sorular arasında yine bir boş satır bırak.</div>
+        </div>
         <button class="btn primary" id="soruMetinEkleBtn">Soruları Ekle</button>
         <div class="result-msg" id="soruMetinResult"></div>
       </div>
@@ -639,6 +647,12 @@ veya sadece: B D A C ..."></textarea>
 <script src="db.js?v=1786350782"></script>
 <script>
   bgysRequireAuth();
+  (function () {
+    const etiket2 = document.createElement("div");
+    etiket2.textContent = "icerik-ekle.html: 2026-08-13-soru-5-item-v2";
+    etiket2.style.cssText = "position:fixed;bottom:14px;left:2px;font-size:9px;color:#B0B8C0;z-index:9999;font-family:monospace;pointer-events:none;";
+    document.addEventListener("DOMContentLoaded", () => document.body.appendChild(etiket2));
+  })();
 
   // ---- Tab switching ----
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -850,11 +864,19 @@ veya sadece: B D A C ..."></textarea>
     });
   });
 
+  document.querySelectorAll('#soruMetinFormatRow .radio-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#soruMetinFormatRow .radio-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
   document.getElementById('soruMetinEkleBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
     const text = document.getElementById('soruMetin').value;
     if (!text.trim()) { showMsg('soruMetinResult', 'err', 'Soru metni boş.'); return; }
-    const { results, errors } = bgysParseSoruMetni(text);
+    const secilenFormat = document.querySelector('#soruMetinFormatRow .radio-chip.active').dataset.fmt;
+    const { results, errors } = secilenFormat === 'tek-satir' ? bgysParseSoruMetniInline(text) : bgysParseSoruMetni(text);
     for (const r of results) {
       await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text', difficulty: soruMetinZorluk });
     }
@@ -1015,12 +1037,12 @@ veya sadece: B D A C ..."></textarea>
         </div>
       `).join('');
       return `
-        <div class="konu-group open" id="${gid}">
+        <div class="konu-group" id="${gid}">
           <button class="konu-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
             <span><span class="konu-group-title">${esc(bolum)}</span><span class="konu-group-count">${arr.length} çift</span></span>
             <span class="konu-group-arrow">▼</span>
           </button>
-          <div class="konu-group-body">${kartlar}</div>
+          <div class="konu-group-body" style="max-height:460px;">${kartlar}</div>
         </div>
       `;
     }).join('');
@@ -1057,12 +1079,12 @@ veya sadece: B D A C ..."></textarea>
         </div>
       `).join('');
       return `
-        <div class="konu-group open" id="${gid}">
+        <div class="konu-group" id="${gid}">
           <button class="konu-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
             <span><span class="konu-group-title">${esc(bolum)}</span><span class="konu-group-count">${arr.length} soru</span></span>
             <span class="konu-group-arrow">▼</span>
           </button>
-          <div class="konu-group-body">${kartlar}</div>
+          <div class="konu-group-body" style="max-height:460px;">${kartlar}</div>
         </div>
       `;
     }).join('');
@@ -1205,30 +1227,48 @@ veya sadece: B D A C ..."></textarea>
   async function renderDenemeList() {
     const items = await bgysGetAllByModul('denemeler');
     const el = document.getElementById('denemeList');
+    el.classList.remove('scroll-list');
     if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz deneme sınavı eklemedin.</div>'; return; }
-    el.innerHTML = items.reverse().map(it => {
-      let actionHtml = '';
-      if (it.tip === 'metin') {
-        actionHtml = `<a class="btn secondary small" href="${bgysWithModul('deneme-sinavi.html?id=' + it.id)}">Çöz (${it.soruSayisi} soru)</a>`;
-      } else if (it.tip === 'pdf') {
-        actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>`;
-      } else {
-        actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrls[0]}')">Gör</button>`;
-      }
+    const gruplar = {};
+    items.forEach(it => {
+      const k = (it.bolum || 'Diğer').trim() || 'Diğer';
+      (gruplar[k] ??= []).push(it);
+    });
+    el.innerHTML = Object.entries(gruplar).map(([bolum, arr], gi) => {
+      const gid = 'deneme-grp-' + safeGid(bolum) + '-' + gi;
+      const kartlar = arr.slice().reverse().map(it => {
+        let actionHtml = '';
+        if (it.tip === 'metin') {
+          actionHtml = `<a class="btn secondary small" href="${bgysWithModul('deneme-sinavi.html?id=' + it.id)}">Çöz (${it.soruSayisi} soru)</a>`;
+        } else if (it.tip === 'pdf') {
+          actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>`;
+        } else {
+          actionHtml = `<button class="btn secondary small" onclick="viewFile('${it.dataUrls[0]}')">Gör</button>`;
+        }
+        return `
+        <div class="item-card">
+          <div class="item-icon">${it.tip === 'metin' ? '📝' : it.tip === 'pdf' ? '📄' : '🖼️'}</div>
+          <div class="item-info">
+            <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}${it.zorluk ? ' · ' + DENEME_ZORLUK_LABEL[it.zorluk] : ''}</div>
+            <h4>${esc(it.baslik)}</h4>
+          </div>
+          <div class="item-actions">
+            ${actionHtml}
+            <button class="btn secondary small" onclick="openTransferModal('denemeler', '${it.id}', '${esc(it.baslik).replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
+            <button class="btn secondary small" onclick="openShareModal('denemeler', '${it.id}', '${esc(it.baslik).replace(/'/g,"\\'")}')">📤</button>
+            <button class="btn danger small" onclick="bgysDeleteDeneme('${it.id}')">Sil</button>
+          </div>
+        </div>`;
+      }).join('');
       return `
-      <div class="item-card">
-        <div class="item-icon">${it.tip === 'metin' ? '📝' : it.tip === 'pdf' ? '📄' : '🖼️'}</div>
-        <div class="item-info">
-          <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}${it.zorluk ? ' · ' + DENEME_ZORLUK_LABEL[it.zorluk] : ''}</div>
-          <h4>${it.baslik}</h4>
+        <div class="konu-group" id="${gid}">
+          <button class="konu-group-head" onclick="document.getElementById('${gid}').classList.toggle('open')">
+            <span><span class="konu-group-title">${esc(bolum)}</span><span class="konu-group-count">${arr.length} deneme</span></span>
+            <span class="konu-group-arrow">▼</span>
+          </button>
+          <div class="konu-group-body" style="max-height:460px;">${kartlar}</div>
         </div>
-        <div class="item-actions">
-          ${actionHtml}
-          <button class="btn secondary small" onclick="openTransferModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">🔗 Ortak Göster</button>
-          <button class="btn secondary small" onclick="openShareModal('denemeler', '${it.id}', '${it.baslik.replace(/'/g,"\\'")}')">📤</button>
-          <button class="btn danger small" onclick="bgysDeleteDeneme('${it.id}')">Sil</button>
-        </div>
-      </div>`;
+      `;
     }).join('');
   }
   window.bgysDeleteDeneme = async (id) => { await bgysDelete('denemeler', id); renderDenemeList(); };
