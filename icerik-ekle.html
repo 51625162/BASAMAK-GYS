@@ -830,6 +830,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="item-info">
             <h4>${esc(it.baslik)}</h4>
             <p>${KONU_TIP_LABEL[it.tip] || it.tip} ${it.fileName ? '· ' + esc(it.fileName) : ''}</p>
+            <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
           </div>
           <div class="item-actions">
             ${gorBtn}
@@ -1029,6 +1030,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="item-info">
             <h4>${esc(it.soru)}</h4>
             <p>Cevap: ${esc(it.cevap)}</p>
+            <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
           </div>
           <div class="item-actions">
             <button class="btn secondary small" onclick="openShareModal('soruCevap', '${it.id}', '${esc(it.soru).replace(/'/g,"\\'").slice(0,40)}')">📤</button>
@@ -1050,6 +1052,13 @@ veya sadece: B D A C ..."></textarea>
   window.bgysDeleteSoruCevap = async (id) => { await bgysDelete('soruCevap', id); renderSoruCevapList(); };
 
   function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function eklenmeTarihi(createdAt) {
+    if (!createdAt) return '';
+    const d = new Date(createdAt);
+    const tarih = d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const saat = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    return `${tarih} · ${saat}`;
+  }
   function safeGid(v) { return String(v).replace(/[^a-zA-Z0-9_-]/g, '_'); }
 
   async function renderSoruList() {
@@ -1070,6 +1079,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="item-info">
             <h4>${esc(it.question)}</h4>
             <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
+            <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
           </div>
           <div class="item-actions">
             <button class="btn secondary small" onclick="openTransferModal('sorular', '${it.id}', '${esc(it.question).replace(/'/g,"\\'").slice(0,40)}')">🔗 Ortak Göster</button>
@@ -1102,6 +1112,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="tag">${it.bolum}</div>
           <h4>${it.baslik}</h4>
           <p>${it.fileName || ''}</p>
+          <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
         </div>
         <div class="item-actions">
           <button class="btn secondary small" onclick="viewFile('${it.dataUrl}')">Gör</button>
@@ -1147,11 +1158,15 @@ veya sadece: B D A C ..."></textarea>
     if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
     const { results, errors } = bgysParseSoruMetni(text);
     if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Metin boş görünüyor, soru eklenemedi.'); return; }
+    if (results.length !== 100) {
+      showMsg('denemeMetinResult', 'err', `Her deneme tam olarak 100 soru olmalı. Sen ${results.length} soru yapıştırdın — ${results.length < 100 ? (100 - results.length) + ' soru daha ekle' : (results.length - 100) + ' soru çıkar'}.`);
+      return;
+    }
     const denemeId = await bgysAdd('denemeler', { modul: bgysCurrentModul(), baslik, tip: 'metin', soruSayisi: results.length, zorluk: denemeMetinZorluk });
     for (const r of results) {
       await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum: baslik, ...r, tip: 'text', denemeId, difficulty: denemeMetinZorluk });
     }
-    let msg = `Deneme eklendi: ${results.length} soru.`;
+    let msg = `Deneme eklendi: ${results.length} soru (100 dakika süreli).`;
     if (errors.length > 0) {
       const detay = errors.slice(0, 3).map(e => `Soru ${e.block}: ${e.not}`).join(' | ');
       msg += ` (Not: ${detay}${errors.length > 3 ? ' ...' : ''})`;
@@ -1251,6 +1266,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="item-info">
             <div class="tag">${it.tip === 'metin' ? 'İnteraktif' : it.tip.toUpperCase()}${it.zorluk ? ' · ' + DENEME_ZORLUK_LABEL[it.zorluk] : ''}</div>
             <h4>${esc(it.baslik)}</h4>
+            <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
           </div>
           <div class="item-actions">
             ${actionHtml}
