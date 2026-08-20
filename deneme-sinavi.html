@@ -132,9 +132,7 @@
         <div class="setup-group">
           <h4>Soru Sayısı</h4>
           <div class="chip-row" id="autoCountChips">
-            <button class="chip active" data-val="25">25 Soru</button>
-            <button class="chip" data-val="50">50 Soru</button>
-            <button class="chip" data-val="100">100 Soru</button>
+            <button class="chip active" data-val="100">100 Soru (100 dakika)</button>
           </div>
         </div>
         <div class="setup-group">
@@ -194,6 +192,7 @@
         <a class="result-btn secondary" href="deneme-sinavi.html" id="donLink">Denemelere Dön</a>
       </div>
     </div>
+    <div id="cevapAnahtariArea" style="max-width:640px;margin:20px auto 0;"></div>
   </div>
 
 </div>
@@ -547,6 +546,24 @@
       document.getElementById('reviewBtn').addEventListener('click', () => startReview(yanlisVeyaBos));
     } else {
       reviewBtnArea.innerHTML = '';
+    }
+
+    // Süre dolduysa, tüm cevap anahtarını otomatik göster.
+    const cevapAlani = document.getElementById('cevapAnahtariArea');
+    if (timeUp) {
+      cevapAlani.innerHTML = `<h3 style="font-size:1rem;margin:0 0 14px;text-align:center;">📋 Cevap Anahtarı</h3>` +
+        quiz.map((q, i) => {
+          const durum = sonucDizisi[i];
+          const renk = durum === 'correct' ? '#16803C' : (durum === 'wrong' ? '#C0392B' : 'var(--slate)');
+          const durumEtiket = durum === 'correct' ? '✅ Doğru cevapladın' : (durum === 'wrong' ? '❌ Yanlış cevapladın' : '⬜ Cevaplamadın');
+          return `<div class="q-card" style="margin-bottom:12px;">
+            <p style="font-weight:700;margin:0 0 8px;">${i + 1}. ${q.question}</p>
+            <p style="margin:0 0 4px;color:${renk};font-size:0.85rem;font-weight:700;">${durumEtiket}</p>
+            <p style="margin:0;font-size:0.9rem;">Doğru cevap: <b>${LETTERS[q.correct]}) ${q.options[q.correct]}</b></p>
+          </div>`;
+        }).join('');
+    } else {
+      cevapAlani.innerHTML = '';
     }
   }
 
