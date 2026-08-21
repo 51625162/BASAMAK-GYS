@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-13-cross-device-sync-v11";
+const BGYS_DB_SURUM = "2026-08-13-cozum-goster-v12";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -670,7 +670,10 @@ function bgysParseSoruMetniInline(text) {
       correct = 0;
       uyarilar.push({ block: idx + 1, not: "Cevap belirtilmemiş, A varsayıldı" });
     }
-    results.push({ question, options, correct, explanation: "Açıklama eklenmedi." });
+    // "Çözüm: A) Mevzuata uygunluk" gibi bir cevap kısmı varsa, baştaki harf+parantezi
+    // çıkarıp geri kalanını açıklama olarak sakla — tamamen boş bırakmamak için.
+    const aciklamaMetni = cevapKismi.replace(/^[A-D]\s*[\)\.\:]\s*/i, "").trim();
+    results.push({ question, options, correct, explanation: aciklamaMetni || "Açıklama eklenmedi." });
   });
   return { results, errors: uyarilar };
 }

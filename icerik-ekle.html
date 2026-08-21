@@ -1079,6 +1079,7 @@ veya sadece: B D A C ..."></textarea>
           <div class="item-info">
             <h4>${esc(it.question)}</h4>
             <p>Doğru: ${['A','B','C','D'][it.correct]}</p>
+            ${it.explanation && it.explanation !== 'Açıklama eklenmedi.' ? `<p style="font-size:0.8rem;color:var(--teal-dark);margin-top:4px;">💡 ${esc(it.explanation)}</p>` : ''}
             <p style="font-size:0.72rem;color:var(--slate);margin-top:2px;">📅 ${eklenmeTarihi(it.createdAt)}</p>
           </div>
           <div class="item-actions">
