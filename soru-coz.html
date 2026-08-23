@@ -282,10 +282,12 @@
       document.getElementById('bankInfo').textContent = mergedBank.length;
 
       const konular = new Set(mergedBank.map(q => q.kisim).filter(Boolean));
+      const konuSayilariGecici = {};
+      mergedBank.forEach(q => { const k = q.kisim || 'Diğer'; konuSayilariGecici[k] = (konuSayilariGecici[k]||0)+1; });
       const topicSelect = document.getElementById('topicSelect');
       const mevcutSecim = topicSelect.value;
-      topicSelect.innerHTML = '<option value="all">Tüm konular</option>' +
-        Array.from(konular).sort().map(k => `<option value="${k.replace(/"/g,'&quot;')}">${k}</option>`).join('');
+      topicSelect.innerHTML = '<option value="all">Tüm konular (' + mergedBank.length + ' soru)</option>' +
+        Array.from(konular).sort().map(k => `<option value="${k.replace(/"/g,'&quot;')}">${k} (${konuSayilariGecici[k]} soru)</option>`).join('');
       if (Array.from(konular).includes(mevcutSecim)) topicSelect.value = mevcutSecim;
       updateSolvedCount();
       renderOzetler();
@@ -412,39 +414,53 @@
   };
 
   document.getElementById('startBtn').addEventListener('click', async () => {
-    let pool = mergedBank.slice();
-    if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
-    const solvedMap = await bgysGetSolvedMap();
-    if (selectedStatus === "unsolved") pool = pool.filter(q => !solvedMap[q.id]);
-    else if (selectedStatus === "solved") pool = pool.filter(q => !!solvedMap[q.id]);
-    const selectedTopic = document.getElementById('topicSelect').value;
-    if (selectedTopic !== "all") pool = pool.filter(q => q.kisim === selectedTopic);
-    if(selectedDiff !== "all"){
-      pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
-    } else {
-      // kolaydan zora sırala
-      pool = pool.slice().sort((a,b) => a.difficulty - b.difficulty);
+    const startBtn = document.getElementById('startBtn');
+    const eskiMetin = startBtn.textContent;
+    startBtn.disabled = true;
+    startBtn.textContent = 'Yükleniyor...';
+    try {
+      let pool = mergedBank.slice();
+      if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
+      let solvedMap = {};
+      try {
+        solvedMap = await bgysGetSolvedMap();
+      } catch (e) {
+        console.warn("Çözülme bilgisi alınamadı, filtre uygulanmadan devam ediliyor:", e.message);
+      }
+      if (selectedStatus === "unsolved") pool = pool.filter(q => !solvedMap[q.id]);
+      else if (selectedStatus === "solved") pool = pool.filter(q => !!solvedMap[q.id]);
+      const selectedTopic = document.getElementById('topicSelect').value;
+      if (selectedTopic !== "all") pool = pool.filter(q => q.kisim === selectedTopic);
+      if(selectedDiff !== "all"){
+        pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
+      } else {
+        pool = pool.slice().sort((a,b) => a.difficulty - b.difficulty);
+      }
+      if(selectedDiff === "all"){
+        const groups = {1:[],2:[],3:[]};
+        pool.forEach(q => groups[q.difficulty].push(q));
+        pool = [...shuffle(groups[1]), ...shuffle(groups[2]), ...shuffle(groups[3])];
+      } else {
+        pool = shuffle(pool);
+      }
+      quiz = pool.slice(0, Math.min(selectedCount, pool.length));
+      if(quiz.length === 0){
+        alert("Bu filtrelerle eşleşen soru bulunamadı.");
+        return;
+      }
+      qIdx = 0; correctCount = 0; wrongCount = 0;
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      document.getElementById('liveScore').style.display = 'flex';
+      document.getElementById('qTotal').textContent = quiz.length;
+      await renderQuestion();
+    } catch (e) {
+      alert("Sorular yüklenirken bir hata oluştu: " + e.message + "\n\nİnternet bağlantını kontrol edip tekrar dene.");
+    } finally {
+      startBtn.disabled = false;
+      startBtn.textContent = eskiMetin;
     }
-    if(selectedDiff === "all"){
-      // aynı zorluk seviyesi içinde karıştır ama zorluk sırasını koru
-      const groups = {1:[],2:[],3:[]};
-      pool.forEach(q => groups[q.difficulty].push(q));
-      pool = [...shuffle(groups[1]), ...shuffle(groups[2]), ...shuffle(groups[3])];
-    } else {
-      pool = shuffle(pool);
-    }
-    quiz = pool.slice(0, Math.min(selectedCount, pool.length));
-    if(quiz.length === 0){
-      alert("Bu filtrelerle eşleşen soru bulunamadı.");
-      return;
-    }
-    qIdx = 0; correctCount = 0; wrongCount = 0;
-    document.getElementById('setupScreen').classList.add('hidden');
-    document.getElementById('resultScreen').classList.add('hidden');
-    document.getElementById('quizScreen').classList.remove('hidden');
-    document.getElementById('liveScore').style.display = 'flex';
-    document.getElementById('qTotal').textContent = quiz.length;
-    await renderQuestion();
   });
 
   async function renderQuestion(){
