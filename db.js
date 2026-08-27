@@ -3,7 +3,7 @@
    hesabına özel olarak saklanır, hangi cihazdan girerse girsin görünür.
    Tüm sayfalarda aynı db.js dosyası kullanılmalıdır. */
 
-const BGYS_DB_SURUM = "2026-08-13-cozum-goster-v12";
+const BGYS_DB_SURUM = "2026-08-13-auto-format-v13";
 (function () {
   const etiket = document.createElement("div");
   etiket.textContent = "db.js: " + BGYS_DB_SURUM;
@@ -629,6 +629,29 @@ function bgysParseSoruMetniFlexible(text, requireAnswer) {
 
 function bgysParseSoruMetni(text) {
   return bgysParseSoruMetniFlexible(text, true);
+}
+
+// Metnin "çok satırlı" mı yoksa "tek satır" (hepsi yan yana) formatında mı
+// yapıştırıldığını otomatik anlar ve doğru ayrıştırıcıyı seçer — kullanıcının
+// bunu elle seçmesine gerek kalmaz (unutulduğunda hep "A" çıkması hatasının kökü buydu).
+function bgysDetectSoruFormat(text) {
+  const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+  if (blocks.length === 0) return "cok-satir";
+  let inlineOylari = 0;
+  blocks.forEach(block => {
+    const satirlar = block.split("\n").map(s => s.trim()).filter(Boolean);
+    const ayriSatirdaSikSayisi = satirlar.filter(s => /^[A-D]\s*[\)\.\:\-]/i.test(s)).length;
+    const tekSatirdaCokSikVarMi = satirlar.some(s => {
+      const eslesmeler = s.match(/\b[A-D]\s*[\)\.]/gi);
+      return eslesmeler && eslesmeler.length >= 2;
+    });
+    if (tekSatirdaCokSikVarMi && ayriSatirdaSikSayisi < 2) inlineOylari++;
+  });
+  return inlineOylari > blocks.length / 2 ? "tek-satir" : "cok-satir";
+}
+
+function bgysParseSoruMetniAuto(text) {
+  return bgysDetectSoruFormat(text) === "tek-satir" ? bgysParseSoruMetniInline(text) : bgysParseSoruMetni(text);
 }
 
 /* ---- İKİNCİ FORMAT: her şey (soru+şıklar+cevap) TEK satırda/paragrafta,

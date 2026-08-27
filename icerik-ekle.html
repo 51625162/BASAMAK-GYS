@@ -297,15 +297,7 @@ Cevap: B
 Açıklama: Madde 1'e göre Türkiye Devleti bir Cumhuriyettir.
 
 (İkinci soru buraya...)"></textarea>
-          <div class="hint">Format esnek: A) A. A- A: hepsi olur, küçük harf de olabilir. "Cevap:" yerine "Doğru Cevap:" / "Yanıt:" de yazılabilir. Numaralı sorularda (1. 2. 3. ...) aralarına boş satır koymana bile gerek yok — otomatik ayrılır.</div>
-        </div>
-        <div class="field">
-          <label>Yapıştırma Formatı</label>
-          <div class="radio-row" id="soruMetinFormatRow">
-            <label class="radio-chip active" data-fmt="cok-satir"><input type="radio" name="soruMetinFormat" value="cok-satir" checked style="display:none;"> Çok satırlı (soru/şık/cevap ayrı satırda)</label>
-            <label class="radio-chip" data-fmt="tek-satir"><input type="radio" name="soruMetinFormat" value="tek-satir" style="display:none;"> Tek satır (hepsi yan yana, otomatik ayır)</label>
-          </div>
-          <div class="hint">"Tek satır" seçeneği şunun gibi yapıştırmalar içindir: "Soru metni? A) ... B) ... C) ... D) ... Çözüm: A) ...". Sorular arasında yine bir boş satır bırak.</div>
+          <div class="hint">Format esnek: A) A. A- A: hepsi olur, küçük harf de olabilir. "Cevap:" yerine "Doğru Cevap:" / "Yanıt:" de yazılabilir. Numaralı sorularda (1. 2. 3. ...) aralarına boş satır koymana bile gerek yok — otomatik ayrılır. İster her şeyi ayrı satıra yaz, ister hepsini tek satırda yan yana yapıştır ("Soru? A) ... B) ... Çözüm: A) ...") — sistem hangi formatta olduğunu kendisi anlar.</div>
         </div>
         <button class="btn primary" id="soruMetinEkleBtn">Soruları Ekle</button>
         <div class="result-msg" id="soruMetinResult"></div>
@@ -865,19 +857,11 @@ veya sadece: B D A C ..."></textarea>
     });
   });
 
-  document.querySelectorAll('#soruMetinFormatRow .radio-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#soruMetinFormatRow .radio-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-    });
-  });
-
   document.getElementById('soruMetinEkleBtn').addEventListener('click', async () => {
     const bolum = document.getElementById('soruBolum').value.trim() || 'Genel';
     const text = document.getElementById('soruMetin').value;
     if (!text.trim()) { showMsg('soruMetinResult', 'err', 'Soru metni boş.'); return; }
-    const secilenFormat = document.querySelector('#soruMetinFormatRow .radio-chip.active').dataset.fmt;
-    const { results, errors } = secilenFormat === 'tek-satir' ? bgysParseSoruMetniInline(text) : bgysParseSoruMetni(text);
+    const { results, errors } = bgysParseSoruMetniAuto(text);
     for (const r of results) {
       await bgysAdd('sorular', { modul: bgysCurrentModul(), bolum, ...r, tip: 'text', difficulty: soruMetinZorluk });
     }
@@ -1157,7 +1141,7 @@ veya sadece: B D A C ..."></textarea>
     const baslik = document.getElementById('denemeBaslik').value.trim();
     const text = document.getElementById('denemeMetin').value;
     if (!baslik || !text.trim()) { showMsg('denemeMetinResult', 'err', 'Başlık ve soru metni gerekli.'); return; }
-    const { results, errors } = bgysParseSoruMetni(text);
+    const { results, errors } = bgysParseSoruMetniAuto(text);
     if (results.length === 0) { showMsg('denemeMetinResult', 'err', 'Metin boş görünüyor, soru eklenemedi.'); return; }
     if (results.length !== 100) {
       showMsg('denemeMetinResult', 'err', `Her deneme tam olarak 100 soru olmalı. Sen ${results.length} soru yapıştırdın — ${results.length < 100 ? (100 - results.length) + ' soru daha ekle' : (results.length - 100) + ' soru çıkar'}.`);
