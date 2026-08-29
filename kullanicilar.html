@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kullanıcı Ekle — Basamak GYS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10243E; --teal:#0E9E97; --teal-dark:#0B7F79; --coral:#FF6B5D; --violet:#8B6BF2;
+    --cloud:#F3F7F9; --white:#FFFFFF; --mist:#E1EAEE; --slate:#5B7186; --radius-lg:22px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cloud);color:var(--ink);font-family:'Inter',system-ui,sans-serif;}
+  h1,h2,h3{font-family:'Sora',sans-serif;letter-spacing:-0.01em;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  .topbar{padding:16px 6vw;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:10;}
+  .crumb{display:flex;align-items:center;gap:10px;font-size:0.86rem;color:var(--slate);font-weight:600;}
+  .crumb .cur{color:var(--ink);}
+  .crumb .sep{opacity:0.5;}
+
+  .page-hero{max-width:760px;margin:0 auto;padding:30px 6vw 8px;display:flex;align-items:center;gap:16px;}
+  .page-hero .icon{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--violet),#6C4FD6);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;flex-shrink:0;}
+  .page-hero h1{font-size:clamp(1.3rem,3vw,1.7rem);margin:0 0 4px;}
+  .page-hero p{margin:0;color:var(--slate);font-size:0.88rem;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:20px 6vw 90px;}
+
+  .add-card{background:var(--white);border:1px solid var(--mist);border-radius:var(--radius-lg);padding:20px;margin-bottom:24px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:0.82rem;font-weight:700;margin-bottom:6px;}
+  .field input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--cloud);color:var(--ink);}
+  .add-btn{width:100%;padding:13px;border-radius:100px;background:linear-gradient(135deg,var(--violet),#6C4FD6);color:white;font-weight:700;font-size:0.92rem;}
+  .result-msg{display:none;margin-top:12px;padding:11px 14px;border-radius:12px;font-size:0.85rem;}
+  .result-msg.ok{display:block;background:rgba(34,197,94,0.1);color:#16803C;}
+  .result-msg.err{display:block;background:rgba(239,68,68,0.1);color:#C0392B;}
+
+  .user-card{background:var(--white);border:1px solid var(--mist);border-radius:16px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+  .user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0;}
+  .user-info{flex-grow:1;min-width:0;}
+  .user-info .ad{font-weight:700;font-size:0.92rem;}
+  .user-info .eposta{font-size:0.8rem;color:var(--slate);}
+  .user-del{padding:8px 12px;border-radius:100px;font-size:0.78rem;font-weight:700;background:rgba(239,68,68,0.1);color:#C0392B;flex-shrink:0;}
+  .empty-note{color:var(--slate);font-size:0.85rem;text-align:center;padding:30px 0;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb">
+    <a href="index.html">Basamak GYS</a><span class="sep">/</span>
+    <a href="icerik-ekle.html" id="crumbGeri">İçerik Ekle</a><span class="sep">/</span>
+    <span class="cur">Kullanıcı Ekle</span>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="icon">👥</div>
+  <div>
+    <h1>Kullanıcı Ekle</h1>
+    <p>Sık paylaştığın kişileri kaydet — her seferinde e-postayı yeniden yazmana gerek kalmaz.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="add-card">
+    <h3 style="margin:0 0 14px;font-size:1rem;">Yeni Kullanıcı Ekle</h3>
+    <div class="field">
+      <label>Ad (istersen, kolay tanıman için)</label>
+      <input type="text" id="kullaniciAd" placeholder="Örn. Ahmet">
+    </div>
+    <div class="field">
+      <label>E-posta</label>
+      <input type="email" id="kullaniciEposta" placeholder="ornek@mail.com">
+    </div>
+    <button class="add-btn" id="kullaniciEkleBtn">Kullanıcı Ekle</button>
+    <div class="result-msg" id="ekleResult"></div>
+  </div>
+
+  <h3 style="font-size:1rem;margin-bottom:14px;">Kayıtlı Kullanıcılarım</h3>
+  <div id="kullaniciListesi"></div>
+</div>
+
+<script src="db.js?v=1786350782"></script>
+<script>bgysRequireAuth();</script>
+<script>
+  function esc(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function showMsg(id, cls, text) {
+    const el = document.getElementById(id);
+    el.className = 'result-msg ' + cls;
+    el.textContent = text;
+  }
+
+  document.getElementById('kullaniciEkleBtn').addEventListener('click', async () => {
+    const ad = document.getElementById('kullaniciAd').value.trim();
+    const eposta = document.getElementById('kullaniciEposta').value.trim().toLowerCase();
+    if (!eposta || !eposta.includes('@')) { showMsg('ekleResult', 'err', 'Geçerli bir e-posta gir.'); return; }
+    try {
+      // Aynı e-posta zaten kayıtlıysa tekrar eklemeyelim
+      const mevcut = await bgysGetAll('kayitliKullanicilar');
+      if (mevcut.some(u => u.eposta === eposta)) {
+        showMsg('ekleResult', 'err', 'Bu e-posta zaten kayıtlı.');
+        return;
+      }
+      await bgysAdd('kayitliKullanicilar', { ad: ad || eposta.split('@')[0], eposta });
+      showMsg('ekleResult', 'ok', 'Kullanıcı eklendi.');
+      document.getElementById('kullaniciAd').value = '';
+      document.getElementById('kullaniciEposta').value = '';
+      renderKullanicilar();
+    } catch (e) {
+      showMsg('ekleResult', 'err', 'Hata: ' + e.message);
+    }
+  });
+
+  async function renderKullanicilar() {
+    // NOT: bu liste bölümden bağımsız (bgysGetAll, bgysGetAllByModul değil) — sık paylaştığın
+    // kişiler hangi bölümde olursan ol aynı listede kalsın diye.
+    const items = await bgysGetAll('kayitliKullanicilar');
+    const el = document.getElementById('kullaniciListesi');
+    if (items.length === 0) { el.innerHTML = '<div class="empty-note">Henüz kayıtlı kullanıcın yok. Yukarıdan ekleyebilirsin.</div>'; return; }
+    const sirali = items.slice().sort((a, b) => (a.ad || '').localeCompare(b.ad || ''));
+    el.innerHTML = sirali.map(it => `
+      <div class="user-card">
+        <div class="user-avatar">${esc((it.ad || it.eposta)[0].toUpperCase())}</div>
+        <div class="user-info">
+          <div class="ad">${esc(it.ad)}</div>
+          <div class="eposta">${esc(it.eposta)}</div>
+        </div>
+        <button class="user-del" onclick="kullaniciSil('${it.id}')">Sil</button>
+      </div>
+    `).join('');
+  }
+
+  window.kullaniciSil = async (id) => {
+    if (!confirm('Bu kullanıcı kayıtlı listenden silinsin mi?')) return;
+    await bgysDelete('kayitliKullanicilar', id);
+    renderKullanicilar();
+  };
+
+  document.getElementById('crumbGeri').setAttribute('href', bgysWithModul('icerik-ekle.html'));
+
+  renderKullanicilar();
+  bgysAutoRefresh(renderKullanicilar);
+</script>
+
+</body>
+</html>
