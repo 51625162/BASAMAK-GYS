@@ -86,6 +86,25 @@
     display:inline-flex;align-items:center;gap:6px;
   }
   .f-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.04em;padding:4px 10px;border-radius:100px;background:var(--cloud);color:var(--slate);align-self:flex-start;}
+  .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+  .review-card{position:relative;overflow:hidden;min-height:190px;padding:24px;border-radius:22px;border:1px solid var(--mist);display:flex;flex-direction:column;gap:12px;transition:transform .18s ease,box-shadow .18s ease;}
+  .review-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px -16px rgba(16,36,62,.22);}
+  .review-card.wrong{background:linear-gradient(135deg,#FFF7F5 0%,#FFFFFF 78%);border-color:#F8D5D0;}
+  .review-card.favorites{background:linear-gradient(135deg,#FFF5F9 0%,#FFFFFF 78%);border-color:#F5D1E1;}
+  .review-top{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .review-icon{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;}
+  .wrong .review-icon{background:#FFE4DF;}
+  .favorites .review-icon{background:#FCE0EC;}
+  .review-count{font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;padding:7px 10px;border-radius:999px;background:#fff;border:1px solid var(--mist);white-space:nowrap;}
+  .wrong .review-count{color:#C24136;}
+  .favorites .review-count{color:#B83270;}
+  .review-card h3{font-size:1.08rem;margin:0;}
+  .review-card p{font-size:.87rem;line-height:1.55;color:var(--slate);margin:0;flex:1;}
+  .review-action{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.88rem;margin-top:2px;}
+  .wrong .review-action{color:#C24136;}
+  .favorites .review-action{color:#B83270;}
+  .review-action span:last-child{font-size:1.2rem;}
+  @media(max-width:620px){.review-grid{grid-template-columns:1fr}.review-card{min-height:170px;padding:20px}}
 </style>
 </head>
 <body>
@@ -122,31 +141,43 @@
 <div class="content">
 
   <div class="section-block">
-    <div class="section-head"><h2>Soru Çöz</h2><span>1 mod</span></div>
+    <div class="section-head"><h2>Soru Çöz</h2><span>2 çalışma aracı</span></div>
     <div class="card-grid">
       <a class="feature-card" href="soru-coz.html?modul=ds-sefligi" style="text-decoration:none;">
         <div class="f-icon violet">🔀</div>
         <h3>Soru Çöz</h3>
-        <p>Eklediğin sorularla çalış — konu, zorluk ve durum filtreleri sayfanın içinde.</p>
+        <p>Konu, zorluk ve çözülme durumuna göre sorularını seçerek çalış.</p>
         <span class="f-action">Soru Çöz →</span>
       </a>
       <a class="feature-card" href="soru-cevap.html?modul=ds-sefligi" style="text-decoration:none;">
         <div class="f-icon" style="background:linear-gradient(135deg,#F49AC1,#E0629C);">📇</div>
         <h3>Soru-Cevap</h3>
-        <p>Şıksız kartlarla hızlı kendi kendine test.</p>
+        <p>Şıksız kartlarla bilgini hızlıca tekrar et.</p>
         <span class="f-action">Çalış →</span>
       </a>
-      <a class="feature-card" href="soru-coz.html?modul=ds-sefligi&mod=yanlis" style="text-decoration:none;">
-        <div class="f-icon" style="background:linear-gradient(135deg,#FF6B5D,#E64A3B);">⚠️</div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-head"><h2>Tekrar Çalış</h2><span>Eksiklerini tamamla, önemli sorularını sakla</span></div>
+    <div class="review-grid">
+      <a class="review-card wrong" href="soru-coz.html?modul=ds-sefligi&mod=yanlis" style="text-decoration:none;">
+        <div class="review-top">
+          <div class="review-icon">⚠️</div>
+          <span class="review-count"><span id="wrongQuestionCount">0</span> yanlış soru</span>
+        </div>
         <h3>Yanlış Sorularımı Çöz</h3>
-        <p>Daha önce yanlış yaptığın sorulara odaklan.</p>
-        <span class="f-action">Çöz →</span>
+        <p>Yanlış cevapladığın sorulara yeniden dön ve bilgini pekiştir.</p>
+        <div class="review-action"><span>Yanlışları tekrar çöz</span><span>→</span></div>
       </a>
-      <a class="feature-card" href="soru-coz.html?modul=ds-sefligi&mod=favori" style="text-decoration:none;">
-        <div class="f-icon" style="background:linear-gradient(135deg,#EC6FA0,#D6487E);">❤️</div>
+      <a class="review-card favorites" href="soru-coz.html?modul=ds-sefligi&mod=favori" style="text-decoration:none;">
+        <div class="review-top">
+          <div class="review-icon">⭐</div>
+          <span class="review-count"><span id="favoriteQuestionCount">0</span> favori soru</span>
+        </div>
         <h3>Favori Sorularımı Çöz</h3>
-        <p>İşaretlediğin favori soruları tekrar çöz.</p>
-        <span class="f-action">Çöz →</span>
+        <p>Yıldızladığın önemli soruları tek yerde topla ve istediğin zaman tekrar çöz.</p>
+        <div class="review-action"><span>Favorilerimi aç</span><span>→</span></div>
       </a>
     </div>
   </div>
@@ -175,8 +206,12 @@
 <script>bgysRequireAuth();</script>
 <script>
   async function renderStats(){
-    const solvedMap = await bgysGetSolvedMap();
+    const [solvedMap, favoriteIds] = await Promise.all([bgysGetSolvedMap(), bgysGetFavoriteIds()]);
     const kayitlar = Object.values(solvedMap);
+    const wrongEl = document.getElementById('wrongQuestionCount');
+    const favoriteEl = document.getElementById('favoriteQuestionCount');
+    if (wrongEl) wrongEl.textContent = kayitlar.filter(r => r.correct === false).length;
+    if (favoriteEl) favoriteEl.textContent = favoriteIds.length;
     const solved = kayitlar.length;
     const correct = kayitlar.filter(r => r.correct).length;
     const acc = solved > 0 ? Math.round((correct / solved) * 100) : 0;
