@@ -222,6 +222,24 @@
   footer{
     padding:26px 6vw 40px;text-align:center;color:var(--slate);font-size:0.82rem;
   }
+
+  /* DS Şefliği odaklı modern görünüm */
+  .hero{padding-top:clamp(42px,7vw,78px);}
+  .ds-focus{max-width:760px;gap:0;}
+  .ds-focus .step-2{width:100%;min-height:230px;height:auto;padding:clamp(24px,4vw,38px);border:1px solid rgba(14,158,151,.18);border-radius:26px;background:linear-gradient(125deg,#10243E 0%,#173e59 54%,#0E9E97 130%);color:#fff;box-shadow:0 24px 60px -28px rgba(14,158,151,.6);display:flex;flex-direction:row;align-items:center;gap:20px;}
+  .ds-focus .step-num{color:#8fe8df;letter-spacing:.08em;}
+  .ds-focus .step-title{font-size:clamp(1.5rem,4vw,2.2rem);margin-top:12px;}
+  .ds-focus .step-status{color:#b9f5e9;}
+  .ds-focus .step-btn{background:#F5A623;color:#10243E;padding:13px 19px;white-space:nowrap;box-shadow:0 8px 20px #081b2c33;}
+  .ds-focus .step-btn:hover{transform:translateY(-2px);filter:brightness(1.04);}
+  .ds-module-grid{grid-template-columns:minmax(0,760px);}
+  .ds-feature-card{border:1px solid #d5e7e9;box-shadow:0 20px 55px -35px rgba(16,36,62,.38);padding:clamp(22px,4vw,34px);border-radius:24px;}
+  .ds-feature-card .module-icon{width:56px;height:56px;font-size:1.55rem;background:linear-gradient(135deg,#0E9E97,#0B7F79)!important;box-shadow:0 8px 18px #0e9e972b;}
+  .ds-feature-card h3{font-size:1.35rem;}
+  .ds-feature-card .module-cta{background:#10243E;color:#fff;padding:12px 16px;border-radius:12px;align-self:flex-start;}
+  .ds-feature-card .module-cta:hover{background:#0E9E97;}
+  @media(max-width:640px){.ds-focus .step-2{align-items:flex-start;flex-direction:column}.ds-focus .step-btn{align-self:flex-start}.ds-module-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -249,36 +267,16 @@
 <section class="hero">
   <div class="eyebrow">CTE &amp; İnfaz Personeli · GYS Hazırlık</div>
   <h1>Basamağını seç, <em>sınava adım adım çık.</em></h1>
-  <p>Her bölüm ayrı bir basamak. Saymanlık, DS Şefliği ve İdare Memuru bölümleriyle çalışmaya başla.</p>
+  <p>DS Şefliği sınavına düzenli, ölçülebilir ve odaklı bir çalışma sistemiyle hazırlan.</p>
 
-  <div class="staircase">
-    <div class="step step-1">
-      <div>
-        <div class="step-num">BASAMAK 01</div>
-        <div class="step-title">Saymanlık</div>
-        <div class="step-status">● Aktif</div>
-      </div>
-      <a href="saymanlik.html" class="step-btn">Başla
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-    </div>
+  <div class="staircase ds-focus">
     <div class="step step-2 active-step">
       <div>
-        <div class="step-num">BASAMAK 02</div>
+        <div class="step-num">GÖREVDE YÜKSELME · TEK ODAK</div>
         <div class="step-title">DS Şefliği</div>
-        <div class="step-status">● Aktif</div>
+        <div class="step-status">● Çalışmaya hazır</div>
       </div>
-      <a href="ds-sefligi.html" class="step-btn">Başla
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-    </div>
-    <div class="step step-3 active-step">
-      <div>
-        <div class="step-num">BASAMAK 03</div>
-        <div class="step-title">İdare Memuru</div>
-        <div class="step-status">● Aktif</div>
-      </div>
-      <a href="idare-memuru.html" class="step-btn">Başla
+      <a href="ds-sefligi.html" class="step-btn">Çalışmaya başla
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
@@ -287,34 +285,17 @@
 
 <section class="modules-section">
   <div class="section-head">
-    <h2>Bölümler</h2>
-    <p>Basamak GYS üç bağımsız bölümden oluşur. Her bölümün kendi soru bankası, konu anlatımı ve deneme sınavları vardır.</p>
+    <span class="eyebrow">ÇALIŞMA ALANI</span>
+    <h2>DS Şefliği hazırlık paneli</h2>
+    <p>Konu anlatımı, soru çözümü ve deneme çalışmalarına tek yerden ulaş.</p>
   </div>
-  <div class="module-grid">
-    <div class="module-card active">
-      <div class="module-icon">🧮</div>
-      <span class="module-badge live">AKTİF</span>
-      <h3>Saymanlık</h3>
-      <p>Soru çöz, konulara çalış ve deneme sınavlarıyla saymanlık bölümüne hazırlan.</p>
-      <a href="saymanlik.html" class="module-cta">Bölüme git
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-    </div>
-    <div class="module-card active">
-      <div class="module-icon" style="background:linear-gradient(135deg,var(--violet),#6D4FD1);">🗂️</div>
-      <span class="module-badge live">AKTİF</span>
+  <div class="module-grid ds-module-grid">
+    <div class="module-card active ds-feature-card">
+      <div class="module-icon">🎯</div>
+      <span class="module-badge live">AKTİF MODÜL</span>
       <h3>DS Şefliği</h3>
-      <p>Soru çöz, konu notlarını incele ve deneme sınavlarıyla DS Şefliği bölümüne hazırlan.</p>
-      <a href="ds-sefligi.html" class="module-cta">Bölüme git
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-    </div>
-    <div class="module-card active">
-      <div class="module-icon" style="background:linear-gradient(135deg,var(--coral),#E64A3B);">🗃️</div>
-      <span class="module-badge live">AKTİF</span>
-      <h3>İdare Memuru</h3>
-      <p>Soru çöz, konu notlarını incele ve deneme sınavlarıyla İdare Memuru bölümüne hazırlan.</p>
-      <a href="idare-memuru.html" class="module-cta">Bölüme git
+      <p>Sınav hazırlığını buradan sürdür. Konu notlarını incele, soruları çöz ve denemelerle seviyeni takip et.</p>
+      <a href="ds-sefligi.html" class="module-cta">DS Şefliği bölümünü aç
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
