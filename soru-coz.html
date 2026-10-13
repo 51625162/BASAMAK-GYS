@@ -143,9 +143,16 @@
 
       <div class="setup-group">
         <h4>Konu / Bölüm</h4>
-        <select id="topicSelect" style="width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
-          <option value="all">Tüm konular</option>
-        </select>
+        <details id="konuDropdown" style="border:1.5px solid var(--mist);border-radius:12px;background:var(--white);overflow:hidden;">
+          <summary style="cursor:pointer;list-style:none;padding:12px 14px;font-size:0.92rem;color:var(--ink);font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+            <span id="konuSecimMetni">Tüm konular</span><span aria-hidden="true">⌄</span>
+          </summary>
+          <div style="padding:0 10px 10px;">
+            <select id="topicSelect" aria-label="Konu seç" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
+              <option value="all">Tüm konular</option>
+            </select>
+          </div>
+        </details>
         <div id="konuOzet" style="margin-top:10px;font-size:0.8rem;color:var(--slate);line-height:1.7;"></div>
       </div>
 
@@ -451,7 +458,12 @@
     });
   }
 
-  document.getElementById('topicSelect').addEventListener('change', renderFilterCounts);
+  document.getElementById('topicSelect').addEventListener('change', () => {
+    const select = document.getElementById('topicSelect');
+    const label = select.options[select.selectedIndex]?.text || 'Tüm konular';
+    document.getElementById('konuSecimMetni').textContent = label;
+    renderFilterCounts();
+  });
   document.querySelectorAll('#trapChips .chip').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedTrap = !selectedTrap;
