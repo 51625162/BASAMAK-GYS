@@ -573,9 +573,21 @@
   }
 
   window.favToggle = async (id) => {
-    const yeniDurum = await bgysToggleFavorite(id);
     const btn = document.getElementById('favBtn');
-    if (btn) btn.textContent = yeniDurum ? '⭐' : '☆';
+    if (btn) btn.disabled = true;
+    try {
+      const yeniDurum = await bgysToggleFavorite(id);
+      if (btn) {
+        btn.textContent = yeniDurum ? '⭐ Favorilerde' : '☆ Favoriye Ekle';
+        btn.setAttribute('aria-pressed', yeniDurum ? 'true' : 'false');
+        btn.style.background = yeniDurum ? 'rgba(236,111,160,0.14)' : 'rgba(139,107,242,0.08)';
+        btn.style.color = yeniDurum ? '#C02670' : 'var(--ink)';
+      }
+    } catch (e) {
+      alert('Favori kaydedilemedi. Lütfen tekrar dene.');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   };
 
   document.getElementById('startBtn').addEventListener('click', async () => {
@@ -664,7 +676,7 @@
       ${q.trap ? '<span class="q-tag trap">⚠️ Tuzak Soru</span>' : ''}
       ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
       ${oncedenCozuldu ? `<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : ''}
-      <button id="favBtn" onclick="favToggle('${q.id}')" style="border:none;background:none;cursor:pointer;font-size:1.1rem;padding:2px 4px;">${favoriMi ? '⭐' : '☆'}</button>
+      <button id="favBtn" type="button" aria-label="Soruyu favorilere ekle veya çıkar" aria-pressed="${favoriMi ? 'true' : 'false'}" onclick="favToggle('${q.id}')" style="border:1px solid var(--mist);border-radius:10px;background:${favoriMi ? 'rgba(236,111,160,0.14)' : 'rgba(139,107,242,0.08)'};color:${favoriMi ? '#C02670' : 'var(--ink)'};cursor:pointer;font-size:0.88rem;font-weight:700;padding:8px 12px;">${favoriMi ? '⭐ Favorilerde' : '☆ Favoriye Ekle'}</button>
     `;
 
     document.getElementById('qImgWrap').innerHTML = q.imageDataUrl ? `<img class="q-img" src="${q.imageDataUrl}">` : '';
