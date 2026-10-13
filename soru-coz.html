@@ -147,11 +147,10 @@
           <summary style="cursor:pointer;list-style:none;padding:12px 14px;font-size:0.92rem;color:var(--ink);font-weight:600;display:flex;justify-content:space-between;align-items:center;">
             <span id="konuSecimMetni">Tüm konular</span><span aria-hidden="true">⌄</span>
           </summary>
-          <div style="padding:0 10px 10px;">
-            <select id="topicSelect" aria-label="Konu seç" style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--mist);font-size:0.92rem;background:var(--white);color:var(--ink);">
-              <option value="all">Tüm konular</option>
-            </select>
+          <div id="topicOptions" style="padding:0 10px 10px;display:flex;flex-direction:column;gap:6px;">
+            <button type="button" class="topic-option active" data-topic="all" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">Tüm konular</button>
           </div>
+          <select id="topicSelect" aria-label="Konu seç" style="display:none;"><option value="all">Tüm konular</option></select>
         </details>
         <div id="konuOzet" style="margin-top:10px;font-size:0.8rem;color:var(--slate);line-height:1.7;"></div>
       </div>
@@ -349,6 +348,9 @@
       // Seçim değeri başlık değil indeks olduğundan, filtre için eşleştirmeyi ayrıca tut.
       topicSelect.dataset.topicNames = JSON.stringify(konular);
       if (mevcutSecim !== 'all' && konular[Number(mevcutSecim)]) topicSelect.value = mevcutSecim;
+      const topicOptions = document.getElementById('topicOptions');
+      topicOptions.innerHTML = '<button type="button" class="topic-option' + (topicSelect.value === 'all' ? ' active' : '') + '" data-topic="all" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">Tüm konular (' + mergedBank.length + ' soru)</button>' +
+        konular.map((k, index) => '<button type="button" class="topic-option' + (topicSelect.value === String(index) ? ' active' : '') + '" data-topic="' + index + '" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">' + k + ' (' + konuSayilariGecici[k] + ' soru)</button>').join('');
       updateSolvedCount();
       renderOzetler();
       renderFilterCounts();
@@ -458,10 +460,13 @@
     });
   }
 
-  document.getElementById('topicSelect').addEventListener('change', () => {
+  document.getElementById('topicOptions').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-topic]');
+    if (!button) return;
     const select = document.getElementById('topicSelect');
-    const label = select.options[select.selectedIndex]?.text || 'Tüm konular';
-    document.getElementById('konuSecimMetni').textContent = label;
+    select.value = button.dataset.topic;
+    document.querySelectorAll('#topicOptions .topic-option').forEach(el => el.classList.toggle('active', el === button));
+    document.getElementById('konuSecimMetni').textContent = button.textContent;
     renderFilterCounts();
   });
   document.querySelectorAll('#trapChips .chip').forEach(btn => {
