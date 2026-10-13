@@ -522,9 +522,22 @@
     document.getElementById('qBarFill').style.width = ((qIdx) / quiz.length * 100) + '%';
 
     const tagsEl = document.getElementById('qTags');
-    const [solvedMap, favIds] = await Promise.all([bgysGetSolvedMap(), bgysGetFavoriteIds()]);
-    const oncedenCozuldu = bgysIsSolved(solvedMap, q.id);
-    const cozulmeSayisi = bgysGetSolvedCount(solvedMap, q.id);
+    // Soru metnini önce ekrana bas; kullanıcı verisi servisleri gecikse bile soru boş kalmasın.
+    document.getElementById('qText').textContent = q.question || 'Soru metni bulunamadı.';
+    let solvedMap = {};
+    let favIds = [];
+    try {
+      const results = await Promise.all([
+        Promise.resolve().then(() => bgysGetSolvedMap()).catch(() => ({})),
+        Promise.resolve().then(() => bgysGetFavoriteIds()).catch(() => [])
+      ]);
+      solvedMap = results[0] || {};
+      favIds = results[1] || [];
+    } catch (e) {
+      console.warn('Soru geçmişi yüklenemedi; soru gösterilmeye devam ediliyor.', e);
+    }
+    const oncedenCozuldu = typeof bgysIsSolved === 'function' ? bgysIsSolved(solvedMap, q.id) : !!solvedMap[q.id];
+    const cozulmeSayisi = typeof bgysGetSolvedCount === 'function' ? bgysGetSolvedCount(solvedMap, q.id) : 0;
     const favoriMi = favIds.includes(q.id);
     tagsEl.innerHTML = `
       <span class="q-tag madde">${q.madde}</span>
