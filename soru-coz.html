@@ -346,7 +346,7 @@
       document.getElementById('totalCount').textContent = mergedBank.length;
       document.getElementById('bankInfo').textContent = mergedBank.length;
 
-      // Konu listesini doğrudan soru bankasından üret; her başlık ve sayısı seçimde görünür.
+      // Menüde yalnızca ana başlıklar gösterilir; sorular konu etiketiyle filtrelenir.
       const konuSayilariGecici = {};
       mergedBank.forEach(q => {
         const k = (q.kisim || q.madde || 'Diğer').trim();
@@ -358,12 +358,12 @@
       const konular = Object.keys(konuSayilariGecici).sort((a,b) => a.localeCompare(b, 'tr'));
       topicSelect.innerHTML = '<option value="all">Tüm konular (' + mergedBank.length + ' soru)</option>' +
         konular.map((k, index) => '<option value="' + index + '">' + k + ' (' + konuSayilariGecici[k] + ' soru)</option>').join('');
-      // Seçim değeri başlık değil indeks olduğundan, filtre için eşleştirmeyi ayrıca tut.
       topicSelect.dataset.topicNames = JSON.stringify(konular);
       if (mevcutSecim !== 'all' && konular[Number(mevcutSecim)]) topicSelect.value = mevcutSecim;
       const topicOptions = document.getElementById('topicOptions');
-      topicOptions.innerHTML = '<button type="button" class="topic-option' + (topicSelect.value === 'all' ? ' active' : '') + '" data-topic="all" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">Tüm konular (' + mergedBank.length + ' soru)</button>' +
-        konular.map((k, index) => '<button type="button" class="topic-option' + (topicSelect.value === String(index) ? ' active' : '') + '" data-topic="' + index + '" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">' + k + ' (' + konuSayilariGecici[k] + ' soru)</button>').join('');
+      topicOptions.innerHTML = '<button type="button" class="topic-option' + (topicSelect.value === 'all' ? ' active' : '') + '" data-topic="all" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">Tüm konular</button>' +
+        konular.map((k, index) => '<button type="button" class="topic-option' + (topicSelect.value === String(index) ? ' active' : '') + '" data-topic="' + index + '" style="text-align:left;padding:10px 12px;border:1px solid var(--mist);border-radius:9px;background:var(--white);color:var(--ink);cursor:pointer;">' + k + '</button>').join('');
+      document.getElementById('konuSecimMetni').textContent = topicSelect.value === 'all' ? 'Tüm konular' : (konular[Number(topicSelect.value)] || 'Tüm konular');
       updateSolvedCount();
       renderOzetler();
       renderFilterCounts();
@@ -467,9 +467,7 @@
       document.getElementById('solvedCount').textContent = n(base.filter(q => !!solvedMap[q.id]));
       document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(eligible) + ')';
       const konuOzetEl = document.getElementById('konuOzet');
-      const topicCounts = {};
-      eligible.forEach(q => { const k = q.kisim || 'Diğer'; topicCounts[k] = (topicCounts[k] || 0) + 1; });
-      konuOzetEl.innerHTML = Object.entries(topicCounts).map(([k,count]) => '<div>' + k + ': <b style="color:var(--ink);">' + count + ' soru</b></div>').join('');
+      konuOzetEl.textContent = '';
     });
   }
 
