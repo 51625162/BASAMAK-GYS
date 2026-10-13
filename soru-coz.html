@@ -337,14 +337,21 @@
       document.getElementById('totalCount').textContent = mergedBank.length;
       document.getElementById('bankInfo').textContent = mergedBank.length;
 
-      const konular = new Set(mergedBank.map(q => q.kisim).filter(Boolean));
+      // Konu listesini doğrudan soru bankasından üret; her başlık ve sayısı seçimde görünür.
       const konuSayilariGecici = {};
-      mergedBank.forEach(q => { const k = q.kisim || 'Diğer'; konuSayilariGecici[k] = (konuSayilariGecici[k]||0)+1; });
+      mergedBank.forEach(q => {
+        const k = (q.kisim || q.madde || 'Diğer').trim();
+        q.kisim = k;
+        konuSayilariGecici[k] = (konuSayilariGecici[k] || 0) + 1;
+      });
       const topicSelect = document.getElementById('topicSelect');
       const mevcutSecim = topicSelect.value;
+      const konular = Object.keys(konuSayilariGecici).sort((a,b) => a.localeCompare(b, 'tr'));
       topicSelect.innerHTML = '<option value="all">Tüm konular (' + mergedBank.length + ' soru)</option>' +
-        Array.from(konular).sort().map(k => `<option value="${k.replace(/"/g,'&quot;')}">${k} (${konuSayilariGecici[k]} soru)</option>`).join('');
-      if (Array.from(konular).includes(mevcutSecim)) topicSelect.value = mevcutSecim;
+        konular.map((k, index) => '<option value="' + index + '">' + k + ' (' + konuSayilariGecici[k] + ' soru)</option>').join('');
+      // Seçim değeri başlık değil indeks olduğundan, filtre için eşleştirmeyi ayrıca tut.
+      topicSelect.dataset.topicNames = JSON.stringify(konular);
+      if (mevcutSecim !== 'all' && konular[Number(mevcutSecim)]) topicSelect.value = mevcutSecim;
       updateSolvedCount();
       renderOzetler();
       renderFilterCounts();
@@ -423,8 +430,11 @@
   function renderFilterCounts() {
     const solvedMapPromise = Promise.resolve().then(() => bgysGetSolvedMap()).catch(() => ({}));
     solvedMapPromise.then(solvedMap => {
-      const topic = document.getElementById('topicSelect').value;
-      let base = mergedBank.filter(q => topic === 'all' || q.kisim === topic);
+      const topicSelect = document.getElementById('topicSelect');
+      const topic = topicSelect.value;
+      const topicNames = JSON.parse(topicSelect.dataset.topicNames || '[]');
+      const topicName = topic === 'all' ? 'all' : topicNames[Number(topic)];
+      let base = mergedBank.filter(q => topicName === 'all' || q.kisim === topicName);
       if (selectedSource !== 'all') base = base.filter(q => q.source === selectedSource);
       const eligible = base.filter(q => {
         if (selectedStatus === 'unsolved') return !solvedMap[q.id];
@@ -530,7 +540,11 @@
       if (selectedStatus === "unsolved") pool = pool.filter(q => !solvedMap[q.id]);
       else if (selectedStatus === "solved") pool = pool.filter(q => !!solvedMap[q.id]);
       const selectedTopic = document.getElementById('topicSelect').value;
-      if (selectedTopic !== "all") pool = pool.filter(q => q.kisim === selectedTopic);
+      if (selectedTopic !== "all") {
+        const topicNames = JSON.parse(document.getElementById('topicSelect').dataset.topicNames || '[]');
+        const topicName = topicNames[Number(selectedTopic)];
+        pool = pool.filter(q => q.kisim === topicName);
+      }
       if(selectedDiff !== "all"){
         pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
       } else {
