@@ -228,7 +228,68 @@
   // Önceden ayrı bir "soru/questions.js" dosyasından yükleniyordu; o dosya/klasör
   // GitHub'a yüklerken eksik kalırsa TÜM sayfa JavaScript'i çöküyordu. Artık dışarıdan
   // hiçbir dosyaya bağımlı değil, bu satır tek başına yeterli.
-  const QUESTION_BANK = [];
+  const QUESTION_BANK = [
+    {
+      id:"ds5402-01", kisim:"5402 Sayılı Kanun — Madde 1", madde:"Madde 1", difficulty:1, type:"bilgi", trap:false,
+      question:"5402 sayılı Denetimli Serbestlik Hizmetleri Kanunu'nun amacı aşağıdakilerden hangisidir?",
+      options:["Ceza infaz kurumlarının yönetim esaslarını düzenlemek","Denetimli serbestlik ve koruma kurullarının kuruluş, görev ve çalışma esas ve usullerini düzenlemek","Yalnızca hükümlülerin disiplin işlemlerini düzenlemek","Adli kolluğun görev ve yetkilerini belirlemek"],
+      correct:1, explanation:"PDF'deki Madde 1'e göre Kanunun amacı, denetimli serbestlik ve koruma kurullarının kuruluş, görev ve çalışma esas ve usullerini düzenlemektir."
+    },
+    {
+      id:"ds5402-02", kisim:"5402 Sayılı Kanun — Madde 2", madde:"Madde 2", difficulty:1, type:"bilgi", trap:false,
+      question:"5402 sayılı Kanun'un kapsamına aşağıdakilerden hangisi girer?",
+      options:["Yalnızca ceza infaz kurumlarının fiziki güvenliği","Sadece mahkemelerin hüküm kurma usulleri","Danışma Kurulu, Daire Başkanlığı, müdürlükler ve koruma kurullarının yardım ve infaz işlemlerine ilişkin kurallar ile sürece katılanların görev, yetki, hak ve yükümlülükleri","Yalnızca kolluk personelinin özlük hakları"],
+      correct:2, explanation:"Madde 2; ilgili kurul ve birimlerin yanı sıra yardım ve infaz işlemlerine ilişkin kuralları, sürece katılan kişilerin görev, yetki, hak ve yükümlülüklerini kapsar."
+    },
+    {
+      id:"ds5402-03", kisim:"5402 Sayılı Kanun — Madde 3", madde:"Madde 3", difficulty:2, type:"bilgi", trap:false,
+      question:"5402 sayılı Kanun'da “Genel Müdürlük” hangi kurumu ifade eder?",
+      options:["Ceza ve Tevkifevleri Genel Müdürlüğünü","Personel Genel Müdürlüğünü","Hukuk İşleri Genel Müdürlüğünü","Adli Sicil ve İstatistik Genel Müdürlüğünü"],
+      correct:0, explanation:"Madde 3'teki tanıma göre “Genel Müdürlük”, Ceza ve Tevkifevleri Genel Müdürlüğüdür."
+    },
+    {
+      id:"ds5402-04", kisim:"5402 Sayılı Kanun — Madde 4", madde:"Madde 4", difficulty:2, type:"sayma", trap:true,
+      question:"Aşağıdakilerden hangisi Madde 4'te sayılan temel ilkeler arasında YER ALMAZ?",
+      options:["İnsan onuruna saygı ve dürüstlük","Gizlilik","Tarafsızlık","Gizli bilgileri uygun görülen herkesle paylaşma"],
+      correct:3, explanation:"Madde 4'te insan onuruna saygı ve dürüstlük, gizlilik ve tarafsızlık ilkeleri düzenlenir. Bilgilerin paylaşılması değil, gizliliğinin korunması esastır."
+    },
+    {
+      id:"ds5402-05", kisim:"5402 Sayılı Kanun — Madde 5", madde:"Madde 5", difficulty:2, type:"senaryo", trap:false,
+      question:"Hakkında bir tedbire hükmedilen kişi, müdürlüğün hazırladığı programa ve denetimli serbestlik görevlilerinin bu kapsamdaki uyarı ve önerilerine karşı nasıl davranmalıdır?",
+      options:["Yalnızca isterse uymalıdır","Karara uygun olarak uymak ve bunlara katlanmak zorundadır","Sadece yazılı uyarılara uymalıdır","Programı kendisi belirleyebilir"],
+      correct:1, explanation:"Madde 5/1 uyarınca kişi, karara uygun olarak müdürlüğün hazırladığı programa ve görevlilerin bu kapsamdaki uyarı ve önerilerine uymak ve katlanmak zorundadır."
+    },
+    {
+      id:"ds5402-06", kisim:"5402 Sayılı Kanun — Madde 6", madde:"Madde 6", difficulty:2, type:"bilgi", trap:false,
+      question:"Madde 6'ya göre Denetimli Serbestlik Hizmetleri Danışma Kurulu nerede oluşturulur?",
+      options:["Her adliyede ayrı ayrı","Ceza infaz kurumlarında","Bakanlıkta","Adalet komisyonu başkanlığında"],
+      correct:2, explanation:"Madde 6/2'ye göre danışma organı olarak Denetimli Serbestlik Hizmetleri Danışma Kurulu Bakanlıkta oluşturulur."
+    },
+    {
+      id:"ds5402-07", kisim:"5402 Sayılı Kanun — Madde 7", madde:"Madde 7", difficulty:2, type:"karşılaştırma", trap:false,
+      question:"Madde 7'ye göre denetimli serbestlik ve yardım ile koruma hizmetleri nasıl yürütülür?",
+      options:["Merkez teşkilatında müdürlükler, taşrada yalnızca Daire Başkanlığı tarafından","Bakanlık merkez teşkilatında daire başkanlığı, taşra teşkilatında müdürlükler ve koruma kurulları tarafından","Yalnızca koruma kurulları tarafından","Sadece adli yargı ilk derece mahkemelerince"],
+      correct:1, explanation:"Madde 7/1, merkez teşkilatında daire başkanlığını; taşra teşkilatında ise müdürlükler ve koruma kurullarını öngörür."
+    },
+    {
+      id:"ds5402-08", kisim:"5402 Sayılı Kanun — Madde 8", madde:"Madde 8", difficulty:2, type:"bilgi", trap:true,
+      question:"5402 sayılı Kanun'un 8'inci maddesine göre Daire Başkanlığı en az kaç şubeden oluşur?",
+      options:["Bir","İki","Üç","Beş"],
+      correct:2, explanation:"Madde 8'e göre Daire Başkanlığı; bir Daire Başkanı, yeteri kadar tetkik hâkimi, uzman personel ve en az üç şubeden oluşur."
+    },
+    {
+      id:"ds5402-09", kisim:"5402 Sayılı Kanun — Madde 9", madde:"Madde 9", difficulty:3, type:"sayma", trap:true,
+      question:"Aşağıdakilerden hangisi Denetimli Serbestlik Daire Başkanlığının Madde 9'da belirtilen görevlerinden biridir?",
+      options:["Müdürlükler ve koruma kurullarının yıllık iş programları ve projeleri ile çalışma raporlarını Genel Müdürlüğe sunmak","Mahkemeler adına kesin hüküm kurmak","Ceza infaz kurumlarının disiplin cezalarını doğrudan karara bağlamak","Adalet komisyonlarının tüm personel atamalarını tek başına yapmak"],
+      correct:0, explanation:"Madde 9/1-c kapsamında müdürlükler ve koruma kurullarınca hazırlanan yıllık iş programları, projeler ve çalışma raporları Genel Müdürlüğe sunulur; yıllık faaliyet raporu da hazırlanır."
+    },
+    {
+      id:"ds5402-10", kisim:"5402 Sayılı Kanun — Madde 10", madde:"Madde 10", difficulty:3, type:"senaryo", trap:true,
+      question:"İş durumu ve coğrafi konum nedeniyle müdürlük bulunmayan bir ilçede büro kurulması için aşağıdakilerden hangisi gerekir?",
+      options:["İlçe belediyesinin kararı","Genel Müdürlüğün önerisi ve Bakanlık onayı","Koruma kurulunun tek başına kararı","Cumhuriyet savcısının sözlü talimatı"],
+      correct:1, explanation:"Madde 10/1'e göre iş durumu ve coğrafi konum göz önüne alınarak, Genel Müdürlüğün önerisi ve Bakanlık onayı ile müdürlük bulunmayan ilçelerde müdürlüğe bağlı büro kurulabilir."
+    }
+  ];
 </script>
 <script src="db.js?v=1786350782"></script>
 <script>bgysRequireAuth();</script>
