@@ -237,7 +237,123 @@
   // Önceden ayrı bir "soru/questions.js" dosyasından yükleniyordu; o dosya/klasör
   // GitHub'a yüklerken eksik kalırsa TÜM sayfa JavaScript'i çöküyordu. Artık dışarıdan
   // hiçbir dosyaya bağımlı değil, bu satır tek başına yeterli.
-  const QUESTION_BANK = [];
+  const QUESTION_BANK = bgysCurrentModul() === 'ds-sefligi' ? [
+    {
+      id: '5402-pdf-001', kisim: '5402 Sayılı Kanun — Amaç ve Kapsam', madde: 'Madde 1', difficulty: 1, type: 'bilgi', trap: false,
+      question: '5402 sayılı Denetimli Serbestlik Hizmetleri Kanunu’nun amacı aşağıdakilerden hangisidir?',
+      options: [
+        'Ceza infaz kurumlarının yönetim esaslarını düzenlemek',
+        'Denetimli serbestlik ve koruma kurullarının kuruluş, görev ve çalışma esas ve usullerini düzenlemek',
+        'Mahkemelerin kuruluş ve görevlerini belirlemek',
+        'Kolluk birimlerinin yetkilerini düzenlemek'
+      ],
+      correct: 1,
+      explanation: 'PDF’de yer alan Madde 1’e göre Kanunun amacı, denetimli serbestlik ve koruma kurullarının kuruluş, görev ve çalışma esas ve usullerini düzenlemektir.'
+    },
+    {
+      id: '5402-pdf-002', kisim: '5402 Sayılı Kanun — Amaç ve Kapsam', madde: 'Madde 2', difficulty: 2, type: 'bilgi', trap: false,
+      question: '5402 sayılı Kanun’un kapsamına giren konular arasında aşağıdakilerden hangisi bulunur?',
+      options: [
+        'Yalnızca ceza infaz kurumlarının satın alma işlemleri',
+        'Sadece hâkim ve savcıların özlük hakları',
+        'Danışma Kurulu, Daire Başkanlığı, müdürlükler ve koruma kurullarınca yapılacak yardım ve infaz işlemlerine ilişkin kurallar',
+        'Yalnızca kolluk personelinin disiplin işlemleri'
+      ],
+      correct: 2,
+      explanation: 'Madde 2; Danışma Kurulu, Daire Başkanlığı, denetimli serbestlik müdürlükleri ve koruma kurullarınca yapılacak yardım ve infaz işlemlerine ilişkin kuralları ve sürece katılan kişilerin görev, yetki, hak ve yükümlülüklerini kapsar.'
+    },
+    {
+      id: '5402-pdf-003', kisim: '5402 Sayılı Kanun — Tanımlar', madde: 'Madde 3', difficulty: 2, type: 'bilgi', trap: true,
+      question: '5402 sayılı Kanun’a göre “Genel Müdürlük” hangi kurumu ifade eder?',
+      options: [
+        'Adalet Bakanlığı Personel Genel Müdürlüğünü',
+        'Ceza ve Tevkifevleri Genel Müdürlüğünü',
+        'Denetimli Serbestlik Daire Başkanlığını',
+        'Adli Destek ve Mağdur Hizmetleri Dairesi Başkanlığını'
+      ],
+      correct: 1,
+      explanation: 'Madde 3’te “Genel Müdürlük” tanımı, Ceza ve Tevkifevleri Genel Müdürlüğü olarak yapılmıştır. Daire Başkanlığı ise Denetimli Serbestlik Daire Başkanlığını ifade eder.'
+    },
+    {
+      id: '5402-pdf-004', kisim: '5402 Sayılı Kanun — Temel İlkeler', madde: 'Madde 4', difficulty: 2, type: 'senaryo', trap: false,
+      question: 'Bir görevli, denetimli serbestlik sürecinde öğrendiği hükümlünün ailesine ilişkin bilgileri kanunun zorunlu kıldığı bir hâl bulunmaksızın başka bir kişiye açıklamıştır. Hangi temel ilkeye aykırı davranmıştır?',
+      options: [
+        'Gizlilik',
+        'Tarafsızlık',
+        'Verimlilik',
+        'Hizmet içi eğitim'
+      ],
+      correct: 0,
+      explanation: 'Madde 4’e göre görev alanlar, suçtan zarar gören, şüpheli veya sanık, hükümlü ya da bunların ailesi hakkında öğrendikleri bilgilerin gizliliğini korumak zorundadır. Kanunun zorunlu kıldığı hâller dışında bu bilgiler verilemez.'
+    },
+    {
+      id: '5402-pdf-005', kisim: '5402 Sayılı Kanun — Yükümlülük', madde: 'Madde 5', difficulty: 2, type: 'olumsuz', trap: true,
+      question: 'Aşağıdakilerden hangisi 5402 sayılı Kanun’un 5’inci maddesindeki yükümlülüğe ilişkin doğru bir ifade DEĞİLDİR?',
+      options: [
+        'Hakkında tedbire hükmedilen kişi, karara uygun programa uymak zorundadır.',
+        'Kişi, denetimli serbestlik görevlilerinin bu kapsamdaki uyarı ve önerilerine uymak ve katlanmak zorundadır.',
+        'Müdürlüğün çağrılarına veya denetim planına uyarıya rağmen uyulmaması yükümlülük ihlali sayılır.',
+        'Müdürlüğün çağrısına uyulmaması hiçbir durumda yükümlülük ihlali sayılmaz.'
+      ],
+      correct: 3,
+      explanation: 'Madde 5’in ikinci fıkrası, müdürlüğün çağrılarına veya hazırlanan denetim planına uyarıya rağmen uyulmamasını denetimli serbestlik tedbirine ilişkin yükümlülük ihlali sayar.'
+    },
+    {
+      id: '5402-pdf-006', kisim: '5402 Sayılı Kanun — Kuruluş', madde: 'Madde 6', difficulty: 2, type: 'bilgi', trap: false,
+      question: '5402 sayılı Kanun’un 6’ncı maddesine göre denetimli serbestlik müdürlüğü ve koruma kurulu nerede kurulur?',
+      options: [
+        'Yalnızca büyükşehir belediyelerinde',
+        'Adalet komisyonunun bulunduğu yerlerde',
+        'Her ilçede doğrudan Bakanlık onayı olmaksızın',
+        'Yalnızca bölge adliye mahkemelerinin bulunduğu yerlerde'
+      ],
+      correct: 1,
+      explanation: 'Madde 6’ya göre Genel Müdürlük bünyesinde Daire Başkanlığı; adalet komisyonunun bulunduğu yerlerde denetimli serbestlik müdürlüğü ile koruma kurulu kurulur.'
+    },
+    {
+      id: '5402-pdf-007', kisim: '5402 Sayılı Kanun — Teşkilât', madde: 'Madde 7', difficulty: 2, type: 'karşılaştırma', trap: false,
+      question: 'Denetimli serbestlik ve yardım ile koruma hizmetleri, Kanun’un 7’nci maddesine göre hangi teşkilat yapısı içinde yürütülür?',
+      options: [
+        'Merkezde müdürlükler, taşrada yalnızca Daire Başkanlığı tarafından',
+        'Yalnızca koruma kurulları tarafından',
+        'Bakanlık merkez teşkilâtında daire başkanlığı, taşra teşkilâtında müdürlükler ve koruma kurulları tarafından',
+        'Yalnızca adalet komisyonları tarafından'
+      ],
+      correct: 2,
+      explanation: 'Madde 7, merkez teşkilatında daire başkanlığını; taşra teşkilatında ise müdürlükleri ve koruma kurullarını öngörür.'
+    },
+    {
+      id: '5402-pdf-008', kisim: '5402 Sayılı Kanun — Daire Başkanlığı', madde: 'Madde 8', difficulty: 2, type: 'bilgi', trap: true,
+      question: '5402 sayılı Kanun’un 8’inci maddesine göre Denetimli Serbestlik Daire Başkanlığı en az kaç şubeden oluşur?',
+      options: ['Bir', 'İki', 'Üç', 'Beş'],
+      correct: 2,
+      explanation: 'Madde 8’e göre Daire Başkanlığı; bir Daire Başkanı, yeteri kadar tetkik hâkimi, uzman personel ve en az üç şubeden oluşur.'
+    },
+    {
+      id: '5402-pdf-009', kisim: '5402 Sayılı Kanun — Daire Başkanlığının Görevleri', madde: 'Madde 9', difficulty: 3, type: 'çoklu önerme', trap: true,
+      question: 'Aşağıdakilerden hangisi 5402 sayılı Kanun’un 9’uncu maddesinde Daire Başkanlığının görevleri arasında sayılmıştır?',
+      options: [
+        'Müdürlük bulunmayan ilçelerde büroların kurulmasını veya kaldırılmasını Genel Müdürlüğe önermek',
+        'Mahkemeler adına hüküm kurmak',
+        'Adalet komisyonlarının yerine atama kararı vermek',
+        'Koruma kurullarının tüm üyelerini doğrudan seçmek'
+      ],
+      correct: 0,
+      explanation: 'Madde 9’un (d) bendinde, müdürlük bulunmayan ilçelerde büroların kurulmasını veya kaldırılmasını Genel Müdürlüğe önermek Daire Başkanlığının görevi olarak düzenlenmiştir.'
+    },
+    {
+      id: '5402-pdf-010', kisim: '5402 Sayılı Kanun — Müdürlük', madde: 'Madde 10', difficulty: 3, type: 'senaryo', trap: false,
+      question: 'İş durumu ve coğrafi konum nedeniyle müdürlük bulunmayan bir ilçede denetimli serbestlik hizmetlerini yürütmek üzere büro kurulması düşünülmektedir. Kanun’a göre bunun için hangi usul izlenir?',
+      options: [
+        'İlçe belediye başkanının kararı yeterlidir.',
+        'Adalet komisyonunun tek başına kararı yeterlidir.',
+        'Genel Müdürlüğün önerisi ve Bakanlık onayı gerekir.',
+        'Koruma kurulunun oy çokluğu ile karar vermesi yeterlidir.'
+      ],
+      correct: 2,
+      explanation: 'Madde 10’un birinci fıkrasına göre iş durumu ve coğrafi konum göz önüne alınarak, Genel Müdürlüğün önerisi ve Bakanlık onayı ile müdürlük bulunmayan ilçelerde müdürlüğe bağlı büro kurulabilir.'
+    }
+  ] : [];
 </script>
 <script src="db.js?v=1786350782"></script>
 <script>bgysRequireAuth();</script>
