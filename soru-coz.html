@@ -168,6 +168,9 @@
           <button class="chip" data-val="3">🔴 Zor</button>
         </div>
         <div id="zorlukOzet" style="margin-top:10px;font-size:0.8rem;color:var(--slate);"></div>
+        <div class="chip-row" id="trapChips" style="margin-top:12px;">
+          <button class="chip" data-val="trap">⚠️ Tuzak Sorular (<span id="trapCount">0</span>)</button>
+        </div>
       </div>
 
       <div class="setup-group">
@@ -306,6 +309,7 @@
   let selectedCount = 20;
   let selectedSource = "all";
   let selectedStatus = "unsolved";
+  let selectedTrap = false;
   let quiz = [];
   let qIdx = 0;
   let correctCount = 0;
@@ -343,6 +347,7 @@
       if (Array.from(konular).includes(mevcutSecim)) topicSelect.value = mevcutSecim;
       updateSolvedCount();
       renderOzetler();
+      renderFilterCounts();
 
       const soruSetleri = await bgysGetAllByModul('soruSetleri');
       if (soruSetleri.length > 0) {
@@ -403,6 +408,7 @@
       document.querySelectorAll('#statusChips .chip').forEach(x => x.classList.remove('active'));
       c.classList.add('active');
       selectedStatus = c.dataset.val;
+      renderFilterCounts();
     });
   });
 
@@ -413,6 +419,46 @@
   }
 
   const ZORLUK_ISIMLERI = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
+
+  function renderFilterCounts() {
+    const solvedMapPromise = Promise.resolve().then(() => bgysGetSolvedMap()).catch(() => ({}));
+    solvedMapPromise.then(solvedMap => {
+      const topic = document.getElementById('topicSelect').value;
+      let base = mergedBank.filter(q => topic === 'all' || q.kisim === topic);
+      if (selectedSource !== 'all') base = base.filter(q => q.source === selectedSource);
+      const eligible = base.filter(q => {
+        if (selectedStatus === 'unsolved') return !solvedMap[q.id];
+        if (selectedStatus === 'solved') return !!solvedMap[q.id];
+        return true;
+      });
+      const n = arr => arr.length;
+      document.querySelectorAll('#diffChips .chip').forEach(btn => {
+        const val = btn.dataset.val;
+        const count = val === 'all' ? n(eligible) : n(eligible.filter(q => q.difficulty === Number(val)));
+        const label = btn.dataset.baseLabel || (btn.dataset.baseLabel = btn.textContent.replace(/\s*\(\d+\)\s*$/, '').trim());
+        btn.textContent = label + ' (' + count + ')';
+      });
+      const trapCount = n(eligible.filter(q => q.trap));
+      document.getElementById('trapCount').textContent = trapCount;
+      document.getElementById('totalCount').textContent = n(eligible);
+      document.getElementById('bankInfo').textContent = n(eligible);
+      document.getElementById('solvedCount').textContent = n(base.filter(q => !!solvedMap[q.id]));
+      document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(eligible) + ')';
+      const konuOzetEl = document.getElementById('konuOzet');
+      const topicCounts = {};
+      eligible.forEach(q => { const k = q.kisim || 'Diğer'; topicCounts[k] = (topicCounts[k] || 0) + 1; });
+      konuOzetEl.innerHTML = Object.entries(topicCounts).map(([k,count]) => '<div>' + k + ': <b style="color:var(--ink);">' + count + ' soru</b></div>').join('');
+    });
+  }
+
+  document.getElementById('topicSelect').addEventListener('change', renderFilterCounts);
+  document.querySelectorAll('#trapChips .chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedTrap = !selectedTrap;
+      btn.classList.toggle('active', selectedTrap);
+      renderFilterCounts();
+    });
+  });
 
   function renderOzetler() {
     // Konuya göre sayım
@@ -440,6 +486,7 @@
       document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
       c.classList.add('active');
       selectedDiff = c.dataset.val;
+      renderFilterCounts();
     });
   });
   document.querySelectorAll('#countChips .chip').forEach(c => {
@@ -473,6 +520,7 @@
     try {
       let pool = mergedBank.slice();
       if (selectedSource !== "all") pool = pool.filter(q => q.source === selectedSource);
+      if (selectedTrap) pool = pool.filter(q => q.trap === true);
       let solvedMap = {};
       try {
         solvedMap = await bgysGetSolvedMap();
