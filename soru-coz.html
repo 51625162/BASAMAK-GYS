@@ -361,19 +361,7 @@
   let correctCount = 0;
   let wrongCount = 0;
   let answered = false;
-  // Konu bazlı gruplama: yeni sorular kendi kisim başlığıyla eklenince menü otomatik genişler.
-  const KONU_GRUPLARI_5402 = [
-    { konu: 'Kanunun Genel Bilgileri', ids: ['ds5402-e01','ds5402-e02','ds5402-e03'] },
-    { konu: 'Amaç ve Kapsam', ids: ['ds5402-e04','ds5402-e05','ds5402-e06','ds5402-e07','ds5402-e08'] },
-    { konu: 'Temel İlkeler', ids: ['ds5402-e09','ds5402-e10','ds5402-e11','ds5402-e12','ds5402-e13','ds5402-e14','ds5402-e15','ds5402-e47','ds5402-e48'] },
-    { konu: 'Yükümlülükler ve Tedbirler', ids: ['ds5402-e16','ds5402-e17','ds5402-e18','ds5402-e50'] },
-    { konu: 'Danışma Kurulu ve Teşkilat', ids: ['ds5402-e19','ds5402-e20','ds5402-e21','ds5402-e22','ds5402-e23','ds5402-e24','ds5402-e25'] },
-    { konu: 'Görevler ve Diğer Hükümler', ids: ['ds5402-e26','ds5402-e27','ds5402-e28','ds5402-e29','ds5402-e30','ds5402-e31','ds5402-e32','ds5402-e33','ds5402-e34','ds5402-e35','ds5402-e36','ds5402-e37','ds5402-e38','ds5402-e39','ds5402-e40','ds5402-e41','ds5402-e42','ds5402-e43','ds5402-e44','ds5402-e45','ds5402-e46'] },
-    { konu: 'Genel Tekrar', ids: ['ds5402-e49'] }
-  ];
-  const KONU_5402_MAP = new Map(KONU_GRUPLARI_5402.flatMap(g => g.ids.map(id => [id, g.konu])));
-  QUESTION_BANK.forEach(q => { if (KONU_5402_MAP.has(q.id)) q.kisim = KONU_5402_MAP.get(q.id); });
-
+  // Bu soru setindeki tüm sorular tek ana konu altında listelenir.
   let mergedBank = QUESTION_BANK.map(q => ({...q, source: 'hazir'}));
 
   const modulInfo = bgysModulInfo();
