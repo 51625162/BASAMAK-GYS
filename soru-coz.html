@@ -562,11 +562,12 @@
       optsEl.appendChild(btn);
     });
 
-    document.getElementById('solutionToggle').classList.remove('show');
+    // Çözüm ve sonraki soru kontrolleri her soruda görünür; kullanıcı kendi temposunda ilerler.
+    document.getElementById('solutionToggle').classList.add('show');
     document.getElementById('solutionToggle').textContent = '💡 Çözümü Gör';
     document.getElementById('solutionBox').classList.remove('show');
     document.getElementById('solutionBox').innerHTML = `<p style="font-weight:700;margin:0 0 8px;color:var(--teal-dark);">📋 Doğru Cevap: ${LETTERS[q.correct]}) ${q.options[q.correct]}</p><p style="margin:0;">${q.explanation}</p>`;
-    document.getElementById('nextBtn').classList.remove('show');
+    document.getElementById('nextBtn').classList.add('show');
   }
 
   async function selectAnswer(i, btn){
