@@ -907,11 +907,15 @@
         var topicName=names[Number(topicSelect.value)];
         pool=pool.filter(function(q){return q.kisim===topicName;});
       }
-      var solvedMap={};
-      try{solvedMap=await bgysGetSolvedMap();}catch(_){}
-      if(selectedStatus==='unsolved')pool=pool.filter(function(q){return !solvedMap[q.id];});
-      else if(selectedStatus==='solved')pool=pool.filter(function(q){return !!solvedMap[q.id];});
+      // Başlatma, bulut/Firestore yanıtını beklemesin; bu bekleme butonu kilitleyebiliyordu.
+      // "Hepsi" durumunda tüm uygun sorular doğrudan açılır.
       if(selectedSource!=='all')pool=pool.filter(function(q){return q.source===selectedSource;});
+      if(selectedStatus!=='all'){
+        var solvedMap={};
+        try{solvedMap=await Promise.race([bgysGetSolvedMap(),new Promise(function(resolve){setTimeout(function(){resolve({});},1500);})]);}catch(_){}
+        if(selectedStatus==='unsolved')pool=pool.filter(function(q){return !solvedMap[q.id];});
+        else if(selectedStatus==='solved')pool=pool.filter(function(q){return !!solvedMap[q.id];});
+      }
       pool=shuffle(pool);
       var wanted=Number(selectedCount)||999;
       quiz=pool.slice(0,Math.min(wanted,pool.length));
