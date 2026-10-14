@@ -751,7 +751,6 @@
     tagsEl.innerHTML = `
       <span class="q-tag madde">📚 5402 Sayılı Kanun · ${q.kisim || q.madde || 'Genel'}</span>
       <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
-      <span class="q-tag" style="font-weight:800;font-size:0.76rem;padding:6px 12px;background:${Number(q.difficulty) === 3 ? 'rgba(239,68,68,0.16)' : Number(q.difficulty) === 1 ? 'rgba(34,197,94,0.16)' : 'rgba(245,166,35,0.18)'};color:${Number(q.difficulty) === 3 ? '#DC2626' : Number(q.difficulty) === 1 ? '#16803C' : '#A16207'};">SEVİYE: ${Number(q.difficulty) === 3 ? '🔴 ZOR' : Number(q.difficulty) === 1 ? '🟢 KOLAY' : '🟡 ORTA'}</span>
       ${q.trap ? '<span class="q-tag trap" style="font-weight:800;background:rgba(139,107,242,0.16);color:#6D28D9;">⚠️ TUZAK SORU</span>' : ''}
       ${q.source === 'benim' ? '<span class="q-tag" style="background:rgba(139,107,242,0.12);color:#8B6BF2;">✍️ Kendi Sorum</span>' : ''}
       ${oncedenCozuldu ? `<span class="q-tag" style="background:rgba(34,197,94,0.12);color:#16803C;">✓ ${cozulmeSayisi}. kez çözüldü</span>` : ''}
@@ -929,6 +928,22 @@
     }finally{
       btn.disabled=false; btn.textContent=old;
     }
+  }, true);
+})();
+</script>
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var btn=e.target && e.target.closest ? e.target.closest('#solutionToggle') : null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var box=document.getElementById('solutionBox');
+    if(!box)return;
+    var open=!box.classList.contains('show');
+    box.classList.toggle('show',open);
+    btn.classList.add('show');
+    btn.textContent=open?'💡 Çözümü Gizle':'💡 Çözümü Gör';
   }, true);
 })();
 </script>
