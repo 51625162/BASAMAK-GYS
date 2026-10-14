@@ -934,9 +934,33 @@ async function bgysClearSolved() {
 }
 
 /* ---- Favori soru işaretleme (Firestore, cihazlar arası senkron) ---- */
+const BGYS_LOCAL_FAVORITES_PREFIX = "bgys-local-favoriler:";
+
+function bgysGetLocalFavoriteIds() {
+  try {
+    const raw = localStorage.getItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysCurrentModul());
+    const ids = raw ? JSON.parse(raw) : [];
+    return Array.isArray(ids) ? ids.filter(id => typeof id === "string") : [];
+  } catch (e) { return []; }
+}
+
+function bgysSetLocalFavoriteIds(ids) {
+  try {
+    localStorage.setItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysCurrentModul(), JSON.stringify([...new Set(ids)]));
+  } catch (e) {
+    throw new Error("Tarayıcı favorileri kaydedemedi. Depolama alanını kontrol et.");
+  }
+}
+
 async function bgysGetFavoriteIds() {
-  const all = await bgysGetAllByModul("favoriler");
-  return all.map(r => r.soruId);
+  const localIds = bgysGetLocalFavoriteIds();
+  try {
+    const all = await bgysGetAllByModul("favoriler");
+    return [...new Set([...all.map(r => r.soruId).filter(Boolean), ...localIds])];
+  } catch (e) {
+    // Bulut bağlantısı sorunlu olsa da aynı cihazdaki favoriler erişilebilir kalır.
+    return localIds;
+  }
 }
 
 async function bgysIsFavorite(questionId) {
@@ -945,18 +969,36 @@ async function bgysIsFavorite(questionId) {
 }
 
 async function bgysToggleFavorite(questionId) {
-  await bgysInitFirebase();
-  let user = bgysCurrentUser();
-  if (!user) user = await bgysWaitForAuth();
-  if (!user) return false;
-  const all = await bgysGetAllByModul("favoriler");
-  const mevcut = all.find(r => r.soruId === questionId);
+  const mevcutIds = await bgysGetFavoriteIds();
+  const mevcut = mevcutIds.includes(questionId);
+  const localIds = bgysGetLocalFavoriteIds();
   if (mevcut) {
-    await bgysDelete("favoriler", mevcut.id);
+    bgysSetLocalFavoriteIds(localIds.filter(id => id !== questionId));
+    try {
+      await bgysInitFirebase();
+      let user = bgysCurrentUser();
+      if (!user) user = await bgysWaitForAuth();
+      if (user) {
+        const all = await bgysGetAllByModul("favoriler");
+        const kayit = all.find(r => r.soruId === questionId);
+        if (kayit) await bgysDelete("favoriler", kayit.id);
+      }
+    } catch (e) { console.warn("Favori bulut eşitlemesi yapılamadı; yerel listeden çıkarıldı.", e); }
     return false;
-  } else {
-    await bgysAdd("favoriler", { modul: bgysCurrentModul(), soruId: questionId });
-    return true;
   }
+
+  bgysSetLocalFavoriteIds([...localIds, questionId]);
+  try {
+    await bgysInitFirebase();
+    let user = bgysCurrentUser();
+    if (!user) user = await bgysWaitForAuth();
+    if (user) {
+      const all = await bgysGetAllByModul("favoriler");
+      if (!all.some(r => r.soruId === questionId)) {
+        await bgysAdd("favoriler", { modul: bgysCurrentModul(), soruId: questionId });
+      }
+    }
+  } catch (e) { console.warn("Favori buluta eşitlenemedi; bu cihazda saklandı.", e); }
+  return true;
 }
 
