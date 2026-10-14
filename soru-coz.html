@@ -433,6 +433,11 @@
   let answered = false;
   // Bu soru setindeki tüm sorular tek ana konu altında listelenir.
   let mergedBank = QUESTION_BANK.map(q => ({...q, source: 'hazir'}));
+  // İlk açılışta yerleşik soru havuzunun sayısını göster.
+  document.getElementById('totalCount').textContent = mergedBank.length;
+  document.getElementById('bankInfo').textContent = mergedBank.length;
+  document.getElementById('trapCount').textContent = mergedBank.filter(q => q.trap === true).length;
+  document.getElementById('countChips').querySelector('[data-val="999"]').textContent = 'Tümü (' + mergedBank.length + ')';
 
   const modulInfo = bgysModulInfo();
   document.getElementById('crumbModul').textContent = modulInfo.ad;
@@ -549,38 +554,30 @@
   const ZORLUK_ISIMLERI = { 1: '🟢 Kolay', 2: '🟡 Orta', 3: '🔴 Zor' };
 
   function renderFilterCounts() {
-    const solvedMapPromise = Promise.resolve().then(() => bgysGetSolvedMap()).catch(() => ({}));
-    solvedMapPromise.then(solvedMap => {
+    Promise.resolve().then(() => bgysGetSolvedMap()).catch(() => ({})).then(solvedMap => {
       const topicSelect = document.getElementById('topicSelect');
       const topic = topicSelect.value;
       const topicNames = JSON.parse(topicSelect.dataset.topicNames || '[]');
       const topicName = topic === 'all' ? 'all' : topicNames[Number(topic)];
       let base = mergedBank.filter(q => topicName === 'all' || q.kisim === topicName);
       if (selectedSource !== 'all') base = base.filter(q => q.source === selectedSource);
-      const byStatus = base.filter(q => {
-        if (selectedStatus === 'unsolved') return !solvedMap[q.id];
-        if (selectedStatus === 'solved') return !!solvedMap[q.id];
-        return true;
-      });
-      // Sayaçlar seçili filtreleri yansıtır; Tuzak modunda sadece tuzak havuzu sayılır.
-      const eligible = selectedTrap ? byStatus.filter(q => q.trap === true) : byStatus;
-      const byDifficulty = selectedDiff === 'all' ? eligible : eligible.filter(q => q.difficulty === Number(selectedDiff));
-      const n = arr => arr.length;
+      base = base.filter(q => selectedStatus === 'unsolved' ? !solvedMap[q.id] : selectedStatus === 'solved' ? !!solvedMap[q.id] : true);
+      const trapPool = base.filter(q => q.trap === true);
+      const eligible = selectedTrap ? trapPool : base;
+      const byDiff = val => val === 'all' ? eligible.length : eligible.filter(q => Number(q.difficulty) === Number(val)).length;
       document.querySelectorAll('#diffChips .chip').forEach(btn => {
         const val = btn.dataset.val;
-        const count = val === 'all' ? n(eligible) : n(eligible.filter(q => q.difficulty === Number(val)));
+        const count = byDiff(val);
         const label = btn.dataset.baseLabel || (btn.dataset.baseLabel = btn.textContent.replace(/\s*\(\d+\)\s*$/, '').trim());
         btn.textContent = label + ' (' + count + ')';
       });
-      // Tuzak sayısı seçili durum filtresinden bağımsız görünür; mod açılınca Hepsi seçilir.
-      document.getElementById('trapCount').textContent = n(base.filter(q => q.trap === true));
-      document.getElementById('totalCount').textContent = n(byDifficulty);
-      document.getElementById('bankInfo').textContent = n(byDifficulty);
-      document.getElementById('solvedCount').textContent = n(base.filter(q => !!solvedMap[q.id]));
-      document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(byDifficulty) + ')';
-      const konuOzetEl = document.getElementById('konuOzet');
-      const selectedTopicName = topicName === 'all' ? 'Tüm konular' : topicName;
-      konuOzetEl.textContent = selectedTopicName + ' · ' + n(byDifficulty) + ' uygun soru' + (selectedTrap ? ' · tuzak sorular' : '') + (selectedStatus === 'unsolved' ? ' · çözülmemişler' : selectedStatus === 'solved' ? ' · çözdüklerin' : ' · tüm durumlar');
+      document.getElementById('trapCount').textContent = trapPool.length;
+      document.getElementById('totalCount').textContent = eligible.length;
+      document.getElementById('bankInfo').textContent = eligible.length;
+      document.getElementById('solvedCount').textContent = base.filter(q => !!solvedMap[q.id]).length;
+      document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + eligible.length + ')';
+      const topicLabel = topicName === 'all' ? 'Tüm konular' : topicName;
+      document.getElementById('konuOzet').textContent = (selectedTrap ? '⚠️ Tuzak sorular · ' : '') + topicLabel + ' · ' + eligible.length + ' uygun soru' + (selectedStatus === 'unsolved' ? ' · çözülmemişler' : selectedStatus === 'solved' ? ' · çözdüklerin' : ' · tüm durumlar');
     });
   }
 
