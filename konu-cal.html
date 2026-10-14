@@ -14,22 +14,23 @@ a{color:inherit;text-decoration:none}.top{background:var(--navy);color:white;pad
 .wrap{max-width:1000px;margin:auto;padding:24px 16px 56px}.back{display:inline-block;color:var(--teal);font-weight:700;font-size:13px;margin-bottom:18px}
 .hero{background:linear-gradient(120deg,#10243e,#175365 72%,#087a75);color:white;border-radius:20px;padding:clamp(22px,4vw,36px);margin-bottom:18px}
 .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:#78ded3;font-weight:800}.hero h1{font:800 clamp(25px,4vw,36px)/1.2 Sora,Inter,sans-serif;margin:10px 0}.hero p{color:#d7e6ed;font-size:13px;line-height:1.7;max-width:680px;margin:0}
-.layout{display:grid;grid-template-columns:minmax(0, .9fr) minmax(0,1.1fr);gap:16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font:700 17px Sora,Inter,sans-serif;margin:0 0 7px}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 16px}
+.layout{display:grid;grid-template-columns:minmax(0, .9fr) minmax(0,1.1fr);gap:16px}.study-library{margin-bottom:16px}.lesson-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.lesson{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfcfe}.lesson h3{font-size:13px;margin:0 0 7px}.lesson p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.lesson-status{display:inline-block;margin-top:10px;padding:5px 8px;border-radius:20px;background:#fff5df;color:#815500;font-size:10px;font-weight:800}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#087a75;font-weight:800;margin-bottom:7px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font:700 17px Sora,Inter,sans-serif;margin:0 0 7px}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 16px}
 label{display:block;font-size:12px;font-weight:700;margin:13px 0 6px}input,textarea,select{font:inherit;width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fbfcfe;color:var(--navy)}textarea{min-height:145px;resize:vertical;line-height:1.6}
 button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:12px 15px;cursor:pointer}.primary{background:var(--teal);color:white;width:100%;margin-top:14px}.secondary{background:#e8f7f5;color:#087a75}.danger{background:#fff0ef;color:var(--red);padding:8px 10px;font-size:11px}
 .status{display:none;border-radius:10px;padding:11px 12px;font-size:12px;line-height:1.5;margin-top:12px}.status.show{display:block}.status.ok{background:#eaf8ef;color:#176b39}.status.err{background:#fff0ef;color:var(--red)}
 .notes{display:grid;gap:10px}.note{border:1px solid var(--line);border-radius:12px;padding:14px}.note-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.note h3{font-size:14px;margin:0 0 6px;overflow-wrap:anywhere}.chip{font-size:10px;font-weight:800;color:#087a75;background:#e8f7f5;padding:5px 8px;border-radius:30px;white-space:nowrap}.note p{font-size:12px;line-height:1.7;color:#40566b;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0}.empty{padding:22px 14px;text-align:center;border:1px dashed #cbd7e1;border-radius:12px;color:var(--muted);font-size:12px;line-height:1.7}
-@media(max-width:700px){.layout{grid-template-columns:1fr}.top small{font-size:10px;text-align:right;max-width:125px}.wrap{padding:18px 12px 40px}.panel{padding:16px}}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.lesson-grid{grid-template-columns:1fr}.top small{font-size:10px;text-align:right;max-width:125px}.wrap{padding:18px 12px 40px}.panel{padding:16px}}
 </style>
 </head>
 <body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · DS Şefliği</small></header>
 <main class="wrap">
 <a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
-<section class="hero"><div class="eyebrow">Kişisel çalışma alanı</div><h1>Konu Çalış</h1><p>Çalıştığın mevzuat başlıklarını ve kendi açıklamalarını düzenli tut. Bu sayfaya eklediğin kayıtlar giriş yaptığın hesaba özel saklanır; diğer kullanıcıların notlarıyla karışmaz.</p></section>
+<section class="hero"><div class="eyebrow">Konu anlatımları + kişisel notlar</div><h1>Konu Çalış</h1><p>İki alan birbirinden ayrı tutulur: Benim hazırlayıp sisteme yükleyeceğim sınav odaklı mevzuat anlatımları ve senin hesabına özel kişisel notların. Böylece hazır ders içerikleri kişisel notlarınla karışmaz.</p></section>
+<section class="panel study-library"><div class="section-label">Hazır ders içerikleri</div><h2>Mevzuat konu anlatımları</h2><p class="hint">Ders içerikleri kanun metinlerine göre hazırlanıp buraya konu konu eklenecek. İçerikler yüklendiğinde bu kartlardan açılacak; kişisel notların ayrı kalacak.</p><div class="lesson-grid"><article class="lesson"><h3>1982 Türkiye Cumhuriyeti Anayasası</h3><p>14 parçalı çalışma planı; madde açıklamaları, sınav noktaları, ezber kodları ve hızlı tekrar.</p><span class="lesson-status">İçerik yüklenecek</span></article><article class="lesson"><h3>5275 sayılı Kanun</h3><p>Madde madde anlatım, sınavda karıştırılan hükümler ve konu sonu soruları.</p><span class="lesson-status">İçerik yüklenecek</span></article><article class="lesson"><h3>5402 sayılı Kanun</h3><p>PDF ile karşılaştırılarak eksiksiz aktarım; maddeler, fıkralar ve geçici maddeler.</p><span class="lesson-status">İçerik yüklenecek</span></article></div></section>
 <div class="layout">
 <section class="panel">
-<h2>Yeni çalışma notu</h2><p class="hint">Bir konu başlığı oluştur, önemli bilgileri kendi cümlelerinle yaz ve hesabında sakla.</p>
+<h2>Kendi notunu ekle</h2><p class="hint">Bu alan yalnızca senin kişisel notların içindir. Hazır ders anlatımları yukarıdaki bölümde ayrı gösterilecek.</p>
 <form id="noteForm">
 <label for="title">Konu başlığı</label><input id="title" maxlength="120" required placeholder="Örn. 5402 sayılı Kanun — Madde 9">
 <label for="law">Mevzuat / ders</label><input id="law" maxlength="100" placeholder="Örn. 5402 sayılı Kanun">
@@ -37,12 +38,12 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 <button class="primary" id="saveBtn" type="submit">Notu kaydet</button><div id="formStatus" class="status" role="status"></div>
 </form>
 </section>
-<section class="panel"><h2>Kaydedilen notlar</h2><p class="hint">Yalnızca bu hesapla kaydettiğin çalışma notları listelenir.</p>
+<section class="panel"><h2>Kişisel notların</h2><p class="hint">Yalnızca bu hesapla kaydettiğin notlar listelenir; başka kullanıcılarla paylaşılmaz.</p>
 <div id="notes" class="notes"><div class="empty">Notların yükleniyor…</div></div><div id="listStatus" class="status" role="status"></div>
 </section>
 </div>
 </main>
-<script src="db.js"></script>
+<script src="db.js?v=20261014-2"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
