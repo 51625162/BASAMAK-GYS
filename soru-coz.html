@@ -486,7 +486,16 @@
         const solvedMap = await bgysGetSolvedMap();
         pool = mergedBank.filter(q => solvedMap[q.id] && solvedMap[q.id].correct === false);
       } else {
-        const favIds = await bgysGetFavoriteIds();
+        // Favorileri önce aynı cihazdaki kayıtlardan oku; bulut gecikse bile liste boş görünmesin.
+        let favIds = [];
+        try { favIds = bgysGetLocalFavoriteIds(); } catch(e) {}
+        try {
+          const cloudIds = await Promise.race([
+            bgysGetFavoriteIds(),
+            new Promise(resolve => setTimeout(() => resolve([]), 1200))
+          ]);
+          favIds = [...new Set([...favIds, ...(cloudIds || [])])];
+        } catch(e) { console.warn('Bulut favorileri alınamadı; yerel favoriler gösteriliyor.', e); }
         pool = mergedBank.filter(q => favIds.includes(q.id));
       }
       if (pool.length === 0) {
