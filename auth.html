@@ -67,7 +67,8 @@
     <div class="setup-box">
       1) <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a>'a git, ücretsiz yeni proje oluştur.<br>
       2) Sol menüden <b>Authentication</b> → "Get started" → <b>Email/Password</b> sağlayıcısını aç.<br>
-      3) Sol menüden <b>Firestore Database</b> → "Create database" (test modunda başlat).<br>
+      3) Sol menüden <b>Firestore Database</b> → "Create database" oluştur. Kişisel veriler için test modunu açık bırakma.<br>
+      4) GitHub deposundaki <b>firestore.rules</b> dosyasındaki kuralları Firebase Console → Firestore Database → Rules bölümüne yapıştırıp <b>Publish</b> et. Bu kurallar her hesabın yalnızca kendi UID klasörüne erişmesini sağlar.<br>
       4) Proje ayarlarından (⚙️ → Project settings → Genel) "Web uygulaması ekle" (&lt;/&gt; simgesi) ile bir web app oluştur, sana verdiği <b>firebaseConfig</b> nesnesini aşağı yapıştır:
       <textarea id="configInput" placeholder='{
   "apiKey": "...",
