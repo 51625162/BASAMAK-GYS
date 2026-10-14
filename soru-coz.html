@@ -557,11 +557,14 @@
       const topicName = topic === 'all' ? 'all' : topicNames[Number(topic)];
       let base = mergedBank.filter(q => topicName === 'all' || q.kisim === topicName);
       if (selectedSource !== 'all') base = base.filter(q => q.source === selectedSource);
-      const eligible = base.filter(q => {
+      const byStatus = base.filter(q => {
         if (selectedStatus === 'unsolved') return !solvedMap[q.id];
         if (selectedStatus === 'solved') return !!solvedMap[q.id];
         return true;
       });
+      // Sayaçlar seçili filtreleri yansıtır; Tuzak modunda sadece tuzak havuzu sayılır.
+      const eligible = selectedTrap ? byStatus.filter(q => q.trap === true) : byStatus;
+      const byDifficulty = selectedDiff === 'all' ? eligible : eligible.filter(q => q.difficulty === Number(selectedDiff));
       const n = arr => arr.length;
       document.querySelectorAll('#diffChips .chip').forEach(btn => {
         const val = btn.dataset.val;
@@ -569,15 +572,15 @@
         const label = btn.dataset.baseLabel || (btn.dataset.baseLabel = btn.textContent.replace(/\s*\(\d+\)\s*$/, '').trim());
         btn.textContent = label + ' (' + count + ')';
       });
-      const trapCount = n(eligible.filter(q => q.trap));
-      document.getElementById('trapCount').textContent = trapCount;
-      document.getElementById('totalCount').textContent = n(eligible);
-      document.getElementById('bankInfo').textContent = n(eligible);
+      // Tuzak sayısı seçili durum filtresinden bağımsız görünür; mod açılınca Hepsi seçilir.
+      document.getElementById('trapCount').textContent = n(base.filter(q => q.trap === true));
+      document.getElementById('totalCount').textContent = n(byDifficulty);
+      document.getElementById('bankInfo').textContent = n(byDifficulty);
       document.getElementById('solvedCount').textContent = n(base.filter(q => !!solvedMap[q.id]));
-      document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(eligible) + ')';
+      document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(byDifficulty) + ')';
       const konuOzetEl = document.getElementById('konuOzet');
       const selectedTopicName = topicName === 'all' ? 'Tüm konular' : topicName;
-      konuOzetEl.textContent = selectedTopicName + ' · ' + n(eligible) + ' uygun soru' + (selectedStatus === 'unsolved' ? ' · çözülmemişler' : selectedStatus === 'solved' ? ' · çözdüklerin' : ' · tüm durumlar');
+      konuOzetEl.textContent = selectedTopicName + ' · ' + n(byDifficulty) + ' uygun soru' + (selectedTrap ? ' · tuzak sorular' : '') + (selectedStatus === 'unsolved' ? ' · çözülmemişler' : selectedStatus === 'solved' ? ' · çözdüklerin' : ' · tüm durumlar');
     });
   }
 
@@ -614,14 +617,16 @@
   document.querySelectorAll('#trapChips .chip').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedTrap = !selectedTrap;
-      // Tuzak seçilince zorluk seçimini kapat; aynı anda yalnızca biri aktif olsun.
+      selectedDiff = "all";
+      document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "all" && !selectedTrap));
+      // Tuzak soruları ayrı bir çözüm modu olsun: varsayılan "Çözülmemişler" filtresi,
+      // daha önce işaretlenen sorular nedeniyle tuzak havuzunu boş göstermesin.
       if (selectedTrap) {
-        // Tuzak soruları seçiliyken zorluk grubundaki hiçbir seçenek aktif görünmesin.
-        selectedDiff = "all";
-        document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
+        selectedStatus = "all";
+        document.querySelectorAll('#statusChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "all"));
       } else {
-        selectedDiff = "all";
-        document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "all"));
+        selectedStatus = "unsolved";
+        document.querySelectorAll('#statusChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "unsolved"));
       }
       btn.classList.toggle('active', selectedTrap);
       renderFilterCounts();
