@@ -798,12 +798,15 @@
       wrongCount++;
       wasCorrect = false;
     }
-    await bgysMarkSolved(q.id, wasCorrect);
+    // Skor sayaçlarını bulut kaydını beklemeden hemen güncelle.
     document.getElementById('okCount').textContent = correctCount;
     document.getElementById('noCount').textContent = wrongCount;
+    document.getElementById('liveScore').style.display = 'flex';
     document.getElementById('solutionToggle').classList.add('show');
     document.getElementById('nextBtn').classList.add('show');
-    saveProgress(i === q.correct);
+    // Geçmiş kaydı sayaçların çalışmasını engellemesin.
+    Promise.resolve().then(() => bgysMarkSolved(q.id, wasCorrect)).catch(e => console.warn('Çözüm geçmişi kaydedilemedi:', e));
+    try { saveProgress(i === q.correct); } catch(e) { console.warn('İlerleme kaydedilemedi:', e); }
   }
 
   document.getElementById('solutionToggle').addEventListener('click', () => {
