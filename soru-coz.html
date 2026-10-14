@@ -93,6 +93,16 @@ testBox.addEventListener("click",e=>{
   if(answered.has("test-"+q.id))return;answered.add("test-"+q.id);
   const ok=picked.value===q.answer;testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
   feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>';
+  const saveControls=document.createElement("div");saveControls.className="actions";
+  saveControls.innerHTML='<button class="btn soft" type="button" id="toggleFavorite">☆ Favorilere ekle</button><button class="btn soft" type="button" id="saveWrong">Yanlışlarım listesine kaydet</button>';
+  feedback.appendChild(saveControls);
+  const favoriteBtn=saveControls.querySelector("#toggleFavorite"),wrongBtn=saveControls.querySelector("#saveWrong");
+  const record={questionId:q.id,topic:q.topic,question:q.question,options:q.options,answer:q.answer,explanation:q.explanation,source:"soru-coz"};
+  async function findSaved(type){if(typeof bgysGetAll!=="function")return [];return (await bgysGetAll("favorilerYanlislar")).filter(x=>x.type===type&&x.questionId===q.id);}
+  (async()=>{try{if((await findSaved("favori")).length)favoriteBtn.textContent="★ Favorilerden çıkar";if((await findSaved("yanlis")).length)wrongBtn.textContent="Yanlışlarımda kayıtlı ✓";}catch(e){console.error(e);}})();
+  favoriteBtn.addEventListener("click",async()=>{try{const found=await findSaved("favori");if(found.length){await bgysDelete("favorilerYanlislar",found[0].id);favoriteBtn.textContent="☆ Favorilere ekle";}else{await bgysAdd("favorilerYanlislar",{...record,type:"favori",savedAt:Date.now()});favoriteBtn.textContent="★ Favorilerden çıkar";}}catch(e){alert("Kayıt yapılamadı. Girişini ve Firebase kurallarını kontrol et.");}});
+  wrongBtn.addEventListener("click",async()=>{try{const found=await findSaved("yanlis");if(!found.length)await bgysAdd("favorilerYanlislar",{...record,type:"yanlis",userAnswer:picked.value,savedAt:Date.now()});wrongBtn.textContent="Yanlışlarımda kayıtlı ✓";}catch(e){alert("Kayıt yapılamadı. Girişini ve Firebase kurallarını kontrol et.");}});
+
   document.getElementById("testCheck").disabled=true;document.getElementById("testNext").innerHTML='<button class="btn primary" id="testNextButton" type="button">Sonraki Soru →</button>';
  }
  if(e.target.id==="testNextButton"){testCurrent++;renderTest();}
@@ -100,4 +110,4 @@ testBox.addEventListener("click",e=>{
 });
 qaBox.addEventListener("click",e=>{if(e.target.id==="qaShowAnswer"){qaAnswerShown=true;renderQA();}if(e.target.id==="qaNext"){qaCurrent++;qaAnswerShown=false;renderQA();}if(e.target.id==="qaRestart"){qaCurrent=0;qaAnswerShown=false;renderQA();}});
 renderTopicButtons(testTopics,null,"test");renderTopicButtons(qaTopics,null,"qa");renderTest();renderQA();
-</script></body></html>
+<script src="db.js?v=20261014-5"></script><script>bgysRequireAuth();</script></body></html>
