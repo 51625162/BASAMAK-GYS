@@ -7,7 +7,7 @@
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero"><div class="eyebrow">Soru çalışma modülü</div><h1>Hazır sorularını çöz</h1><p>Sorular ve konu anlatımları Basamak GYS için tarafımdan hazırlanıp sisteme yüklenecek. Senin soru yazmana veya soruları tek tek kaydetmene gerek olmayacak. Bütün sorularda yalnızca A, B, C ve D seçenekleri kullanılacak.</p></section>
-<div class="grid"><section class="panel"><h2>İçerik yükleme durumu</h2><p class="hint">Soru havuzu, kanunlara ve konulara göre tarafımdan hazırlanıp projeye eklenecek. Senin soru yazmana veya soruları tek tek kaydetmene gerek olmayacak.</p><div class="result bad">Hazır soru havuzu bu ekrana henüz bağlanmadı. Kişisel soru kayıtlarında görülen Firebase izin hatası da giderilmeli.</div><p class="muted" style="margin-top:12px">Her soruda yalnızca A, B, C ve D seçenekleri, doğru cevap ve açıklama bulunacak.</p></section><section class="panel"><h2>Soru pratiği</h2><p class="hint">Yüklenecek soru havuzundaki soruları çöz; cevabı ve gerekçeyi kontrol et.</p><div id="practice" class="muted">Sorular yükleniyor…</div><div id="listStatus" class="status" role="status"></div></section></div></main>
+<section class="panel"><h2 id="progress">Soru 1</h2><p class="hint">Bir soru çöz, cevabını kontrol et; ardından “Sonraki Soru” ile devam et.</p><div id="practice" class="muted">Sorular yükleniyor…</div><div id="listStatus" class="status" role="status"></div></section></main>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const questions=[
@@ -50,7 +50,35 @@ const questions=[
 {id:"anayasa-036",topic:"1982 Anayasası · Madde 38",question:"Ceza sorumluluğunun şahsiliği ilkesi hangi maddede düzenlenir?",options:{A:"Madde 38",B:"Madde 35",C:"Madde 36",D:"Madde 40"},answer:"A",explanation:"Madde 38 suç ve cezalara ilişkin esasları; bunlar arasında ceza sorumluluğunun şahsiliğini de düzenler."},
 {id:"anayasa-037",topic:"1982 Anayasası · Madde 40",question:"Devletin işlemlerinde başvuru yollarını, mercileri ve süreleri belirtme yükümlülüğü hangi maddede yer alır?",options:{A:"Madde 36",B:"Madde 37",C:"Madde 39",D:"Madde 40"},answer:"D",explanation:"Madde 40 temel hak ve hürriyetlerin korunmasını ve başvuru yolları ile sürelerinin belirtilmesini düzenler."}];
 const box=document.getElementById("practice");
-function render(){box.innerHTML=questions.map((q,i)=>'<article class="question" data-q="'+q.id+'"><div class="qhead"><div><div class="tiny">'+esc(q.topic)+' · Soru '+(i+1)+'</div><p class="qtitle">'+esc(q.question)+'</p></div></div>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="ans-'+q.id+'" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn soft" type="button" data-check="'+q.id+'" style="margin-top:9px">Cevabı kontrol et</button><div data-result="'+q.id+'"></div></article>').join("");}
-box.addEventListener("click",e=>{const check=e.target.closest("[data-check]");if(!check)return;const q=questions.find(x=>x.id===check.dataset.check);const picked=box.querySelector('input[name="ans-'+q.id+'"]:checked');const out=box.querySelector('[data-result="'+q.id+'"]');if(!picked){out.innerHTML='<div class="result bad">Önce A, B, C veya D seçeneklerinden birini işaretle.</div>';return;}const ok=picked.value===q.answer;out.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+'<br><br>Açıklama: '+esc(q.explanation)+'</div>';});
+const progress=document.getElementById("progress");
+const status=document.getElementById("listStatus");
+let current=0;
+const answered=new Set();
+function render(){
+ if(current>=questions.length){
+  progress.textContent="Tamamlandı";
+  box.innerHTML='<div class="result good">Tebrikler! '+questions.length+' sorunun tamamına geldin.</div><button class="btn primary" id="restart">Baştan başla</button>';
+  return;
+ }
+ const q=questions[current];
+ progress.textContent='Soru '+(current+1)+' / '+questions.length;
+ box.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" type="button" id="checkAnswer">Cevabı kontrol et</button><div id="feedback" aria-live="polite"></div><div id="nextWrap"></div></article>';
+ status.className="status";status.textContent="";
+}
+box.addEventListener("click",e=>{
+ if(e.target.id==="checkAnswer"){
+  const q=questions[current],picked=box.querySelector('input[name="answer"]:checked'),feedback=document.getElementById("feedback"),next=document.getElementById("nextWrap");
+  if(!picked){feedback.innerHTML='<div class="result bad">Önce A, B, C veya D seçeneklerinden birini işaretle.</div>';return;}
+  if(answered.has(q.id))return;
+  answered.add(q.id);
+  const ok=picked.value===q.answer;
+  box.querySelectorAll('input[name="answer"]').forEach(input=>input.disabled=true);
+  feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+ '<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>';
+  document.getElementById("checkAnswer").disabled=true;
+  next.innerHTML='<button class="btn primary" type="button" id="nextQuestion">'+(current===questions.length-1?'Sonucu bitir':'Sonraki Soru →')+'</button>';
+ }
+ if(e.target.id==="nextQuestion"){current++;render();}
+ if(e.target.id==="restart"){current=0;answered.clear();render();}
+});
 render();
 </script></body></html>
