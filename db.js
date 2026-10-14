@@ -871,22 +871,48 @@ function bgysRestoreFromFile(file) {
 // NOT: Önceden bu bilgi sadece localStorage'da (cihaza özel) tutuluyordu, bu yüzden
 // telefonda çözülen soru bilgisayarda "çözülmemiş" görünüyordu. Artık Firestore'da,
 // diğer tüm içerikler gibi kullanıcının hesabına bağlı olarak saklanıyor.
+const BGYS_LOCAL_SOLVED_PREFIX = "bgys-local-cozulen:";
+
+function bgysGetLocalSolvedMap() {
+  try {
+    const raw = localStorage.getItem(BGYS_LOCAL_SOLVED_PREFIX + bgysCurrentModul());
+    const map = raw ? JSON.parse(raw) : {};
+    return map && typeof map === "object" && !Array.isArray(map) ? map : {};
+  } catch (e) { return {}; }
+}
+
+function bgysSetLocalSolvedMap(map) {
+  try { localStorage.setItem(BGYS_LOCAL_SOLVED_PREFIX + bgysCurrentModul(), JSON.stringify(map)); }
+  catch (e) { console.warn("Yerel çözüm geçmişi kaydedilemedi.", e); }
+}
+
 async function bgysGetSolvedMap() {
-  const all = await bgysGetAll("cozulenSorular");
-  const map = {};
-  all.forEach(r => { map[r.id] = r; });
+  const map = bgysGetLocalSolvedMap();
+  try {
+    const all = await bgysGetAll("cozulenSorular");
+    all.forEach(r => {
+      if (!map[r.id] || (r.solvedAt || 0) > (map[r.id].solvedAt || 0)) map[r.id] = r;
+    });
+  } catch (e) { console.warn("Bulut çözüm geçmişi alınamadı; yerel kayıtlar kullanılacak.", e); }
   return map;
 }
 
 async function bgysMarkSolved(questionId, wasCorrect) {
-  await bgysInitFirebase();
-  let user = bgysCurrentUser();
-  if (!user) user = await bgysWaitForAuth();
-  if (!user) return;
-  const ref = bgysUserCollection("cozulenSorular").doc(String(questionId));
-  const doc = await ref.get();
-  const oncekiSayi = (doc.exists && doc.data().count) || 0;
-  await ref.set({ correct: !!wasCorrect, solvedAt: Date.now(), count: oncekiSayi + 1 });
+  const map = bgysGetLocalSolvedMap();
+  const previous = map[questionId] || {};
+  const record = { id: String(questionId), correct: !!wasCorrect, solvedAt: Date.now(), count: (previous.count || 0) + 1 };
+  map[questionId] = record;
+  bgysSetLocalSolvedMap(map);
+  try {
+    await bgysInitFirebase();
+    let user = bgysCurrentUser();
+    if (!user) user = await bgysWaitForAuth();
+    if (!user) return;
+    const ref = bgysUserCollection("cozulenSorular").doc(String(questionId));
+    const doc = await ref.get();
+    const oncekiSayi = (doc.exists && doc.data().count) || 0;
+    await ref.set({ correct: !!wasCorrect, solvedAt: record.solvedAt, count: oncekiSayi + 1 });
+  } catch (e) { console.warn("Çözüm geçmişi buluta eşitlenemedi; yerel kayıt korundu.", e); }
 }
 
 // map, önceden bgysGetSolvedMap() ile çekilmiş olmalı (her soru için tekrar tekrar
