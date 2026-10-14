@@ -424,7 +424,7 @@
   // İlk açılışta yerleşik soru havuzunun sayısını göster.
   document.getElementById('totalCount').textContent = mergedBank.length;
   document.getElementById('bankInfo').textContent = mergedBank.length;
-  document.getElementById('trapCount').textContent = mergedBank.filter(q => q.trap === true).length;
+  // Tuzak filtresi arayüzden kaldırıldı; bu nedenle trapCount öğesi yok.
   document.getElementById('countChips').querySelector('[data-val="999"]').textContent = 'Tümü (' + mergedBank.length + ')';
 
   const modulInfo = bgysModulInfo();
@@ -559,7 +559,7 @@
         const label = btn.dataset.baseLabel || (btn.dataset.baseLabel = btn.textContent.replace(/\s*\(\d+\)\s*$/, '').trim());
         btn.textContent = label + ' (' + count + ')';
       });
-      document.getElementById('trapCount').textContent = trapPool.length;
+      // Tuzak filtresi arayüzden kaldırıldığı için sayaç güncellenmiyor.
       document.getElementById('totalCount').textContent = eligible.length;
       document.getElementById('bankInfo').textContent = eligible.length;
       document.getElementById('solvedCount').textContent = base.filter(q => !!solvedMap[q.id]).length;
