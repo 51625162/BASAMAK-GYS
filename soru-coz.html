@@ -947,6 +947,42 @@
   }, true);
 })();
 </script>
+<script>
+(function(){
+  document.addEventListener('click', async function(e){
+    var btn=e.target && e.target.closest ? e.target.closest('#nextBtn') : null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if(btn.dataset.busy==='1')return;
+    btn.dataset.busy='1';
+    var old=btn.textContent;
+    btn.disabled=true;
+    btn.textContent='Sonraki soru yükleniyor...';
+    try{
+      if(!Array.isArray(quiz) || quiz.length===0){
+        alert('Soru oturumu bulunamadı. Soru Çöz sayfasına dönüp Başla düğmesine tekrar basın.');
+        return;
+      }
+      qIdx++;
+      if(qIdx>=quiz.length){
+        showResults();
+      }else{
+        await renderQuestion();
+        document.getElementById('quizScreen').scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    }catch(err){
+      console.error('Sonraki soru yükleme hatası:',err);
+      alert('Sonraki soru açılırken hata oluştu: '+(err && err.message ? err.message : err));
+      if(qIdx>=quiz.length)qIdx=quiz.length-1;
+    }finally{
+      btn.dataset.busy='0';
+      btn.disabled=false;
+      btn.textContent=old==='Sonraki soru yükleniyor...'?'Sonraki Soru →':old;
+    }
+  }, true);
+})();
+</script>
 
 </body>
 </html>
