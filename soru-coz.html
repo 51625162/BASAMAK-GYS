@@ -7,7 +7,7 @@
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero"><div class="eyebrow">Soru çalışma modülü</div><h1>Hazır sorularını çöz</h1><p>Sorular ve konu anlatımları Basamak GYS için tarafımdan hazırlanıp sisteme yüklenecek. Senin soru yazmana veya soruları tek tek kaydetmene gerek olmayacak. Bütün sorularda yalnızca A, B, C ve D seçenekleri kullanılacak.</p></section>
-<section class="panel"><h2>Soru konusunu seç</h2><p class="hint">Anayasa soruları tek başlık altında birleştirildi.</p><div id="topicSelect" class="topic-list"></div><div class="divider"></div><h2>Çalışma şeklini seç</h2><div class="mode-list"><button type="button" class="mode-btn active" data-mode="test">Test çöz</button><button type="button" class="mode-btn" data-mode="qa">Soru – Cevap</button></div><div class="divider"></div><h2 id="progress">Konu seçilmedi</h2><div id="practice" class="muted">Yukarıdan bir konu seç.</div><div id="listStatus" class="status" role="status"></div></section></main>
+<section class="panel"><h2>Test Çöz</h2><p class="hint">Test alanı bağımsızdır. Anayasa testini seçip soruları A, B, C, D seçenekleriyle çöz.</p><div id="testTopicSelect" class="topic-list"></div><div class="divider"></div><h2 id="testProgress">Test için konu seç</h2><div id="testPractice" class="muted">Test alanından bir konu seç.</div></section><section class="panel" style="margin-top:15px"><h2>Soru – Cevap</h2><p class="hint">Bu alan testten bağımsızdır. Burada soruyu okuyup cevabı ayrı düğmeyle açabilirsin.</p><div id="qaTopicSelect" class="topic-list"></div><div class="divider"></div><h2 id="qaProgress">Soru – Cevap için konu seç</h2><div id="qaPractice" class="muted">Soru – Cevap alanından bir konu seç.</div></section></main>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const questions=[
@@ -52,49 +52,45 @@ const questions=[
 const topicGroups=[
 {id:"anayasa",title:"1982 Türkiye Cumhuriyeti Anayasası",min:1,max:56}
 ];
-const box=document.getElementById("practice");
-const progress=document.getElementById("progress");
-const status=document.getElementById("listStatus");
-const topicSelect=document.getElementById("topicSelect");
-let selectedGroup=null,current=0,mode="test",answerShown=false;
+const testBox=document.getElementById("testPractice"),qaBox=document.getElementById("qaPractice");
+const testProgress=document.getElementById("testProgress"),qaProgress=document.getElementById("qaProgress");
+const testTopics=document.getElementById("testTopicSelect"),qaTopics=document.getElementById("qaTopicSelect");
 const answered=new Set();
-function getGroupQuestions(){if(!selectedGroup)return [];return questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=selectedGroup.min&&n<=selectedGroup.max;});}
-function renderTopics(){
- topicSelect.innerHTML=topicGroups.map((g,i)=>'<button class="topic-btn '+(selectedGroup&&selectedGroup.id===g.id?'active':'')+'" type="button" data-topic="'+g.id+'">'+g.title+'<div class="tiny">'+questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);return m&&Number(m[1])>=g.min&&Number(m[1])<=g.max;}).length+' soru</div></button>').join("");
+function getQuestions(group){if(!group)return [];return questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=group.min&&n<=group.max;});}
+function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+getQuestions(g).length+' soru</div></button>').join("");}
+function renderTest(){
+ const list=getQuestions(testGroup);
+ if(!testGroup){testProgress.textContent="Test için konu seç";testBox.innerHTML='<p class="muted">Test alanından bir konu seç.</p>';return;}
+ if(!list.length){testProgress.textContent=testGroup.title;testBox.innerHTML='<div class="result bad">Bu konuda henüz test sorusu yok.</div>';return;}
+ if(testCurrent>=list.length){testProgress.textContent=testGroup.title+' · Tamamlandı';testBox.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.</div><button class="btn primary" id="testRestart">Testi yeniden başlat</button>';return;}
+ const q=list[testCurrent];
+ testProgress.textContent=testGroup.title+' · Soru '+(testCurrent+1)+' / '+list.length;
+ testBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="test-answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" id="testCheck" type="button">Cevabı kontrol et</button><div id="testFeedback"></div><div id="testNext"></div></article>';
 }
-function render(){
- const list=getGroupQuestions();
- if(!selectedGroup){progress.textContent="Konu seçilmedi";box.innerHTML='<p class="muted">Yukarıdan bir konu seç.</p>';return;}
- if(!list.length){progress.textContent=selectedGroup.title;box.innerHTML='<div class="result bad">Bu konu için soru havuzu henüz eklenmedi. Sorular aynı sisteme eklenecek.</div>';return;}
- if(current>=list.length){progress.textContent=selectedGroup.title+' · Tamamlandı';box.innerHTML='<div class="result good">Bu konudaki '+list.length+' soruyu tamamladın.</div><button class="btn primary" id="restart">Bu konuyu yeniden çöz</button>';return;}
- const q=list[current];
- progress.textContent=selectedGroup.title+' · Soru '+(current+1)+' / '+list.length;
- if(mode==="qa"){
-  const answer=answerShown?'<div class="qa-answer"><b>Cevap:</b> '+q.answer+') '+esc(q.options[q.answer])+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>':'';
-  box.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle"><b>Soru:</b> '+esc(q.question)+'</p>'+answer+(answerShown?'<button class="btn primary" type="button" id="nextQuestion">Sonraki Soru →</button>':'<button class="btn primary" type="button" id="showAnswer">Cevabı göster</button>')+'</article>';
-  return;
- }
- box.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" type="button" id="checkAnswer">Cevabı kontrol et</button><div id="feedback" aria-live="polite"></div><div id="nextWrap"></div></article>';
+function renderQA(){
+ const list=getQuestions(qaGroup);
+ if(!qaGroup){qaProgress.textContent="Soru – Cevap için konu seç";qaBox.innerHTML='<p class="muted">Soru – Cevap alanından bir konu seç.</p>';return;}
+ if(!list.length){qaProgress.textContent=qaGroup.title;qaBox.innerHTML='<div class="result bad">Bu konuda henüz soru-cevap içeriği yok.</div>';return;}
+ if(qaCurrent>=list.length){qaProgress.textContent=qaGroup.title+' · Tamamlandı';qaBox.innerHTML='<div class="result good">Soru – Cevap tamamlandı: '+list.length+' soru.</div><button class="btn primary" id="qaRestart">Baştan başla</button>';return;}
+ const q=list[qaCurrent];
+ qaProgress.textContent=qaGroup.title+' · Soru '+(qaCurrent+1)+' / '+list.length;
+ const answer=qaAnswerShown?'<div class="qa-answer"><b>Cevap:</b> '+q.answer+') '+esc(q.options[q.answer])+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>':'';
+ qaBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle"><b>Soru:</b> '+esc(q.question)+'</p>'+answer+(qaAnswerShown?'<button class="btn primary" id="qaNext" type="button">Sonraki Soru →</button>':'<button class="btn primary" id="qaShowAnswer" type="button">Cevabı Göster</button>')+'</article>';
 }
-document.querySelectorAll("[data-mode]").forEach(btn=>btn.addEventListener("click",()=>{mode=btn.dataset.mode;answerShown=false;current=0;document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b===btn));render();}));
-topicSelect.addEventListener("click",e=>{const b=e.target.closest("[data-topic]");if(!b)return;selectedGroup=topicGroups.find(g=>g.id===b.dataset.topic);current=0;answerShown=false;renderTopics();render();});
-box.addEventListener("click",e=>{
- if(e.target.id==="showAnswer"){answerShown=true;render();return;}
- if(e.target.id==="nextQuestion"){current++;answerShown=false;render();return;}
- if(e.target.id==="restart"){current=0;answerShown=false;render();return;}
- if(e.target.id==="checkAnswer"){
-  const q=getGroupQuestions()[current],picked=box.querySelector('input[name="answer"]:checked'),feedback=document.getElementById("feedback"),next=document.getElementById("nextWrap");
-  if(!picked){feedback.innerHTML='<div class="result bad">Önce A, B, C veya D seçeneklerinden birini işaretle.</div>';return;}
-  if(answered.has(q.id))return;
-  answered.add(q.id);
-  const ok=picked.value===q.answer;
-  box.querySelectorAll('input[name="answer"]').forEach(input=>input.disabled=true);
+testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;renderTopicButtons(testTopics,testGroup,"test");renderTest();});
+qaTopics.addEventListener("click",e=>{const b=e.target.closest("[data-qa-topic]");if(!b)return;qaGroup=topicGroups.find(g=>g.id===b.dataset.qaTopic);qaCurrent=0;qaAnswerShown=false;renderTopicButtons(qaTopics,qaGroup,"qa");renderQA();});
+testBox.addEventListener("click",e=>{
+ if(e.target.id==="testCheck"){
+  const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
+  if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}
+  if(answered.has("test-"+q.id))return;answered.add("test-"+q.id);
+  const ok=picked.value===q.answer;testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
   feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>';
-  document.getElementById("checkAnswer").disabled=true;
-  next.innerHTML='<button class="btn primary" type="button" id="nextQuestion">'+(current===getGroupQuestions().length-1?'Konuyu bitir':'Sonraki Soru →')+'</button>';
+  document.getElementById("testCheck").disabled=true;document.getElementById("testNext").innerHTML='<button class="btn primary" id="testNextButton" type="button">Sonraki Soru →</button>';
  }
- if(e.target.id==="nextQuestion"){current++;render();}
- if(e.target.id==="restart"){current=0;render();}
+ if(e.target.id==="testNextButton"){testCurrent++;renderTest();}
+ if(e.target.id==="testRestart"){testCurrent=0;renderTest();}
 });
-renderTopics();render();
+qaBox.addEventListener("click",e=>{if(e.target.id==="qaShowAnswer"){qaAnswerShown=true;renderQA();}if(e.target.id==="qaNext"){qaCurrent++;qaAnswerShown=false;renderQA();}if(e.target.id==="qaRestart"){qaCurrent=0;qaAnswerShown=false;renderQA();}});
+renderTopicButtons(testTopics,null,"test");renderTopicButtons(qaTopics,null,"qa");renderTest();renderQA();
 </script></body></html>
