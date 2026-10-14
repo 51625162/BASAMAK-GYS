@@ -621,6 +621,14 @@
   document.querySelectorAll('#trapChips .chip').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedTrap = !selectedTrap;
+      // Tuzak seçilince zorluk seçimini kapat; aynı anda yalnızca biri aktif olsun.
+      if (selectedTrap) {
+        selectedDiff = "all";
+        document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
+      } else {
+        selectedDiff = "all";
+        document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "all"));
+      }
       btn.classList.toggle('active', selectedTrap);
       renderFilterCounts();
     });
@@ -652,6 +660,9 @@
       document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
       c.classList.add('active');
       selectedDiff = c.dataset.val;
+      // Kolay/Orta/Zor seçilince tuzak filtresini kapat.
+      selectedTrap = false;
+      document.querySelectorAll('#trapChips .chip').forEach(x => x.classList.remove('active'));
       renderFilterCounts();
     });
   });
