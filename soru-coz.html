@@ -890,6 +890,51 @@
   }, true);
 })();
 </script>
+<script>
+(function(){
+  document.addEventListener('click', async function(e){
+    var btn=e.target && e.target.closest ? e.target.closest('#startBtn') : null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var old=btn.textContent;
+    btn.disabled=true; btn.textContent='Yükleniyor...';
+    try{
+      var pool=mergedBank.slice();
+      var topicSelect=document.getElementById('topicSelect');
+      if(topicSelect && topicSelect.value!=='all'){
+        var names=JSON.parse(topicSelect.dataset.topicNames||'[]');
+        var topicName=names[Number(topicSelect.value)];
+        pool=pool.filter(function(q){return q.kisim===topicName;});
+      }
+      var solvedMap={};
+      try{solvedMap=await bgysGetSolvedMap();}catch(_){}
+      if(selectedStatus==='unsolved')pool=pool.filter(function(q){return !solvedMap[q.id];});
+      else if(selectedStatus==='solved')pool=pool.filter(function(q){return !!solvedMap[q.id];});
+      if(selectedSource!=='all')pool=pool.filter(function(q){return q.source===selectedSource;});
+      pool=shuffle(pool);
+      var wanted=Number(selectedCount)||999;
+      quiz=pool.slice(0,Math.min(wanted,pool.length));
+      if(!quiz.length){
+        alert('Bu seçimlerle eşleşen soru bulunamadı. Durum bölümünden Hepsi seçeneğini deneyin.');
+        return;
+      }
+      qIdx=0; correctCount=0; wrongCount=0;
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      document.getElementById('liveScore').style.display='flex';
+      document.getElementById('qTotal').textContent=quiz.length;
+      await renderQuestion();
+    }catch(err){
+      console.error('Başla yedek işlemi:',err);
+      alert('Soru başlatılırken hata oluştu: '+(err && err.message ? err.message : err));
+    }finally{
+      btn.disabled=false; btn.textContent=old;
+    }
+  }, true);
+})();
+</script>
 
 </body>
 </html>
