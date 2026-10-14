@@ -60,8 +60,11 @@ const testBox=document.getElementById("testPractice"),qaBox=document.getElementB
 const testProgress=document.getElementById("testProgress"),qaProgress=document.getElementById("qaProgress");
 const testTopics=document.getElementById("testTopicSelect"),qaTopics=document.getElementById("qaTopicSelect");
 const answered=new Set();
+// Soru-Cevap içerikleri test sorularından bağımsız tutulur; birlikte eklenecek.
+const qaQuestions=[];
+function getQAQuestions(group){if(!group)return [];return qaQuestions.filter(q=>q.groupId===group.id);}
 function getQuestions(group){if(!group)return [];return questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=group.min&&n<=group.max;});}
-function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+getQuestions(g).length+' soru</div></button>').join("");}
+function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
 function renderTest(){
  const list=getQuestions(testGroup);
  if(!testGroup){testProgress.textContent="Test için konu seç";testBox.innerHTML='<p class="muted">Test alanından bir konu seç.</p>';return;}
@@ -72,9 +75,9 @@ function renderTest(){
  testBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="test-answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" id="testCheck" type="button">Cevabı kontrol et</button><div id="testFeedback"></div><div id="testNext"></div></article>';
 }
 function renderQA(){
- const list=getQuestions(qaGroup);
+ const list=getQAQuestions(qaGroup);
  if(!qaGroup){qaProgress.textContent="Soru – Cevap için konu seç";qaBox.innerHTML='<p class="muted">Soru – Cevap alanından bir konu seç.</p>';return;}
- if(!list.length){qaProgress.textContent=qaGroup.title;qaBox.innerHTML='<div class="result bad">Bu konuda henüz soru-cevap içeriği yok.</div>';return;}
+ if(!list.length){qaProgress.textContent=qaGroup.title+' · İçerik hazırlanacak';qaBox.innerHTML='<div class="result">Bu konu için Soru–Cevap içeriğini birlikte hazırlayıp buraya ekleyeceğiz. Test soruları bu alana otomatik kopyalanmaz.</div>';return;}
  if(qaCurrent>=list.length){qaProgress.textContent=qaGroup.title+' · Tamamlandı';qaBox.innerHTML='<div class="result good">Soru – Cevap tamamlandı: '+list.length+' soru.</div><button class="btn primary" id="qaRestart">Baştan başla</button>';return;}
  const q=list[qaCurrent];
  qaProgress.textContent=qaGroup.title+' · Soru '+(qaCurrent+1)+' / '+list.length;
