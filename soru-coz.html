@@ -708,18 +708,9 @@
         const topicName = topicNames[Number(selectedTopic)];
         pool = pool.filter(q => q.kisim === topicName);
       }
-      if(selectedDiff !== "all"){
-        pool = pool.filter(q => q.difficulty === parseInt(selectedDiff));
-      } else {
-        pool = pool.slice().sort((a,b) => a.difficulty - b.difficulty);
-      }
-      if(selectedDiff === "all"){
-        const groups = {1:[],2:[],3:[]};
-        pool.forEach(q => groups[q.difficulty].push(q));
-        pool = [...shuffle(groups[1]), ...shuffle(groups[2]), ...shuffle(groups[3])];
-      } else {
-        pool = shuffle(pool);
-      }
+      // Zorluk seçimi arayüzden kaldırıldı: bütün uygun soruları karıştır.
+      // Havuzdaki her sorunun zorluk değerine bağlı olmadan çözüm başlasın.
+      pool = shuffle(pool);
       quiz = pool.slice(0, Math.min(selectedCount, pool.length));
       if(quiz.length === 0){
         alert("Bu filtrelerle eşleşen soru bulunamadı.");
