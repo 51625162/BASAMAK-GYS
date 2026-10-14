@@ -871,18 +871,26 @@ function bgysRestoreFromFile(file) {
 // NOT: Önceden bu bilgi sadece localStorage'da (cihaza özel) tutuluyordu, bu yüzden
 // telefonda çözülen soru bilgisayarda "çözülmemiş" görünüyordu. Artık Firestore'da,
 // diğer tüm içerikler gibi kullanıcının hesabına bağlı olarak saklanıyor.
+// Tarayicidaki kisisel kayitlar hesap UID'sine gore ayrilir.
+function bgysLocalUserKey() {
+  try {
+    const user = bgysCurrentUser();
+    return user && user.uid ? user.uid : "oturum-yok";
+  } catch (e) { return "oturum-yok"; }
+}
+
 const BGYS_LOCAL_SOLVED_PREFIX = "bgys-local-cozulen:";
 
 function bgysGetLocalSolvedMap() {
   try {
-    const raw = localStorage.getItem(BGYS_LOCAL_SOLVED_PREFIX + bgysCurrentModul());
+    const raw = localStorage.getItem(BGYS_LOCAL_SOLVED_PREFIX + bgysLocalUserKey() + ":" + bgysCurrentModul());
     const map = raw ? JSON.parse(raw) : {};
     return map && typeof map === "object" && !Array.isArray(map) ? map : {};
   } catch (e) { return {}; }
 }
 
 function bgysSetLocalSolvedMap(map) {
-  try { localStorage.setItem(BGYS_LOCAL_SOLVED_PREFIX + bgysCurrentModul(), JSON.stringify(map)); }
+  try { localStorage.setItem(BGYS_LOCAL_SOLVED_PREFIX + bgysLocalUserKey() + ":" + bgysCurrentModul(), JSON.stringify(map)); }
   catch (e) { console.warn("Yerel çözüm geçmişi kaydedilemedi.", e); }
 }
 
@@ -964,7 +972,7 @@ const BGYS_LOCAL_FAVORITES_PREFIX = "bgys-local-favoriler:";
 
 function bgysGetLocalFavoriteIds() {
   try {
-    const raw = localStorage.getItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysCurrentModul());
+    const raw = localStorage.getItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysLocalUserKey() + ":" + bgysCurrentModul());
     const ids = raw ? JSON.parse(raw) : [];
     return Array.isArray(ids) ? ids.filter(id => typeof id === "string") : [];
   } catch (e) { return []; }
@@ -972,7 +980,7 @@ function bgysGetLocalFavoriteIds() {
 
 function bgysSetLocalFavoriteIds(ids) {
   try {
-    localStorage.setItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysCurrentModul(), JSON.stringify([...new Set(ids)]));
+    localStorage.setItem(BGYS_LOCAL_FAVORITES_PREFIX + bgysLocalUserKey() + ":" + bgysCurrentModul(), JSON.stringify([...new Set(ids)]));
   } catch (e) {
     throw new Error("Tarayıcı favorileri kaydedemedi. Depolama alanını kontrol et.");
   }
