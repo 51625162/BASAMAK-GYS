@@ -445,7 +445,7 @@
       if (mevcutSecim !== 'all' && konular[Number(mevcutSecim)]) topicSelect.value = mevcutSecim;
       const topicOptions = document.getElementById('topicOptions');
       topicOptions.innerHTML = '<button type="button" class="topic-option' + (topicSelect.value === 'all' ? ' active' : '') + '" data-topic="all"><span class="topic-card-icon">📚</span><span class="topic-card-copy"><strong>Tüm konular</strong><small>' + mergedBank.length + ' sorunun tamamı</small></span><span class="topic-card-arrow">→</span></button>' +
-        konular.map((k, index) => '<button type="button" class="topic-option' + (topicSelect.value === String(index) ? ' active' : '') + '" data-topic="' + index + '"><span class="topic-card-icon">📘</span><span class="topic-card-copy"><strong>' + escapeHtml(k) + '</strong><small>' + konuSayilariGecici[k] + ' soru</small></span><span class="topic-card-arrow">→</span></button>').join('');
+        konular.map((k, index) => '<button type="button" class="topic-option' + (topicSelect.value === String(index) ? ' active' : '') + '" data-topic="' + index + '"><span class="topic-card-icon">📘</span><span class="topic-card-copy"><strong>' + escapeTopicHtml(k) + '</strong><small>' + konuSayilariGecici[k] + ' soru</small></span><span class="topic-card-arrow">→</span></button>').join('');
       updateTopicSearch();
       document.getElementById('konuOzet').textContent = topicSelect.value === 'all' ? 'Tüm konu başlıkları seçili. İstersen aşağıdaki kartlardan belirli bir maddeyi seçebilirsin.' : ((konular[Number(topicSelect.value)] || 'Seçili konu') + ' başlığı seçili. Soru sayısı ve filtreler aşağıda güncellenecek.');
       updateSolvedCount();
@@ -555,6 +555,9 @@
     });
   }
 
+  function escapeTopicHtml(value){
+    return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
   function updateTopicSearch(){
     const input=document.getElementById('topicSearch');
     const grid=document.getElementById('topicOptions');
