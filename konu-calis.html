@@ -55,7 +55,38 @@ h1,h2,h3{font-family:Sora,Inter,sans-serif;letter-spacing:-.02em}h1{font-size:cl
 .law-line.law-meta{color:#52657e;font-size:.86rem}
 .law-line:not(.law-blank):not(.law-part):not(.law-chapter):not(.law-article):not(.law-heading):not(.law-footnote):not(.law-table-title):not(.law-meta){border-left-color:#d9e3ef}
 .detail .law-document p{margin:0}
-@media(max-width:650px){.law-document{padding:10px;border-radius:13px}.law-line{font-size:.84rem;line-height:1.7;padding-left:8px;padding-right:6px}.law-document-head{padding:13px}.law-document-head strong{font-size:.95rem}}
+
+.law-document{--law-font:.94rem;position:relative;background:linear-gradient(180deg,#f4f8ff 0%,#f8fbff 100%);box-shadow:0 14px 35px #17365d12}
+.law-document-head{background:linear-gradient(115deg,#102b56,#174b75 70%,#0f766e);box-shadow:0 8px 18px #102b5624}
+.law-document-head .law-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#ffffff20}
+.law-study-tools{position:sticky;top:68px;z-index:2;display:grid;grid-template-columns:minmax(160px,1fr) auto;gap:10px;padding:12px;background:#fff;border:1px solid #dce7f3;border-radius:13px;box-shadow:0 7px 20px #17365d10;margin:0 0 18px}
+.law-search-wrap{display:flex;align-items:center;gap:8px;background:#f2f6fb;border:1px solid #dce6f0;border-radius:10px;padding:0 11px;min-width:0}
+.law-search-wrap span{font-size:1rem}
+.law-search-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;padding:10px 0;color:#17365d;font:inherit;font-size:.86rem}
+.law-tool-buttons{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.law-tool-buttons button{border:1px solid #dce6f0;background:#f5f8fc;color:#17365d;border-radius:9px;padding:8px 10px;font-weight:800;font-size:.8rem}
+.law-tool-buttons button:hover{background:#e2efff;border-color:#9bbce8}
+.law-search-status{grid-column:1/-1;color:#5b7186;font-size:.77rem;min-height:14px}
+.law-line{font-size:var(--law-font);transition:background .15s}
+.law-line.law-article{box-shadow:0 3px 9px #17365d08}
+.law-line.law-part{box-shadow:0 5px 12px #0f766e20}
+.law-line.law-chapter{box-shadow:0 3px 9px #2563eb10}
+.law-document.law-focus{background:#fff;border-color:#d6e0ea;box-shadow:none}
+.law-document.law-focus .law-document-head{display:none}
+.law-document.law-focus .law-study-tools{top:8px}
+.law-line.law-hidden{display:none}
+.law-document .law-line.law-body{color:#334b64}
+.law-document .law-line.law-article::before{content:"⚖ ";font-size:.85em}
+.law-document .law-line.law-part::before{content:"✦ ";opacity:.85}
+@media(max-width:650px){
+ .law-document{padding:10px;border-radius:13px}
+ .law-line{font-size:var(--law-font);line-height:1.7;padding-left:8px;padding-right:6px}
+ .law-document-head{padding:13px}
+ .law-document-head strong{font-size:.95rem}
+ .law-study-tools{top:58px;grid-template-columns:1fr;padding:9px;gap:8px}
+ .law-tool-buttons{justify-content:flex-start}
+ .law-tool-buttons button{padding:8px 9px}
+}
 
 </style>
 </head>
@@ -108,7 +139,7 @@ const topics={
 let editingId=null;
 function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+tab));if(tab==='notlar')renderNotes();}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-function openTopic(id){const t=topics[id];if(!t)return;document.getElementById('topicContent').innerHTML='<h2>'+t.title+'</h2><p>'+t.intro+'</p>'+t.sections.map((s,i)=>'<h3>'+(i+1)+'. '+s[0]+'</h3>'+(id==='5402'?formatLawText(s[1]):'<p>'+s[1]+'</p>')).join('');document.getElementById('topicDetail').style.display='block';document.getElementById('topicDetail').scrollIntoView({behavior:'smooth',block:'start'});}
+function openTopic(id){const t=topics[id];if(!t)return;document.getElementById('topicContent').innerHTML='<h2>'+t.title+'</h2><p>'+t.intro+'</p>'+t.sections.map((s,i)=>'<h3>'+(i+1)+'. '+s[0]+'</h3>'+(id==='5402'?formatLawText(s[1]):'<p>'+s[1]+'</p>')).join('');document.getElementById('topicDetail').style.display='block';if(id==='5402')initLawStudyTools();document.getElementById('topicDetail').scrollIntoView({behavior:'smooth',block:'start'});}
 
 function formatLawText(text){
  const lines=String(text||'').split('\n');
@@ -126,7 +157,25 @@ function formatLawText(text){
    else if(/^\d+\s*$/.test(raw)||/^5\/4\/20\d\d tarihli/.test(raw)||/^\s*\d+\s/.test(line)&&raw.length>80) cls='law-footnote';
    return '<div class="law-line '+cls+'">'+escapeHtml(line)+'</div>';
  }).join('');
- return '<div class="law-document"><div class="law-document-head"><span class="law-icon">⚖️</span><div><strong>5402 Sayılı Kanun</strong><small>Tam metin · Bölümler ve maddeler renklerle ayrılmıştır</small></div></div>'+html+'</div>';
+ return '<div class="law-document" id="lawDocument"><div class="law-document-head"><span class="law-icon">⚖️</span><div><strong>5402 Sayılı Kanun</strong><small>Akıllı çalışma alanı · Tam metin, madde madde düzenlenmiştir</small></div></div><div class="law-study-tools"><label class="law-search-wrap"><span>🔎</span><input id="lawSearch" type="search" placeholder="Madde, kavram veya kelime ara..." aria-label="Kanun metninde ara"></label><div class="law-tool-buttons"><button type="button" id="lawSmaller" aria-label="Yazıyı küçült">A−</button><button type="button" id="lawLarger" aria-label="Yazıyı büyüt">A+</button><button type="button" id="lawFocus">🎯 Odak modu</button></div><div class="law-search-status" id="lawSearchStatus">Tam metin · Arama yapmak için bir kelime yaz</div></div>'+html+'</div>';
+}
+
+
+function initLawStudyTools(){
+ const doc=document.getElementById('lawDocument');if(!doc)return;
+ const search=document.getElementById('lawSearch'),status=document.getElementById('lawSearchStatus');
+ const lines=Array.from(doc.querySelectorAll('.law-line'));
+ const updateSearch=()=>{
+  const q=(search.value||'').trim().toLocaleLowerCase('tr-TR');let shown=0;
+  lines.forEach(line=>{const match=!q||line.textContent.toLocaleLowerCase('tr-TR').includes(q);line.classList.toggle('law-hidden',!match);if(match&&line.textContent.trim())shown++;});
+  status.textContent=q?(shown+' satır eşleşti · '+(shown?'Arama sonuçları gösteriliyor':'Farklı bir kelime dene')):'Tam metin · '+lines.filter(x=>x.textContent.trim()).length+' satır';
+ };
+ search.addEventListener('input',updateSearch);
+ let fontSize=.94;
+ document.getElementById('lawSmaller').addEventListener('click',()=>{fontSize=Math.max(.76,fontSize-.05);doc.style.setProperty('--law-font',fontSize.toFixed(2)+'rem');});
+ document.getElementById('lawLarger').addEventListener('click',()=>{fontSize=Math.min(1.2,fontSize+.05);doc.style.setProperty('--law-font',fontSize.toFixed(2)+'rem');});
+ document.getElementById('lawFocus').addEventListener('click',e=>{const on=doc.classList.toggle('law-focus');e.currentTarget.textContent=on?'🌤 Normal görünüm':'🎯 Odak modu';});
+ updateSearch();
 }
 
 function closeTopic(){document.getElementById('topicDetail').style.display='none';}
