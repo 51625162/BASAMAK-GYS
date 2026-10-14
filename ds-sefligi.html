@@ -119,58 +119,11 @@
   <div class="icon">🗂️</div>
   <div>
     <h1>DS Şefliği Bölümü</h1>
-    <p>Soru çözerek hazırlığını tamamla.</p>
+    <p>Denetimli Serbestlik Şefliği</p>
   </div>
 </section>
 
-<a href="performans.html?modul=ds-sefligi" style="text-decoration:none;color:inherit;display:block;" title="Detaylı performans grafiğini görmek için tıkla"><section class="stats-strip">
-  <div class="stat-card">
-    <div class="stat-chip a">📝</div>
-    <div><div class="stat-num mono" id="statSolved">0</div><div class="stat-label">Çözülen Soru</div></div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-chip b">🎯</div>
-    <div><div class="stat-num mono" id="statAccuracy">%0</div><div class="stat-label">Başarı Oranı</div></div>
-  </div>
-</section></a>
-
-<div class="content">
-
-  <div class="section-block">
-
-  </div>
-
-</div>
-
 <script src="db.js?v=1786350782"></script>
 <script>bgysRequireAuth();</script>
-<script>
-  async function renderStats(){
-    // Sayaçlar yerel kayıtlardan hemen çizilsin; bulut gecikmesi favori sayısını sıfır göstermesin.
-    let solvedMap = {};
-    let favoriteIds = [];
-    try { solvedMap = await Promise.race([bgysGetSolvedMap(), new Promise(resolve => setTimeout(() => resolve({}), 1200))]) || {}; } catch(e) {}
-    try { favoriteIds = bgysGetLocalFavoriteIds() || []; } catch(e) {}
-    try {
-      const cloudIds = await Promise.race([bgysGetFavoriteIds(), new Promise(resolve => setTimeout(() => resolve([]), 1200))]);
-      favoriteIds = [...new Set([...favoriteIds, ...(cloudIds || [])])];
-    } catch(e) {}
-    const kayitlar = Object.values(solvedMap);
-    const wrongEl = document.getElementById('wrongQuestionCount');
-    const favoriteEl = document.getElementById('favoriteQuestionCount');
-    if (wrongEl) wrongEl.textContent = kayitlar.filter(r => r.correct === false).length;
-    if (favoriteEl) favoriteEl.textContent = favoriteIds.length;
-    const solved = kayitlar.length;
-    const correct = kayitlar.filter(r => r.correct).length;
-    const acc = solved > 0 ? Math.round((correct / solved) * 100) : 0;
-
-    document.getElementById('statSolved').textContent = solved;
-    document.getElementById('statAccuracy').textContent = '%' + acc;
-  }
-
-  renderStats();
-  bgysAutoRefresh(renderStats);
-</script>
-
 </body>
 </html>
