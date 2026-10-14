@@ -7,7 +7,7 @@
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero"><div class="eyebrow">Soru çalışma modülü</div><h1>Hazır sorularını çöz</h1><p>Sorular ve konu anlatımları Basamak GYS için tarafımdan hazırlanıp sisteme yüklenecek. Senin soru yazmana veya soruları tek tek kaydetmene gerek olmayacak. Bütün sorularda yalnızca A, B, C ve D seçenekleri kullanılacak.</p></section>
-<section class="panel"><h2>Soru konusunu seç</h2><p class="hint">Önce çalışmak istediğin konuyu seç. Yalnızca o konuya ait sorular sırayla açılacak.</p><div id="topicSelect" class="topic-list"></div><div class="divider"></div><h2 id="progress">Konu seçilmedi</h2><div id="practice" class="muted">Yukarıdan bir konu seç.</div><div id="listStatus" class="status" role="status"></div></section></main>
+<section class="panel"><h2>Soru konusunu seç</h2><p class="hint">Anayasa soruları tek başlık altında birleştirildi. Soruları tek tek çöz; cevabı kontrol ettikten sonra sonraki soruya geç.</p><div id="topicSelect" class="topic-list"></div><div class="divider"></div><h2 id="progress">Konu seçilmedi</h2><div id="practice" class="muted">Yukarıdan bir konu seç.</div><div id="listStatus" class="status" role="status"></div></section></main>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const questions=[
@@ -50,12 +50,7 @@ const questions=[
 {id:"anayasa-036",topic:"1982 Anayasası · Madde 38",question:"Ceza sorumluluğunun şahsiliği ilkesi hangi maddede düzenlenir?",options:{A:"Madde 38",B:"Madde 35",C:"Madde 36",D:"Madde 40"},answer:"A",explanation:"Madde 38 suç ve cezalara ilişkin esasları; bunlar arasında ceza sorumluluğunun şahsiliğini de düzenler."},
 {id:"anayasa-037",topic:"1982 Anayasası · Madde 40",question:"Devletin işlemlerinde başvuru yollarını, mercileri ve süreleri belirtme yükümlülüğü hangi maddede yer alır?",options:{A:"Madde 36",B:"Madde 37",C:"Madde 39",D:"Madde 40"},answer:"D",explanation:"Madde 40 temel hak ve hürriyetlerin korunmasını ve başvuru yolları ile sürelerinin belirtilmesini düzenler."}];
 const topicGroups=[
-{id:"anayasa-1",title:"Anayasa · Maddeler 1–11",min:1,max:11},
-{id:"anayasa-2",title:"Anayasa · Maddeler 12–16",min:12,max:16},
-{id:"anayasa-3",title:"Anayasa · Maddeler 17–23",min:17,max:23},
-{id:"anayasa-4",title:"Anayasa · Maddeler 24–30",min:24,max:30},
-{id:"anayasa-5",title:"Anayasa · Maddeler 31–40",min:31,max:40},
-{id:"anayasa-6",title:"Anayasa · Maddeler 41–56",min:41,max:56}
+{id:"anayasa",title:"1982 Türkiye Cumhuriyeti Anayasası",min:1,max:56}
 ];
 const box=document.getElementById("practice");
 const progress=document.getElementById("progress");
