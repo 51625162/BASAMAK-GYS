@@ -59,7 +59,7 @@ tabTest.addEventListener("click",()=>switchTab("test"));tabQA.addEventListener("
 const testBox=document.getElementById("testPractice"),qaBox=document.getElementById("qaPractice");
 const testProgress=document.getElementById("testProgress"),qaProgress=document.getElementById("qaProgress");
 const testTopics=document.getElementById("testTopicSelect"),qaTopics=document.getElementById("qaTopicSelect");
-const answered=new Set();
+const answered=new Set();let testOutcomes={},testProgressSaved=false;
 // Soru-Cevap içerikleri test sorularından bağımsız tutulur; birlikte eklenecek.
 const qaQuestions=[];
 function getQAQuestions(group){if(!group)return [];return qaQuestions.filter(q=>q.groupId===group.id);}
@@ -69,11 +69,12 @@ function renderTest(){
  const list=getQuestions(testGroup);
  if(!testGroup){testProgress.textContent="Test için konu seç";testBox.innerHTML='<p class="muted">Test alanından bir konu seç.</p>';return;}
  if(!list.length){testProgress.textContent=testGroup.title;testBox.innerHTML='<div class="result bad">Bu konuda henüz test sorusu yok.</div>';return;}
- if(testCurrent>=list.length){testProgress.textContent=testGroup.title+' · Tamamlandı';testBox.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.</div><button class="btn primary" id="testRestart">Testi yeniden başlat</button>';return;}
+ if(testCurrent>=list.length){testProgress.textContent=testGroup.title+' · Tamamlandı';const done=list.filter(q=>Object.prototype.hasOwnProperty.call(testOutcomes,q.id));const correct=done.filter(q=>testOutcomes[q.id]===true).length,wrong=done.filter(q=>testOutcomes[q.id]===false).length,blank=list.length-done.length;testBox.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış: '+wrong+' · Cevaplanmayan: '+blank+'<br>Başarı: '+Math.round(correct/list.length*100)+'%</div><button class="btn primary" id="testRestart">Testi yeniden başlat</button>';if(!testProgressSaved){testProgressSaved=true;saveTopicTestProgress(testGroup,list,correct,wrong,blank);}return;}
  const q=list[testCurrent];
  testProgress.textContent=testGroup.title+' · Soru '+(testCurrent+1)+' / '+list.length;
  testBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="test-answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" id="testCheck" type="button">Cevabı kontrol et</button><div id="testFeedback"></div><div id="testNext"></div></article>';
 }
+async function saveTopicTestProgress(group,list,correct,wrong,blank){try{if(typeof bgysAdd!=="function")return;await bgysAdd("ilerleme",{type:"test",title:group.title+" · Konu Testi",topic:group.title,correct,wrong,blank,total:list.length,percent:Math.round(correct/list.length*100),finishedAt:Date.now()});}catch(e){console.error("Test ilerlemesi kaydedilemedi:",e);}}
 function renderQA(){
  const list=getQAQuestions(qaGroup);
  if(!qaGroup){qaProgress.textContent="Soru – Cevap için konu seç";qaBox.innerHTML='<p class="muted">Soru – Cevap alanından bir konu seç.</p>';return;}
@@ -91,7 +92,7 @@ testBox.addEventListener("click",e=>{
   const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
   if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}
   if(answered.has("test-"+q.id))return;answered.add("test-"+q.id);
-  const ok=picked.value===q.answer;testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
+  const ok=picked.value===q.answer;testOutcomes[q.id]=ok;testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
   feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>';
   const saveControls=document.createElement("div");saveControls.className="actions";
   saveControls.innerHTML='<button class="btn soft" type="button" id="toggleFavorite">☆ Favorilere ekle</button><button class="btn soft" type="button" id="saveWrong">Yanlışlarım listesine kaydet</button>';
@@ -106,8 +107,8 @@ testBox.addEventListener("click",e=>{
   document.getElementById("testCheck").disabled=true;document.getElementById("testNext").innerHTML='<button class="btn primary" id="testNextButton" type="button">Sonraki Soru →</button>';
  }
  if(e.target.id==="testNextButton"){testCurrent++;renderTest();}
- if(e.target.id==="testRestart"){testCurrent=0;renderTest();}
+ if(e.target.id==="testRestart"){testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();}
 });
 qaBox.addEventListener("click",e=>{if(e.target.id==="qaShowAnswer"){qaAnswerShown=true;renderQA();}if(e.target.id==="qaNext"){qaCurrent++;qaAnswerShown=false;renderQA();}if(e.target.id==="qaRestart"){qaCurrent=0;qaAnswerShown=false;renderQA();}});
 renderTopicButtons(testTopics,null,"test");renderTopicButtons(qaTopics,null,"qa");renderTest();renderQA();
-</script><script src="db.js?v=20261014-5"></script><script>bgysRequireAuth();</script></body></html>
+</script><script src="db.js?v=20261014-6"></script><script>bgysRequireAuth();</script></body></html>
