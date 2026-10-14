@@ -708,7 +708,7 @@
     const cozulmeSayisi = typeof bgysGetSolvedCount === 'function' ? bgysGetSolvedCount(solvedMap, q.id) : 0;
     const favoriMi = favIds.includes(q.id);
     tagsEl.innerHTML = `
-      <span class="q-tag madde">📚 Konu: ${q.kisim || q.madde || 'Genel'}</span>
+      <span class="q-tag madde">📚 5402 Sayılı Kanun · ${q.kisim || q.madde || 'Genel'}</span>
       <span class="q-tag type">${TYPE_LABELS[q.type] || q.type}</span>
       <span class="q-tag" style="font-weight:800;font-size:0.76rem;padding:6px 12px;background:${Number(q.difficulty) === 3 ? 'rgba(239,68,68,0.16)' : Number(q.difficulty) === 1 ? 'rgba(34,197,94,0.16)' : 'rgba(245,166,35,0.18)'};color:${Number(q.difficulty) === 3 ? '#DC2626' : Number(q.difficulty) === 1 ? '#16803C' : '#A16207'};">SEVİYE: ${Number(q.difficulty) === 3 ? '🔴 ZOR' : Number(q.difficulty) === 1 ? '🟢 KOLAY' : '🟡 ORTA'}</span>
       ${q.trap ? '<span class="q-tag trap" style="font-weight:800;background:rgba(139,107,242,0.16);color:#6D28D9;">⚠️ TUZAK SORU</span>' : ''}
