@@ -882,6 +882,34 @@
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){}
   }
 </script>
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var b=e.target.closest('#statusChips .chip,#diffChips .chip,#trapChips .chip,#countChips .chip,#topicOptions [data-topic]');
+    if(!b)return;
+    if(b.closest('#topicOptions')){
+      var sel=document.getElementById('topicSelect'); sel.value=b.dataset.topic;
+      document.querySelectorAll('#topicOptions .topic-option').forEach(function(x){x.classList.toggle('active',x===b);});
+    } else if(b.closest('#statusChips')){
+      selectedStatus=b.dataset.val;
+      document.querySelectorAll('#statusChips .chip').forEach(function(x){x.classList.toggle('active',x===b);});
+    } else if(b.closest('#diffChips')){
+      selectedDiff=b.dataset.val; selectedTrap=false;
+      document.querySelectorAll('#diffChips .chip').forEach(function(x){x.classList.toggle('active',x===b);});
+      document.querySelectorAll('#trapChips .chip').forEach(function(x){x.classList.remove('active');});
+    } else if(b.closest('#trapChips')){
+      selectedTrap=!selectedTrap; selectedDiff='all'; selectedStatus='all';
+      document.querySelectorAll('#diffChips .chip').forEach(function(x){x.classList.toggle('active',!selectedTrap&&x.dataset.val==='all');});
+      document.querySelectorAll('#statusChips .chip').forEach(function(x){x.classList.toggle('active',x.dataset.val==='all');});
+      b.classList.toggle('active',selectedTrap);
+    } else if(b.closest('#countChips')){
+      selectedCount=Number(b.dataset.val);
+      document.querySelectorAll('#countChips .chip').forEach(function(x){x.classList.toggle('active',x===b);});
+    }
+    renderFilterCounts();
+  }, true);
+})();
+</script>
 
 </body>
 </html>
