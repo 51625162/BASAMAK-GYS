@@ -673,15 +673,21 @@
     const btn = document.getElementById('favBtn');
     if (btn) btn.disabled = true;
     try {
-      const yeniDurum = await bgysToggleFavorite(id);
+      // Önce yerel kaydı anında güncelle; favori sayacı aynı cihazda bunu okuyacak.
+      const ids = bgysGetLocalFavoriteIds();
+      const mevcut = ids.includes(id);
+      const yeniIds = mevcut ? ids.filter(x => x !== id) : [...ids, id];
+      bgysSetLocalFavoriteIds(yeniIds);
       if (btn) {
-        btn.textContent = yeniDurum ? '⭐ Favorilerde' : '☆ Favoriye Ekle';
-        btn.setAttribute('aria-pressed', yeniDurum ? 'true' : 'false');
-        btn.style.background = yeniDurum ? 'rgba(236,111,160,0.14)' : 'rgba(139,107,242,0.08)';
-        btn.style.color = yeniDurum ? '#C02670' : 'var(--ink)';
+        btn.textContent = mevcut ? '☆ Favoriye Ekle' : '⭐ Favorilerde';
+        btn.setAttribute('aria-pressed', mevcut ? 'false' : 'true');
+        btn.style.background = mevcut ? 'rgba(139,107,242,0.08)' : 'rgba(236,111,160,0.14)';
+        btn.style.color = mevcut ? 'var(--ink)' : '#C02670';
       }
+      // Bulut eşitlemesi yerel kaydı ve düğmeyi geciktirmesin.
+      Promise.resolve().then(() => bgysToggleFavorite(id)).catch(e => console.warn('Favori bulut eşitlemesi başarısız:', e));
     } catch (e) {
-      alert('Favori kaydedilemedi. Lütfen tekrar dene.');
+      alert('Favori kaydedilemedi: ' + (e && e.message ? e.message : 'Tarayıcı depolama hatası'));
     } finally {
       if (btn) btn.disabled = false;
     }
