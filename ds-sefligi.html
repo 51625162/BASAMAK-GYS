@@ -208,7 +208,15 @@
 <script>bgysRequireAuth();</script>
 <script>
   async function renderStats(){
-    const [solvedMap, favoriteIds] = await Promise.all([bgysGetSolvedMap(), bgysGetFavoriteIds()]);
+    // Sayaçlar yerel kayıtlardan hemen çizilsin; bulut gecikmesi favori sayısını sıfır göstermesin.
+    let solvedMap = {};
+    let favoriteIds = [];
+    try { solvedMap = await Promise.race([bgysGetSolvedMap(), new Promise(resolve => setTimeout(() => resolve({}), 1200))]) || {}; } catch(e) {}
+    try { favoriteIds = bgysGetLocalFavoriteIds() || []; } catch(e) {}
+    try {
+      const cloudIds = await Promise.race([bgysGetFavoriteIds(), new Promise(resolve => setTimeout(() => resolve([]), 1200))]);
+      favoriteIds = [...new Set([...favoriteIds, ...(cloudIds || [])])];
+    } catch(e) {}
     const kayitlar = Object.values(solvedMap);
     const wrongEl = document.getElementById('wrongQuestionCount');
     const favoriteEl = document.getElementById('favoriteQuestionCount');
