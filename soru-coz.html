@@ -623,6 +623,7 @@
       selectedTrap = !selectedTrap;
       // Tuzak seçilince zorluk seçimini kapat; aynı anda yalnızca biri aktif olsun.
       if (selectedTrap) {
+        // Tuzak soruları seçiliyken zorluk grubundaki hiçbir seçenek aktif görünmesin.
         selectedDiff = "all";
         document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
       } else {
@@ -660,7 +661,7 @@
       document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.remove('active'));
       c.classList.add('active');
       selectedDiff = c.dataset.val;
-      // Kolay/Orta/Zor seçilince tuzak filtresini kapat.
+      // Zorluk seçilince tuzak filtresini kapat; "Hepsi" de açıkça seçili görünsün.
       selectedTrap = false;
       document.querySelectorAll('#trapChips .chip').forEach(x => x.classList.remove('active'));
       renderFilterCounts();
