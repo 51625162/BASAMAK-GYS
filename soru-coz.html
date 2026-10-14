@@ -629,14 +629,7 @@
     const konuSirali = Object.entries(konuSayilari).sort((a, b) => b[1] - a[1]);
     konuOzetEl.innerHTML = konuSirali.map(([k, sayi]) => `<div>${k}: <b style="color:var(--ink);">${sayi} soru</b></div>`).join('');
 
-    // Zorluğa göre sayım
-    const zorlukSayilari = { 1: 0, 2: 0, 3: 0 };
-    mergedBank.forEach(q => {
-      const z = q.difficulty || 2;
-      if (zorlukSayilari[z] !== undefined) zorlukSayilari[z]++;
-    });
-    const zorlukOzetEl = document.getElementById('zorlukOzet');
-    zorlukOzetEl.innerHTML = [1, 2, 3].map(z => `<span style="margin-right:14px;">${ZORLUK_ISIMLERI[z]}: <b style="color:var(--ink);">${zorlukSayilari[z]}</b></span>`).join('');
+    // Zorluk seçimi kaldırıldığı için zorluk özeti hesaplanmıyor.
   }
 
   document.querySelectorAll('#diffChips .chip').forEach(c => {
