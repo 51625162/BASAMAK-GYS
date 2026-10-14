@@ -63,9 +63,9 @@ const status=document.getElementById("listStatus");
 const topicSelect=document.getElementById("topicSelect");
 let selectedGroup=null,current=0;
 const answered=new Set();
-function getGroupQuestions(){if(!selectedGroup)return [];return questions.filter(q=>{const m=String(q.topic).match(/Madde\\s+(\\d+)/);if(!m)return false;const n=Number(m[1]);return n>=selectedGroup.min&&n<=selectedGroup.max;});}
+function getGroupQuestions(){if(!selectedGroup)return [];return questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=selectedGroup.min&&n<=selectedGroup.max;});}
 function renderTopics(){
- topicSelect.innerHTML=topicGroups.map((g,i)=>'<button class="topic-btn '+(selectedGroup&&selectedGroup.id===g.id?'active':'')+'" type="button" data-topic="'+g.id+'">'+g.title+'<div class="tiny">'+questions.filter(q=>{const m=String(q.topic).match(/Madde\\s+(\\d+)/);return m&&Number(m[1])>=g.min&&Number(m[1])<=g.max;}).length+' soru</div></button>').join("");
+ topicSelect.innerHTML=topicGroups.map((g,i)=>'<button class="topic-btn '+(selectedGroup&&selectedGroup.id===g.id?'active':'')+'" type="button" data-topic="'+g.id+'">'+g.title+'<div class="tiny">'+questions.filter(q=>{const m=String(q.topic).match(/Madde\s+(\d+)/);return m&&Number(m[1])>=g.min&&Number(m[1])<=g.max;}).length+' soru</div></button>').join("");
 }
 function render(){
  const list=getGroupQuestions();
