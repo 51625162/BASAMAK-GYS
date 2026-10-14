@@ -983,6 +983,32 @@
   }, true);
 })();
 </script>
+<script>
+(function(){
+  document.addEventListener('click', function(e){
+    var btn=e.target && e.target.closest ? e.target.closest('#favBtn') : null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var questionId=btn.getAttribute('data-question-id');
+    if(!questionId && typeof quiz!=='undefined' && quiz[qIdx]) questionId=quiz[qIdx].id;
+    if(!questionId){alert('Soru kimliği bulunamadı.');return;}
+    try{
+      var ids=bgysGetLocalFavoriteIds();
+      var isFav=ids.includes(questionId);
+      var nextIds=isFav?ids.filter(function(id){return id!==questionId;}):ids.concat([questionId]);
+      bgysSetLocalFavoriteIds(nextIds);
+      btn.textContent=isFav?'☆ Favoriye Ekle':'⭐ Favorilerde';
+      btn.setAttribute('aria-pressed',isFav?'false':'true');
+      btn.style.background=isFav?'rgba(139,107,242,0.08)':'rgba(236,111,160,0.14)';
+      btn.style.color=isFav?'var(--ink)':'#C02670';
+      btn.disabled=false;
+    }catch(err){
+      alert('Favori kaydedilemedi: '+(err && err.message ? err.message : err));
+    }
+  }, true);
+})();
+</script>
 
 </body>
 </html>
