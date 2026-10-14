@@ -551,7 +551,8 @@
       document.getElementById('solvedCount').textContent = n(base.filter(q => !!solvedMap[q.id]));
       document.getElementById('countChips').querySelector('[data-val="999"]').innerHTML = 'Tümü (' + n(eligible) + ')';
       const konuOzetEl = document.getElementById('konuOzet');
-      konuOzetEl.textContent = '';
+      const selectedTopicName = topicName === 'all' ? 'Tüm konular' : topicName;
+      konuOzetEl.textContent = selectedTopicName + ' · ' + n(eligible) + ' uygun soru' + (selectedStatus === 'unsolved' ? ' · çözülmemişler' : selectedStatus === 'solved' ? ' · çözdüklerin' : ' · tüm durumlar');
     });
   }
 
