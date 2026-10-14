@@ -194,7 +194,7 @@
         </div>
         <div id="zorlukOzet" style="margin-top:10px;font-size:0.8rem;color:var(--slate);"></div>
         <div class="chip-row" id="trapChips" style="margin-top:12px;">
-          <button class="chip" data-val="trap">⚠️ Tuzak Sorular (<span id="trapCount">0</span>)</button>
+          <button class="chip" data-val="trap">⚠️ Yalnızca Tuzak Soruları (<span id="trapCount">0</span>)</button>
         </div>
       </div>
 
@@ -616,7 +616,7 @@
       selectedTrap = !selectedTrap;
       selectedDiff = "all";
       document.querySelectorAll('#diffChips .chip').forEach(x => x.classList.toggle('active', x.dataset.val === "all" && !selectedTrap));
-      // Tuzak soruları ayrı bir çözüm modu olsun: varsayılan "Çözülmemişler" filtresi,
+      // Tuzak soruları ayrı bir çözüm modu olsun:
       // daha önce işaretlenen sorular nedeniyle tuzak havuzunu boş göstermesin.
       if (selectedTrap) {
         selectedStatus = "all";
