@@ -6,16 +6,16 @@
 </style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
-<section class="hero"><div class="eyebrow">Soru çalışma modülü · İlk aşama</div><h1>Kendi sorularını oluştur ve çöz</h1><p>Sorularını A, B, C ve D seçenekleriyle kaydet, cevabını işaretle ve açıklamayı kontrol et. Bu ilk aşama kişisel soru çalışma alanıdır; ana soru havuzu ve deneme sistemi ayrı aşamada bağlanacaktır.</p></section>
-<div class="grid"><section class="panel"><h2>Yeni soru ekle</h2><p class="hint">Soru ve dört seçeneği gir. Doğru cevap ile açıklamayı kaydet.</p>
+<section class="hero"><div class="eyebrow">Soru çalışma modülü</div><h1>Hazır sorularını çöz</h1><p>Sorular ve konu anlatımları Basamak GYS için tarafımdan hazırlanıp sisteme yüklenecek. Senin soru yazmana veya soruları tek tek kaydetmene gerek olmayacak. Bütün sorularda yalnızca A, B, C ve D seçenekleri kullanılacak.</p></section>
+<div class="grid"><section class="panel"><h2>İçerik yükleme durumu</h2><p class="hint">Soru havuzu, kanunlara ve konulara göre hazırlanıp projeye eklenecek. Bu bölüm tamamlandığında buradan doğrudan soru çözebileceksin.</p><div class="result bad">Soru havuzu henüz bu ekrana bağlanmadı. Kişisel soru kayıtlarında görülen Firebase izin hatası ayrıca giderilecek.</div><p class="muted" style="margin-top:12px">İçerik eklemek için manuel form kullanmayacağız. Soruların cevapları ve açıklamaları da birlikte yüklenecek.</p></section>
 <form id="qform"><label for="topic">Konu / mevzuat</label><input id="topic" maxlength="120" placeholder="Örn. 5402 sayılı Kanun — Madde 9">
 <label for="question">Soru metni</label><textarea id="question" maxlength="5000" required placeholder="Soru metnini yaz..."></textarea>
 <div class="opts"><div><label for="A">A seçeneği</label><input id="A" maxlength="1000" required></div><div><label for="B">B seçeneği</label><input id="B" maxlength="1000" required></div><div><label for="C">C seçeneği</label><input id="C" maxlength="1000" required></div><div><label for="D">D seçeneği</label><input id="D" maxlength="1000" required></div></div>
 <label for="answer">Doğru cevap</label><select id="answer" required><option value="">Seçiniz</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
 <label for="explanation">Çözüm / açıklama</label><textarea id="explanation" maxlength="5000" placeholder="Doğru cevabın gerekçesi..."></textarea>
 <button class="btn primary" id="save" type="submit">Soruyu kaydet</button><div id="formStatus" class="status" role="status"></div></form></section>
-<section class="panel"><h2>Soru pratiği</h2><p class="hint">Kayıtlı kişisel sorularını çöz. Cevabı seçip kontrol et.</p><div id="practice" class="muted">Sorular yükleniyor…</div><div id="listStatus" class="status" role="status"></div></section></div></main>
-<script src="db.js?v=20261014"></script><script>
+<section class="panel"><h2>Soru pratiği</h2><p class="hint">Yüklenecek soru havuzundaki soruları çöz; cevabı ve gerekçeyi kontrol et.</p><div id="practice" class="muted">Sorular yükleniyor…</div><div id="listStatus" class="status" role="status"></div></section></div></main>
+<script src="db.js?v=20261014-2"></script><script>
 const $=id=>document.getElementById(id);const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));function status(id,msg,type){$(id).textContent=msg;$(id).className="status show "+type}
 let questions=[];
 async function init(){try{await bgysInitFirebase();const u=await bgysRequireAuth();if(!u)return;await load();}catch(e){$("practice").textContent="Sorular yüklenemedi. Giriş ve bağlantını kontrol et.";status("listStatus",e.message||"Yükleme hatası","err")}}
