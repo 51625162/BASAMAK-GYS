@@ -14,7 +14,7 @@ a{color:inherit;text-decoration:none}.top{background:var(--navy);color:white;pad
 .wrap{max-width:1000px;margin:auto;padding:24px 16px 56px}.back{display:inline-block;color:var(--teal);font-weight:700;font-size:13px;margin-bottom:18px}
 .hero{background:linear-gradient(120deg,#10243e,#175365 72%,#087a75);color:white;border-radius:20px;padding:clamp(22px,4vw,36px);margin-bottom:18px}
 .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:#78ded3;font-weight:800}.hero h1{font:800 clamp(25px,4vw,36px)/1.2 Sora,Inter,sans-serif;margin:10px 0}.hero p{color:#d7e6ed;font-size:13px;line-height:1.7;max-width:680px;margin:0}
-.layout{display:grid;grid-template-columns:minmax(0, .9fr) minmax(0,1.1fr);gap:16px}.study-library{margin-bottom:16px}.lesson-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.lesson{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfcfe}.lesson h3{font-size:13px;margin:0 0 7px}.lesson p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.lesson-status{display:inline-block;margin-top:10px;padding:5px 8px;border-radius:20px;background:#fff5df;color:#815500;font-size:10px;font-weight:800}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#087a75;font-weight:800;margin-bottom:7px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font:700 17px Sora,Inter,sans-serif;margin:0 0 7px}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 16px}
+.layout{display:grid;grid-template-columns:minmax(0, .9fr) minmax(0,1.1fr);gap:16px}.study-library{margin-bottom:16px}.lesson-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.lesson{display:block;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfcfe;text-decoration:none;color:inherit}.lesson h3{font-size:13px;margin:0 0 7px}.lesson p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.lesson-status{display:inline-block;margin-top:10px;padding:5px 8px;border-radius:20px;background:#fff5df;color:#815500;font-size:10px;font-weight:800}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#087a75;font-weight:800;margin-bottom:7px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}.panel h2{font:700 17px Sora,Inter,sans-serif;margin:0 0 7px}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 16px}
 label{display:block;font-size:12px;font-weight:700;margin:13px 0 6px}input,textarea,select{font:inherit;width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fbfcfe;color:var(--navy)}textarea{min-height:145px;resize:vertical;line-height:1.6}
 button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:12px 15px;cursor:pointer}.primary{background:var(--teal);color:white;width:100%;margin-top:14px}.secondary{background:#e8f7f5;color:#087a75}.danger{background:#fff0ef;color:var(--red);padding:8px 10px;font-size:11px}
 .status{display:none;border-radius:10px;padding:11px 12px;font-size:12px;line-height:1.5;margin-top:12px}.status.show{display:block}.status.ok{background:#eaf8ef;color:#176b39}.status.err{background:#fff0ef;color:var(--red)}
@@ -27,56 +27,10 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 <main class="wrap">
 <a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero"><div class="eyebrow">Konu anlatımları + kişisel notlar</div><h1>Konu Çalış</h1><p>İki alan birbirinden ayrı tutulur: Benim hazırlayıp sisteme yükleyeceğim sınav odaklı mevzuat anlatımları ve senin hesabına özel kişisel notların. Böylece hazır ders içerikleri kişisel notlarınla karışmaz.</p></section>
-<section class="panel study-library"><div class="section-label">Hazır ders içerikleri</div><h2>Mevzuat konu anlatımları</h2><p class="hint">Ders içerikleri kanun metinlerine göre hazırlanıp buraya konu konu eklenecek. İçerikler yüklendiğinde bu kartlardan açılacak; kişisel notların ayrı kalacak.</p><div class="lesson-grid"><article class="lesson"><h3>1982 Türkiye Cumhuriyeti Anayasası</h3><p>14 parçalı çalışma planı; madde açıklamaları, sınav noktaları, ezber kodları ve hızlı tekrar.</p><span class="lesson-status">İçerik yüklenecek</span></article><article class="lesson"><h3>5275 sayılı Kanun</h3><p>Madde madde anlatım, sınavda karıştırılan hükümler ve konu sonu soruları.</p><span class="lesson-status">İçerik yüklenecek</span></article><article class="lesson"><h3>5402 sayılı Kanun</h3><p>PDF ile karşılaştırılarak eksiksiz aktarım; maddeler, fıkralar ve geçici maddeler.</p><span class="lesson-status">İçerik yüklenecek</span></article></div></section>
-<div class="layout">
-<section class="panel">
-<h2>Kendi notunu ekle</h2><p class="hint">Bu alan yalnızca senin kişisel notların içindir. Hazır ders anlatımları yukarıdaki bölümde ayrı gösterilecek.</p>
-<form id="noteForm">
-<label for="title">Konu başlığı</label><input id="title" maxlength="120" required placeholder="Örn. 5402 sayılı Kanun — Madde 9">
-<label for="law">Mevzuat / ders</label><input id="law" maxlength="100" placeholder="Örn. 5402 sayılı Kanun">
-<label for="content">Açıklama ve önemli noktalar</label><textarea id="content" maxlength="12000" required placeholder="Konuyu kendi cümlelerinle anlat, sınavda karıştırılabilecek noktaları yaz..."></textarea>
-<button class="primary" id="saveBtn" type="submit">Notu kaydet</button><div id="formStatus" class="status" role="status"></div>
-</form>
-</section>
-<section class="panel"><h2>Kişisel notların</h2><p class="hint">Yalnızca bu hesapla kaydettiğin notlar listelenir; başka kullanıcılarla paylaşılmaz.</p>
-<div id="notes" class="notes"><div class="empty">Notların yükleniyor…</div></div><div id="listStatus" class="status" role="status"></div>
-</section>
-</div>
+<section class="panel study-library"><div class="section-label">Hazır ders içerikleri</div><h2>Mevzuat konu anlatımları</h2><p class="hint">Hazır dersleri ben hazırlayıp doğrudan projeye ekleyeceğim. Senin elle soru veya konu notu girmen gerekmiyor. Her bölümde anlatım, sınav noktaları, ezber kodları ve test bulunacak.</p><div class="lesson-grid"><a class="lesson" href="ders-anayasa-01.html"><h3>1982 Türkiye Cumhuriyeti Anayasası</h3><p>İlk bölüm hazır: Genel esaslar, ilk 11 madde, sınav tuzakları ve konu sonu testi.</p><span class="lesson-status" style="background:#e8f7f5;color:#087a75">Bölüm 1 hazır · Aç</span></a><article class="lesson"><h3>5275 sayılı Kanun</h3><p>Madde madde anlatım, sınavda karıştırılan hükümler ve konu sonu soruları.</p><span class="lesson-status">İçerik yüklenecek</span></article><article class="lesson"><h3>5402 sayılı Kanun</h3><p>PDF ile karşılaştırılarak eksiksiz aktarım; maddeler, fıkralar ve geçici maddeler.</p><span class="lesson-status">İçerik yüklenecek</span></article></div></section>
+<section class="panel"><h2>İçerik yükleme planı</h2><p class="hint">Hazır konu anlatımları ve testler bu bölümden açılacak. İlk Anayasa bölümü yukarıdan kullanılabilir. 5275 ve 5402 sayılı kanunların içerikleri sırayla eklenecek.</p><div id="notes" class="notes"><div class="empty">Hazır dersler ayrı içerik sayfalarında tutulur. Böylece ders içerikleri kullanıcı kayıtlarından bağımsız çalışır.</div></div></section>
 </main>
-<script src="db.js?v=20261014-2"></script>
-<script>
-const $ = id => document.getElementById(id);
-const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-function showStatus(id, message, type){const el=$(id);el.textContent=message;el.className="status show "+type;}
-async function loadNotes(){
-  const box=$("notes");
-  try{
-    await bgysInitFirebase();
-    const user=await bgysRequireAuth();
-    if(!user)return;
-    const items=await bgysGetAll("konuNotlari");
-    items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-    if(!items.length){box.innerHTML='<div class="empty">Henüz çalışma notu eklemedin.<br>İlk notunu soldaki formdan oluşturabilirsin.</div>';return;}
-    box.innerHTML=items.map(item=>'<article class="note"><div class="note-top"><div><h3>'+esc(item.title)+'</h3>'+(item.law?'<span class="chip">'+esc(item.law)+'</span>':'')+'</div><button class="danger" type="button" data-delete="'+esc(item.id)+'">Sil</button></div><p>'+esc(item.content)+'</p></article>').join("");
-  }catch(error){box.innerHTML='<div class="empty">Notlar yüklenemedi. İnternet bağlantını ve Firebase ayarlarını kontrol edip sayfayı yenile.</div>';showStatus("listStatus",error.message||"Notlar yüklenemedi.","err");}
-}
-$("noteForm").addEventListener("submit",async event=>{
-  event.preventDefault();const btn=$("saveBtn");btn.disabled=true;btn.textContent="Kaydediliyor…";
-  try{
-    await bgysInitFirebase();const user=await bgysRequireAuth();if(!user)return;
-    await bgysAdd("konuNotlari",{title:$("title").value.trim(),law:$("law").value.trim(),content:$("content").value.trim(),createdAt:Date.now()});
-    $("noteForm").reset();showStatus("formStatus","Not hesabına kaydedildi.","ok");await loadNotes();
-  }catch(error){showStatus("formStatus",error.message||"Not kaydedilemedi.","err");}
-  finally{btn.disabled=false;btn.textContent="Notu kaydet";}
-});
-$("notes").addEventListener("click",async event=>{
-  const btn=event.target.closest("[data-delete]");if(!btn)return;
-  if(!confirm("Bu çalışma notunu silmek istiyor musun?"))return;
-  btn.disabled=true;
-  try{await bgysInitFirebase();const user=await bgysRequireAuth();if(!user)return;await bgysDelete("konuNotlari",btn.dataset.delete);await loadNotes();showStatus("listStatus","Not silindi.","ok");}
-  catch(error){btn.disabled=false;showStatus("listStatus",error.message||"Not silinemedi.","err");}
-});
-loadNotes();
-</script>
+<script src="db.js?v=20261014-3"></script>
+<script>bgysRequireAuth();</script>
 </body>
 </html>
