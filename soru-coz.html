@@ -407,7 +407,7 @@
   };
   const DIFF_LABELS = { 1: "Kolay", 2: "Orta", 3: "Zor" };
   const LETTERS = ["A","B","C","D"];
-  const STORE_KEY = "basamak-gys-" + bgysCurrentModul() + "-stats";
+  const STORE_KEY = "basamak-gys-" + bgysLocalUserKey() + "-" + bgysCurrentModul() + "-stats";
 
   let selectedDiff = "all";
   let selectedCount = 999;
