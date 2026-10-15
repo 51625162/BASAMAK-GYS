@@ -215,7 +215,20 @@ const testProgress=document.getElementById("testProgress"),qaProgress=document.g
 const testTopics=document.getElementById("testTopicSelect"),qaTopics=document.getElementById("qaTopicSelect");
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
 // Soru-Cevap içerikleri test sorularından bağımsız tutulur; birlikte eklenecek.
-const qaQuestions=[];
+const qaQuestions=[
+{ id:"5402-qa-001",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 1",question:"5402 sayılı Kanun’un amacı nedir?",answerText:"Denetimli serbestlik ve koruma kurullarının kuruluş, görev ve çalışma esas ve usullerini düzenlemektir."},
+{ id:"5402-qa-002",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 1",question:"Kanun’un 1. maddesine göre hangi iki yapının kuruluş ve çalışma esasları düzenlenir?",answerText:"Denetimli serbestlik ve koruma kurullarının."},
+{ id:"5402-qa-003",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 2",question:"5402 sayılı Kanun hangi birim ve kurulları kapsar?",answerText:"Denetimli Serbestlik Hizmetleri Danışma Kurulunu, Denetimli Serbestlik Daire Başkanlığını, denetimli serbestlik müdürlüklerini ve koruma kurullarını kapsar."},
+{ id:"5402-qa-004",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 2",question:"Kanun’un 2. maddesine göre sürece katılan kişilerin hangi konuları düzenlenmiştir?",answerText:"Görevleri, yetkileri, hakları ve yükümlülükleri."},
+{ id:"5402-qa-005",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 3",question:"Kanun’un 3. maddesine göre “Bakan” kimdir?",answerText:"Adalet Bakanıdır."},
+{ id:"5402-qa-006",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 3",question:"Kanun’un 3. maddesine göre “Bakanlık” neyi ifade eder?",answerText:"Adalet Bakanlığını ifade eder."},
+{ id:"5402-qa-007",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 3",question:"Kanun’un 3. maddesine göre “Genel Müdürlük” hangi kurumu ifade eder?",answerText:"Ceza ve Tevkifevleri Genel Müdürlüğünü ifade eder."},
+{ id:"5402-qa-008",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 3",question:"Kanun’un 3. maddesine göre “Daire Başkanlığı” neyi ifade eder?",answerText:"Denetimli Serbestlik Daire Başkanlığını ifade eder."},
+{ id:"5402-qa-009",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 4",question:"Denetimli serbestlik hizmetlerinde esas alınan temel ilkeler nelerdir?",answerText:"İnsan onuruna saygı, dürüstlük, gizlilik ve tarafsızlık."},
+{ id:"5402-qa-010",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 4",question:"Kanun’un 4. maddesine göre gizlilik ilkesi ne anlama gelir?",answerText:"Mağdur, şüpheli, sanık veya hükümlü ile aileleri hakkındaki bilgilerin, kanunun zorunlu kıldığı hâller dışında paylaşılmamasını ifade eder."},
+{ id:"5402-qa-011",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 5",question:"Hakkında denetimli serbestlik tedbiri bulunan kişi hangi yükümlülüklere uymalıdır?",answerText:"Belirlenen programa ve verilen talimatlara uymalıdır."},
+{ id:"5402-qa-012",groupId:"kanun5402",topic:"5402 Sayılı Kanun · Madde 5",question:"Kişinin müdürlüğün çağrılarına ve belirlenen plana uymaması hangi durumda ihlal sayılır?",answerText:"Uyarıya rağmen müdürlüğün çağrılarına veya belirlenen plana uymaması ihlal oluşturur."}
+];
 function getQAQuestions(group){if(!group)return [];return qaQuestions.filter(q=>q.groupId===group.id);}
 function getQuestions(group){if(!group)return [];return questions.filter(q=>{if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=group.min&&n<=group.max;});}
 function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
@@ -236,7 +249,7 @@ function renderQA(){
  if(qaCurrent>=list.length){qaProgress.textContent=qaGroup.title+' · Tamamlandı';qaBox.innerHTML='<div class="result good">Soru – Cevap tamamlandı: '+list.length+' soru.</div><button class="btn primary" id="qaRestart">Baştan başla</button>';return;}
  const q=list[qaCurrent];
  qaProgress.textContent=qaGroup.title+' · Soru '+(qaCurrent+1)+' / '+list.length;
- const answer=qaAnswerShown?'<div class="qa-answer"><b>Cevap:</b> '+q.answer+') '+esc(q.options[q.answer])+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>':'';
+ const answer=qaAnswerShown?'<div class="qa-answer"><b>Cevap:</b> '+esc(q.answerText||(q.answer+') '+(q.options&&q.options[q.answer]||''))) +(q.explanation?'<br><br><b>Açıklama:</b> '+esc(q.explanation):'')+'</div>':'';
  qaBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle"><b>Soru:</b> '+esc(q.question)+'</p>'+answer+(qaAnswerShown?'<button class="btn primary" id="qaNext" type="button">Sonraki Soru →</button>':'<button class="btn primary" id="qaShowAnswer" type="button">Cevabı Göster</button>')+'</article>';
 }
 testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;renderTopicButtons(testTopics,testGroup,"test");renderTest();});
