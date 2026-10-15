@@ -189,14 +189,77 @@ function bgysAutoRefresh(fn) {
 
 function bgysInjectUserBadge(user) {
   if (document.getElementById("bgysUserBadge")) return;
+
   const badge = document.createElement("div");
   badge.id = "bgysUserBadge";
-  badge.style.cssText = "position:fixed;bottom:14px;right:14px;background:#10243E;color:white;padding:8px 14px;border-radius:100px;font-family:'Inter',sans-serif;font-size:0.75rem;display:flex;align-items:center;gap:10px;z-index:800;box-shadow:0 8px 20px -6px rgba(0,0,0,0.3);";
-  badge.innerHTML = `<span>👤 ${user.email}</span><button id="bgysLogoutBtn" style="background:rgba(255,255,255,0.15);color:white;border:none;padding:5px 10px;border-radius:100px;font-size:0.72rem;cursor:pointer;">Çıkış</button>`;
+  badge.style.cssText = "position:fixed;bottom:14px;right:14px;z-index:800;font-family:'Inter',Arial,sans-serif;";
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.id = "bgysProfileToggle";
+  toggle.setAttribute("aria-label", "Profil menüsünü aç");
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.style.cssText = "width:46px;height:46px;border:2px solid rgba(255,255,255,.85);border-radius:50%;background:linear-gradient(135deg,#0E9E97,#5145CD);color:#fff;box-shadow:0 5px 18px rgba(16,36,62,.28);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;cursor:pointer;";
+  toggle.textContent = "👤";
+
+  const menu = document.createElement("div");
+  menu.id = "bgysProfileMenu";
+  menu.hidden = true;
+  menu.style.cssText = "position:absolute;right:0;bottom:56px;width:min(290px,calc(100vw - 32px));padding:14px;background:#10243E;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.24);";
+
+  const label = document.createElement("div");
+  label.textContent = "Giriş yapılan hesap";
+  label.style.cssText = "font-size:11px;color:#AFC4D8;margin-bottom:6px;";
+
+  const email = document.createElement("div");
+  email.id = "bgysProfileEmail";
+  email.textContent = user && user.email ? user.email : "E-posta bilgisi yok";
+  email.style.cssText = "font-size:13px;font-weight:700;overflow-wrap:anywhere;margin-bottom:12px;";
+
+  const logout = document.createElement("button");
+  logout.type = "button";
+  logout.id = "bgysLogoutBtn";
+  logout.textContent = "Çıkış yap";
+  logout.style.cssText = "width:100%;background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.18);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;";
+
+  menu.append(label, email, logout);
+  badge.append(menu, toggle);
   document.body.appendChild(badge);
-  document.getElementById("bgysLogoutBtn").addEventListener("click", async () => {
-    await bgysLogOut();
-    location.href = "auth.html";
+
+  toggle.addEventListener("click", () => {
+    const opening = menu.hidden;
+    menu.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+    toggle.setAttribute("aria-label", opening ? "Profil menüsünü kapat" : "Profil menüsünü aç");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!badge.contains(event.target)) {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Profil menüsünü aç");
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Profil menüsünü aç");
+    }
+  });
+
+  logout.addEventListener("click", async () => {
+    logout.disabled = true;
+    logout.textContent = "Çıkış yapılıyor…";
+    try {
+      await bgysLogOut();
+      location.href = "auth.html";
+    } catch (error) {
+      logout.disabled = false;
+      logout.textContent = "Çıkış yap";
+      console.error("Çıkış yapılamadı:", error);
+    }
   });
 }
 
