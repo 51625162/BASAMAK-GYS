@@ -413,5 +413,57 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<script>
+/* Alan Konu Konuları: örnek görseldeki başlık ve siyah/yeşil kart görünümü */
+(function(){
+ const css=document.createElement('style');
+ css.textContent=`
+ .study-library.panel{
+   background:transparent!important;
+   border:0!important;
+   box-shadow:none!important;
+   padding:0!important;
+ }
+ .wrap>.hero{
+   background:linear-gradient(120deg,#252a32,#353b45)!important;
+   color:#fff!important;
+   border-radius:20px!important;
+   padding:clamp(24px,4vw,36px)!important;
+   margin-bottom:24px!important;
+ }
+ .wrap>.hero .eyebrow{color:#fff!important;opacity:.9}
+ .wrap>.hero h1{color:#fff!important}
+ .wrap>.hero p{color:#e0e4e9!important;max-width:100%!important}
+ .study-library .lesson-card,
+ .study-library details.subject{
+   border:2px solid #222!important;
+   border-radius:14px!important;
+   background:#fff!important;
+   box-shadow:none!important;
+   box-sizing:border-box!important;
+   transition:border-color .15s ease,box-shadow .15s ease,background .15s ease!important;
+ }
+ .study-library .lesson-card:hover,
+ .study-library .lesson-card:focus,
+ .study-library .lesson-card:focus-visible,
+ .study-library details.subject:hover,
+ .study-library details.subject:focus-within{
+   border:3px solid #0e9e97!important;
+   background:#f0fbf8!important;
+   box-shadow:0 0 0 2px rgba(14,158,151,.12)!important;
+   outline:none!important;
+ }
+ `;
+ document.head.appendChild(css);
+ const hero=document.querySelector('.wrap>.hero');
+ if(hero){
+   const h=hero.querySelector('h1');
+   if(h) h.textContent='Alan Konu Konuları';
+   hero.style.position='relative';
+ }
+})();
+</script>
+
 </body>
 </html>
