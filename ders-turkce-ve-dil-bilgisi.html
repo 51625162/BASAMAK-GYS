@@ -3736,52 +3736,8 @@ dileceğini anlattı.”
 
 
 
-<style>
-.page-study-guide{margin:14px 0 12px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:8px}
-.page-study-card{border-radius:10px;padding:12px;color:#142033;border:1px solid rgba(255,255,255,.55);min-width:0;overflow-wrap:anywhere}
-.page-study-card h4{font-size:12px;line-height:1.4;font-weight:900;text-transform:uppercase;margin:-12px -12px 10px;padding:8px 10px;border-radius:9px 9px 6px 6px;color:white}
-.page-study-card p,.page-study-card li,.page-study-card pre{font-size:12px;line-height:1.6;margin:5px 0;white-space:pre-wrap}
-.page-study-card.explain{grid-column:span 6;background:#b9e9ff}.page-study-card.explain h4{background:#087cb8}
-.page-study-card.schema{grid-column:span 6;background:#b8f1d1}.page-study-card.schema h4{background:#087d5a}
-.page-study-card.examples{grid-column:span 6;background:#ffd3e1}.page-study-card.examples h4{background:#d83e72}
-.page-study-card.review{grid-column:span 6;background:#fff0a2}.page-study-card.review h4{background:#a77a00}
-.page-study-card .source-note{font-size:10px;opacity:.8}
-@media(max-width:760px){.page-study-card.explain,.page-study-card.schema,.page-study-card.examples,.page-study-card.review{grid-column:span 12}}
-</style>
-<script>
-(function(){
- function clean(s){return (s||'').replace(/\u0007/g,'').replace(/\s+/g,' ').trim();}
- function card(kind,title,content,note){
-  const el=document.createElement('article');el.className='page-study-card '+kind;
-  const h=document.createElement('h4');h.textContent=title;el.appendChild(h);
-  if(Array.isArray(content)){const ul=document.createElement('ul');content.forEach(function(t){const li=document.createElement('li');li.textContent=t;ul.appendChild(li)});el.appendChild(ul);}
-  else{const p=document.createElement('p');p.textContent=content;el.appendChild(p);}
-  if(note){const small=document.createElement('p');small.className='source-note';small.textContent=note;el.appendChild(small);}
-  return el;
- }
- document.querySelectorAll('.pdf-page').forEach(function(page){
-  const pre=page.querySelector('pre');if(!pre)return;
-  const raw=pre.textContent.replace(/\u0007/g,'');
-  const lines=raw.split(/\n+/).map(clean).filter(Boolean);
-  if(!lines.length)return;
-  const guide=document.createElement('section');guide.className='page-study-guide';
-  guide.setAttribute('aria-label','PDF sayfası konu çalışma kartları');
-  const heading=lines.find(function(s){return s.length>3&&s.length<90&&!/^\d+$/.test(s)})||'Sayfanın konusu';
-  const main=lines.filter(function(s){return s.length>20&&!/^\d+[.)]/.test(s)&&!/^TÜRKÇE VE DİL BİLGİSİ$/i.test(s)});
-  const explanation=main.slice(0,4).join('\n\n').slice(0,1050)||lines.slice(0,5).join('\n');
-  guide.appendChild(card('explain','📘 Konu anlatımı · '+heading,explanation,'Bu açıklama ilgili PDF sayfasından alınan metne dayanır.'));
-  const subheads=lines.filter(function(s){return s.length>2&&s.length<75&&(s===s.toLocaleUpperCase('tr-TR')||/^.{2,55}:$/.test(s))&&!/^TÜRKÇE/.test(s)}).slice(0,6);
-  const schemaItems=(subheads.length?subheads:main.filter(function(s){return s.length<100}).slice(0,5)).slice(0,5);
-  guide.appendChild(card('schema','➡️ Oklarla şema',schemaItems.length?schemaItems.map(function(s,i){return (i===schemaItems.length-1?'└→ ':'→ ')+s}):['PDF sayfasındaki ana ifadeleri sırayla incele.'],'Başlıklar ve ifadeler kaynak metinden seçilmiştir.'));
-  const exampleLines=lines.filter(function(s){return /örnek|örneğin|mesela|aşağıdaki|“|”|‘|’/.test(s)}).filter(function(s){return s.length>12}).slice(0,4);
-  if(exampleLines.length){guide.appendChild(card('examples','🧩 PDF’den örnekler',exampleLines,'Örnek ifadeler kaynak sayfadan seçilmiştir.'));}
-  const reviewItems=(main.length?main:lines).filter(function(s){return s.length>18}).slice(-3).map(function(s){return s.length>190?s.slice(0,187)+'…':s});
-  guide.appendChild(card('review','🔁 Hızlı tekrar',reviewItems.length?reviewItems:['Bu sayfadaki başlıkları ve açıklamaları yeniden oku.'],'Kısa tekrar maddeleri PDF metninden derlenmiştir.'));
-  const oldQuiz=page.querySelector('.page-quiz');
-  if(oldQuiz)page.insertBefore(guide,oldQuiz);else page.appendChild(guide);
- });
-})();
-</script>
+
+
 
 <script>
 (function(){
