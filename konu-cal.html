@@ -40,6 +40,10 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 .subject-topics{padding:12px}
 .subject-note{padding:0 16px 14px;color:#607286}
 
+
+/* Tüm kanun ve yönetmelik kartlarında ortak yeşil kare simge */
+.study-library .lesson-title:before{content:"";display:inline-block;width:11px;height:11px;min-width:11px;margin-right:10px;background:#0e9e97;border:1px solid #087a75;border-radius:2px;vertical-align:baseline;box-shadow:0 0 0 2px rgba(14,158,151,.10)}
+.study-library details.subject>summary b:before{content:"";display:inline-block;width:11px;height:11px;min-width:11px;margin-right:10px;background:#0e9e97;border:1px solid #087a75;border-radius:2px;vertical-align:baseline;box-shadow:0 0 0 2px rgba(14,158,151,.10)}
 /* Ortak mevzuat kataloğu: her kanun/yönetmelik aynı kart ve tıklama düzeninde */
 .study-library .lesson-grid{display:grid;grid-template-columns:1fr;gap:12px}
 .study-library .lesson-card{display:block!important;width:100%;box-sizing:border-box;border:1px solid #cbd5e1!important;border-radius:14px!important;padding:16px!important;background:#fff!important;color:#10243e!important;text-decoration:none!important;transition:border-color .15s,box-shadow .15s}
