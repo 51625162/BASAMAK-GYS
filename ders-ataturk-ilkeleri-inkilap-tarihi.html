@@ -81,6 +81,44 @@ const groups = [
 ["1932–1939 dönemi","PDF’de Balkan Antantı, Sadabat Paktı, Montrö Boğazlar Sözleşmesi ve Hatay meselesi dış politika konuları arasında yer alır.","Balkan Antantı ve Sadabat Paktı bölgesel iş birliği; Montrö Boğazlar Sözleşmesi Boğazlar rejimi; Hatay ise Türkiye’ye katılma süreciyle eşleştirilir.","PDF s. 156–161"]
 ]}
 ];
+const memoryCodes={
+"Trablusgarp Savaşı (1911–1912)":"TRABLUSGARP → UŞİ",
+"Balkan Savaşları":"I. BALKAN: KAYIP · II. BALKAN: EDİRNE’Yİ GERİ AL",
+"I. Dünya Savaşı ve Osmanlı":"YAVUZ-MİDİLLİ → KARADENİZ → SAVAŞ",
+"I. Dünya Savaşı cepheleri":"ÇANAKKALE: MUSTAFA KEMAL · KAFKAS: BREST-LİTOVSK",
+"Gizli antlaşmalar":"S-P: SURİYE FRANSA’YA, IRAK İNGİLTERE’YE",
+"Wilson İlkeleri ve savaşın sonu":"MONDROS 7 = İŞGAL GEREKÇESİ",
+"İşgaller, cemiyetler ve Kuva-yı Millîye":"SİVAS = CEMİYETLER BİRLEŞİR",
+"Samsun’a çıkış ve Havza":"SAMSUN → HAVZA",
+"Amasya Genelgesi":"MİLLETİN AZİM VE KARARI",
+"Erzurum ve Sivas kongreleri":"ERZURUM: VATAN BİR · SİVAS: CEMİYETLER BİR",
+"Amasya Görüşmeleri ve Temsil Heyeti":"SİVAS → AMASYA GÖRÜŞMELERİ → ANKARA",
+"Son Osmanlı Mebusan Meclisi ve Misakımillî":"MİSAK = MİLLÎ HEDEFLER",
+"TBMM’nin açılması ve ayaklanmalar":"23 NİSAN = TBMM",
+"Sevr Barış Antlaşması":"SEVR = DAYATMA · LOZAN = TANINMA",
+"Doğu Cephesi ve Gümrü":"DOĞU CEPHESİ = GÜMRÜ",
+"Güney Cephesi":"M-U-A = MARAŞ, URFA, ANTEP",
+"Batı Cephesi ve düzenli ordu":"İNÖNÜ → KÜTAHYA-ESKİŞEHİR → SAKARYA → TAARRUZ",
+"I. ve II. İnönü savaşları":"İNÖNÜ = DÜZENLİ ORDUNUN GÜÇLENMESİ",
+"Kütahya-Eskişehir ve Sakarya":"KÜTAHYA’DAN ÇEKİL → SAKARYA’DA DURDUR",
+"Büyük Taarruz ve Mudanya":"TAARRUZ = ZAFER · MUDANYA = ATEŞKES",
+"Lozan Barış Antlaşması":"LOZAN = BAĞIMSIZLIĞIN TANINMASI",
+"İç politikadaki gelişmeler ve Cumhuriyet":"13 EKİM: BAŞKENT · 29 EKİM: CUMHURİYET",
+"Halifeliğin kaldırılması ve laiklik yönündeki adımlar":"3 MART 1924 = HALİFELİĞİN KALDIRILMASI",
+"Çok partili hayata geçiş denemeleri":"TERAKKİPERVER → SERBEST",
+"Hukuk alanındaki inkılaplar":"HUKUK = BİRLİK + ÇAĞDAŞLAŞMA",
+"Eğitim ve kültür alanındaki inkılaplar":"TEVHİD = EĞİTİM BİRLİĞİ · TTK = TARİH · TDK = DİL",
+"Toplumsal yaşam ve günlük yaşam düzenlemeleri":"SOYADI · KIYAFET · TAKVİM/ÖLÇÜ",
+"Ekonomi alanındaki gelişmeler":"İKTİSAT = EKONOMİK BAĞIMSIZLIK",
+"Atatürk’ün hayatı ve askerî öğrenimi":"1881 SELANİK → EĞİTİM → ASKERLİK → MİLLÎ MÜCADELE",
+"Cumhuriyetçilik":"CUMHURİYET = EGEMENLİK MİLLETTE",
+"Milliyetçilik ve halkçılık":"MİLLİYETÇİLİK = BİRLİK · HALKÇILIK = EŞİTLİK",
+"Devletçilik ve laiklik":"DEVLETÇİLİK = EKONOMİ · LAİKLİK = DİN-DEVLET",
+"İnkılapçılık ve bütünleyici ilkeler":"İNKILAPÇILIK = YENİLEŞMEYİ SÜRDÜR",
+"Dış politikanın temel ilkeleri":"YURTTA BARIŞ, DÜNYADA BARIŞ",
+"1923–1932 dönemi":"LOZAN’DAN KALAN MESELELER",
+"1932–1939 dönemi":"B-S-M-H = BALKAN, SADABAT, MONTRÖ, HATAY"
+};
 const nav=document.getElementById('nav'), host=document.getElementById('lessons');
 let n=0;
 groups.forEach((g,gi)=>{
@@ -89,7 +127,8 @@ groups.forEach((g,gi)=>{
   n++;const id='topic-'+n;
   const a=document.createElement('a');a.className='nav-link';a.href='#'+id;a.textContent=it[0];a.dataset.q=(g.title+' '+it.join(' ')).toLocaleLowerCase('tr-TR');nav.appendChild(a);
   const card=document.createElement('section');card.className='lesson';card.id=id;card.dataset.search=(g.title+' '+it.join(' ')).toLocaleLowerCase('tr-TR');
-  card.innerHTML='<span class="pill">'+g.title+' · '+it[3]+'</span><h2>'+it[0]+'</h2><p>'+it[1]+'</p><div class="callout"><b>PDF’den sınav odağı:</b> '+it[2]+'</div><details class="source-text"><summary>Bu konuyu tekrar ederken sorulabilecek anahtarlar</summary><div class="law-text">'+g.title+'\nKonu: '+it[0]+'\nKaynak aralığı: '+it[3]+'\nPDF bölüm aralığı: '+g.range+'\n\nÖnce olayın sebebini, sonra gelişmesini, ardından sonucunu ve ilgili tarih/antlaşmayı birlikte tekrar et.</div></details>';
+  const mnemonic=memoryCodes[it[0]]||'KONU → ANA KAVRAM → SONUÇ';
+  card.innerHTML='<span class="pill">'+g.title+' · '+it[3]+'</span><h2>'+it[0]+'</h2><p>'+it[1]+'</p><div class="memory"><b>Ezber Kodu</b><p>'+mnemonic+'</p></div><div class="callout"><b>PDF’den sınav odağı:</b> '+it[2]+'</div><div class="quick"><b>Hızlı Tekrar</b><ul><li>'+it[1]+'</li><li>'+it[2]+'</li><li>PDF sayfaları: '+it[3]+'</li></ul></div><details class="source-text"><summary>Kaynak ve tekrar notu</summary><div class="law-text">'+g.title+'\\nKonu: '+it[0]+'\\nKaynak aralığı: '+it[3]+'\\nPDF bölüm aralığı: '+g.range+'\\n\\nEzber kodu ve hızlı tekrar, yüklenen PDF’deki konu anlatımını hatırlamayı kolaylaştırmak için hazırlanmıştır.</div></details>';
   host.appendChild(card);
  });
 });
