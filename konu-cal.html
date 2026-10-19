@@ -386,5 +386,32 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<script>
+/* Tüm 1–38 katalog kutularında yeşil kenarlığı kalıcı ve daha kalın tut */
+(function(){
+ const css=document.createElement('style');
+ css.textContent=`
+ .study-library .lesson-card,
+ .study-library details.subject {
+   border:2px solid #0e9e97!important;
+   border-radius:14px!important;
+   box-sizing:border-box!important;
+   transition:border-color .15s ease, box-shadow .15s ease!important;
+ }
+ .study-library .lesson-card:hover,
+ .study-library .lesson-card:focus,
+ .study-library .lesson-card:focus-visible,
+ .study-library details.subject:hover,
+ .study-library details.subject:focus-within {
+   border:3px solid #0e9e97!important;
+   box-shadow:0 0 0 2px rgba(14,158,151,.18)!important;
+   outline:none!important;
+ }
+ `;
+ document.head.appendChild(css);
+})();
+</script>
+
 </body>
 </html>
