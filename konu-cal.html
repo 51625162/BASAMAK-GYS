@@ -30,7 +30,7 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 
 .lesson-part-two{border-top:2px solid var(--line);margin-top:22px;padding-top:20px}.lesson-part-two h3{font:800 20px Sora,Inter,sans-serif;color:var(--navy);margin:0 0 8px}
 
-/* 2026-10-19: Alt mevzuat gruplarını üstteki ders kartlarıyla aynı görünüme getir */
+
 .subject{display:block;margin:0 0 12px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#10243e;overflow:hidden}
 .subject summary{display:block;padding:16px;background:#fff;color:#10243e;font-size:14px;line-height:1.55}
 .subject summary:after{display:none!important;content:none!important}
@@ -39,6 +39,27 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 .subject[open] summary{border-bottom:1px solid #e0e8ef}
 .subject-topics{padding:12px}
 .subject-note{padding:0 16px 14px;color:#607286}
+
+/* Ortak mevzuat kataloğu: her kanun/yönetmelik aynı kart ve tıklama düzeninde */
+.study-library .lesson-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.study-library .lesson-card{display:block!important;width:100%;box-sizing:border-box;border:1px solid #cbd5e1!important;border-radius:14px!important;padding:16px!important;background:#fff!important;color:#10243e!important;text-decoration:none!important;transition:border-color .15s,box-shadow .15s}
+.study-library .lesson-card:hover,.study-library .lesson-card:focus-visible{border-color:#0e9e97!important;box-shadow:0 0 0 3px rgba(14,158,151,.12);outline:none}
+.study-library .lesson-title{font-size:14px;font-weight:700;line-height:1.55;color:#10243e;margin-bottom:7px}
+.study-library .lesson-card p{font-size:12px;line-height:1.65;color:#607286;margin:0}
+.study-library details.subject{display:block;margin:0 0 12px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#10243e;overflow:hidden}
+.study-library details.subject>summary{display:block;padding:16px;background:#fff;color:#10243e;font-size:14px;line-height:1.55;cursor:pointer}
+.study-library details.subject>summary:after{display:none!important;content:none!important}
+.study-library details.subject>summary b{display:block;font-size:14px;font-weight:700;color:#10243e}
+.study-library details.subject>summary span{display:block;text-align:left!important;margin-top:7px;font-size:12px;line-height:1.6;color:#607286}
+.study-library details.subject[open]>summary{border-bottom:1px solid #e0e8ef}
+.study-library .subject-topics{padding:12px}
+.study-library .topic-link{display:block;position:relative;border:1px solid #d7e1e9;border-radius:10px;padding:13px 14px;background:#fbfcfe;color:#10243e;text-decoration:none;transition:border-color .15s,background .15s}
+.study-library .topic-link:hover,.study-library .topic-link:focus-visible{border-color:#0e9e97;background:#f4fbfa;outline:none}
+.study-library .topic-link b{display:block;font-size:13px;margin-bottom:6px}
+.study-library .topic-link span{display:block;font-size:11px;line-height:1.6;color:#607286}
+.study-library .topic-link em{display:block;margin-top:9px;font-size:11px;font-weight:800;font-style:normal;color:#087a75}
+.study-library .subject-note{padding:0 16px 14px;color:#607286;font-size:11px;line-height:1.6}
+@media(max-width:700px){.study-library .lesson-card,.study-library details.subject>summary{padding:14px!important}.study-library .topic-link{padding:12px}}
 </style>
 </head>
 <body>
