@@ -70,6 +70,20 @@ details.subject{display:block!important;margin:0 0 12px!important;border:1px sol
 details.subject>summary{display:block!important;padding:16px!important;background:#fff!important;color:#10243e!important;cursor:pointer!important;list-style:none}
 details.subject>summary::-webkit-details-marker{display:none}
 
+
+/* Katalog: tüm dersleri numaralandır, renkli kare simgelerini kaldır */
+.lesson-card .lesson-title:before,details.subject>summary:before,
+details.subject>summary b:before,details.subject>summary b:after,
+details.subject>summary span:before,details.subject>summary span:after,
+.lesson-card:before,.lesson-card:after{content:none!important;display:none!important}
+.study-library .lesson-grid{counter-reset:catalogue}
+.study-library .lesson-card{counter-increment:catalogue;position:relative;padding-left:48px!important}
+.study-library .lesson-card .lesson-title{position:relative}
+.study-library .lesson-card .lesson-title:before{content:counter(catalogue) "."!important;display:inline!important;width:auto!important;height:auto!important;min-width:0!important;margin-right:8px!important;background:none!important;border:0!important;border-radius:0!important;color:#10243e!important;font-weight:800}
+.study-library details.subject{counter-increment:catalogue;position:relative}
+.study-library details.subject>summary{position:relative;padding-left:48px!important}
+.study-library details.subject>summary:before{content:counter(catalogue) "."!important;display:block!important;position:absolute;left:16px;top:16px;width:auto!important;height:auto!important;min-width:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;color:#10243e!important;font-size:14px;font-weight:800}
+.study-library details.subject .topic-link b:before{display:none!important;content:none!important}
 /* Katalogdaki tüm konu başlıklarında tutarlı tek mavi kare simgesi */
 .lesson-card .lesson-title:before{content:"";display:inline-block;width:11px;height:11px;min-width:11px;margin-right:10px;background:#3b82f6;border:1px solid #2563eb;border-radius:2px;vertical-align:baseline}
 details.subject>summary:before{content:"";display:inline-block;width:11px;height:11px;min-width:11px;margin-right:10px;background:#3b82f6;border:1px solid #2563eb;border-radius:2px;vertical-align:baseline}
