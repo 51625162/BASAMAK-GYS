@@ -3750,7 +3750,7 @@ dileceğini anlattı.”
 </style>
 <script>
 (function(){
- function clean(s){return (s||'').replace(/\u0007/g,'').replace(/\\s+/g,' ').trim();}
+ function clean(s){return (s||'').replace(/\u0007/g,'').replace(/\s+/g,' ').trim();}
  function card(kind,title,content,note){
   const el=document.createElement('article');el.className='page-study-card '+kind;
   const h=document.createElement('h4');h.textContent=title;el.appendChild(h);
