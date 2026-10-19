@@ -71,6 +71,17 @@ details.subject>summary{display:block!important;padding:16px!important;backgroun
 details.subject>summary::-webkit-details-marker{display:none}
 
 
+
+/* Numaralı ders kartlarında kalan mavi simgeleri tamamen kaldır */
+.study-library .lesson-card .lesson-title:before,
+.study-library details.subject>summary:before,
+.study-library details.subject>summary b:before,
+.study-library details.subject>summary b:after,
+.study-library details.subject>summary span:before,
+.study-library details.subject>summary span:after,
+.study-library details.subject .topic-link b:before,
+.study-library .lesson-card:before,
+.study-library .lesson-card:after{content:none!important;display:none!important;background:none!important;border:0!important}
 /* Katalog: tüm dersleri numaralandır, renkli kare simgelerini kaldır */
 .lesson-card .lesson-title:before,details.subject>summary:before,
 details.subject>summary b:before,details.subject>summary b:after,
