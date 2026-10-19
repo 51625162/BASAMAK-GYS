@@ -169,6 +169,26 @@ details.subject .subject-note{padding:0 16px 14px!important;color:#607286;font-s
 }
 
 </style>
+<style>
+/* Ortak Konular başlığı: Alan Konuları hero tasarımıyla uyumlu */
+.common-topics-heading{
+  margin-top:24px!important;margin-bottom:22px!important;
+  padding:clamp(20px,3.5vw,32px)!important;
+  border:1px solid rgba(190,157,70,.58)!important;border-radius:20px!important;
+  background:
+    radial-gradient(ellipse at 92% 8%,rgba(255,199,92,.52),transparent 31%),
+    radial-gradient(ellipse at 98% 90%,rgba(20,126,91,.46),transparent 38%),
+    linear-gradient(112deg,#fff9e9 0%,#f8f4e6 46%,#e9f3e6 100%)!important;
+  box-shadow:0 12px 28px rgba(26,75,55,.09)!important;
+}
+.common-topics-title{display:flex;align-items:center;gap:18px}
+.common-topics-icon{display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,#d9ead9,#f4d58b);font-size:30px;box-shadow:0 7px 18px rgba(26,75,55,.12)}
+.common-topics-eyebrow{font-size:10px;letter-spacing:.14em;font-weight:800;color:#a86a0b;margin-bottom:5px}
+.common-topics-heading h2{font-family:Sora,Inter,sans-serif!important;font-size:clamp(22px,3vw,30px)!important;line-height:1.2!important;color:#103e32!important;margin:0 0 7px!important}
+.common-topics-heading p{font-size:13px;line-height:1.6;color:#425c55;margin:0}
+@media(max-width:520px){.common-topics-title{align-items:flex-start;gap:12px}.common-topics-icon{flex-basis:46px;width:46px;height:46px;font-size:24px;border-radius:14px}}
+</style>
+
 </head>
 <body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · DS Şefliği</small></header>
@@ -239,6 +259,13 @@ details.subject .subject-note{padding:0 16px 14px!important;color:#607286;font-s
 
 
 </div></section>
+
+<section class="panel common-topics-heading" aria-label="Ortak Konular">
+  <div class="common-topics-title">
+    <span class="common-topics-icon" aria-hidden="true">📚</span>
+    <div><div class="common-topics-eyebrow">KONU ANLATIMLARI</div><h2>Ortak Konular</h2><p>Birden fazla alanda ortak olan mevzuat ve konular</p></div>
+  </div>
+</section>
 
 <section class="panel"><h2>İçerik yükleme planı</h2><p class="hint">Hazır mevzuat konu anlatımları yukarıdaki ders kartlarından açılır. Yeni içerikler PDF kaynaklarına bağlı olarak aynı sistemle eklenir.</p><div id="notes" class="notes"><div class="empty">Hazır dersler ayrı içerik sayfalarında tutulur. Böylece ders içerikleri kullanıcı kayıtlarından bağımsız çalışır.</div></div></section>
 </main>
