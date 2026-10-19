@@ -64,6 +64,22 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 .study-library .topic-link em{display:block;margin-top:9px;font-size:11px;font-weight:800;font-style:normal;color:#087a75}
 .study-library .subject-note{padding:0 16px 14px;color:#607286;font-size:11px;line-height:1.6}
 @media(max-width:700px){.study-library .lesson-card,.study-library details.subject>summary{padding:14px!important}.study-library .topic-link{padding:12px}}
+
+/* Bütün konu başlıkları: tek tip yeşil kareli, tıklanınca doğrudan ders açılır */
+details.subject{display:block!important;margin:0 0 12px!important;border:1px solid #cbd5e1!important;border-radius:14px!important;background:#fff!important;color:#10243e!important;overflow:hidden}
+details.subject>summary{display:block!important;padding:16px!important;background:#fff!important;color:#10243e!important;cursor:pointer!important;list-style:none}
+details.subject>summary::-webkit-details-marker{display:none}
+details.subject>summary:before, .lesson-card .lesson-title:before{content:"";display:inline-block;width:11px;height:11px;min-width:11px;margin-right:10px;background:#0e9e97;border:1px solid #087a75;border-radius:2px;vertical-align:baseline}
+details.subject>summary:after{display:none!important;content:none!important}
+details.subject>summary b{display:block;font-size:14px;line-height:1.55;color:#10243e}
+details.subject>summary span{display:block!important;text-align:left!important;margin:7px 0 0!important;font-size:12px;line-height:1.6;color:#607286}
+details.subject .subject-topics{padding:12px!important}
+details.subject .topic-link{display:block!important;border:1px solid #d7e1e9!important;border-radius:10px!important;padding:13px 14px!important;background:#fbfcfe!important;color:#10243e!important;text-decoration:none!important}
+details.subject .topic-link b{display:block;font-size:13px;margin-bottom:6px}
+details.subject .topic-link b:before{content:"";display:inline-block;width:9px;height:9px;margin-right:8px;background:#0e9e97;border-radius:2px}
+details.subject .topic-link span{display:block;font-size:11px;line-height:1.6;color:#607286}
+details.subject .topic-link em{display:block;margin-top:9px;font-size:11px;font-weight:800;font-style:normal;color:#087a75}
+details.subject .subject-note{padding:0 16px 14px!important;color:#607286;font-size:11px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -168,7 +184,7 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 <script>
 /* Katalogda kanun/yönetmelik başlığına tıklanınca doğrudan ders sayfasını aç */
 document.addEventListener('DOMContentLoaded',function(){
-  document.querySelectorAll('.study-library details.subject').forEach(function(group){
+  document.querySelectorAll('details.subject').forEach(function(group){
     var summary=group.querySelector(':scope > summary');
     var lesson=group.querySelector('.subject-topics a.topic-link');
     if(!summary||!lesson)return;
