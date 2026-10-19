@@ -292,5 +292,37 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
+
+<script>
+/* Mavi/yeşil kare simgelerini kesin olarak kapat; katalog numaraları kalsın */
+(function(){
+ const css = document.createElement('style');
+ css.id = 'bgys-monochrome-catalogue-fix';
+ css.textContent = `
+ .study-library .lesson-card .lesson-title::before {
+   content: counter(catalogue) '.' !important; display:inline !important;
+   width:auto!important;height:auto!important;min-width:0!important;
+   margin:0 8px 0 0!important;padding:0!important;
+   background:transparent!important;border:0!important;border-radius:0!important;
+   box-shadow:none!important;color:#10243e!important;font-weight:800!important;
+ }
+ .study-library details.subject>summary::before {
+   content:counter(catalogue) '.'!important;background:transparent!important;
+   border:0!important;box-shadow:none!important;border-radius:0!important;
+ }
+ .study-library .lesson-title::after,
+ .study-library .lesson-card::before,.study-library .lesson-card::after,
+ .study-library details.subject>summary b::before,
+ .study-library details.subject>summary b::after,
+ .study-library details.subject>summary span::before,
+ .study-library details.subject>summary span::after,
+ .study-library .topic-link b::before,.study-library .topic-link b::after {
+   content:none!important;display:none!important;background:none!important;
+   border:0!important;box-shadow:none!important;
+ }`;
+ document.head.appendChild(css);
+})();
+</script>
+
 </body>
 </html>
