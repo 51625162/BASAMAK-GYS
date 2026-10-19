@@ -1099,3 +1099,88 @@ async function bgysToggleFavorite(questionId) {
   return true;
 }
 
+
+
+/* ================= Ortak sol madde menüsü gezinme sistemi =================
+   Tüm mevzuat derslerinde Yukarı/Aşağı düğmelerini aynı görünüm ve davranışta tutar.
+   Mevcut madde metinlerine ve ders içeriklerine dokunmaz. */
+(function bgysOrtakMaddeGezinme() {
+  function uygula() {
+    const yanMenu = document.querySelector(".side");
+    const liste = document.querySelector(".side .nav, .side #nav");
+    if (!yanMenu || !liste) return;
+
+    if (!document.getElementById("bgys-ortak-madde-menu-stili")) {
+      const stil = document.createElement("style");
+      stil.id = "bgys-ortak-madde-menu-stili";
+      stil.textContent = `
+        .side .controls {
+          display: flex !important;
+          gap: 6px !important;
+          margin: 8px 0 !important;
+        }
+        .side .controls button {
+          flex: 1 1 0 !important;
+          min-height: 42px;
+          background: #263b5f !important;
+          color: #fff !important;
+          border: 1px solid #3a5681 !important;
+          border-radius: 8px !important;
+          padding: 8px 10px !important;
+          font: inherit;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background .15s, border-color .15s, transform .15s;
+        }
+        .side .controls button:hover,
+        .side .controls button:focus-visible {
+          background: #354f7d !important;
+          border-color: #8ddcff !important;
+          outline: none;
+        }
+        .side .controls button:active { transform: translateY(1px); }
+        .side .nav {
+          scroll-behavior: smooth;
+          scrollbar-width: thin;
+          scrollbar-color: #7185bd #0a1830;
+        }
+      `;
+      document.head.appendChild(stil);
+    }
+
+    let kontroller = yanMenu.querySelector(".controls");
+    if (!kontroller) {
+      kontroller = document.createElement("div");
+      kontroller.className = "controls";
+      liste.parentNode.insertBefore(kontroller, liste);
+    }
+
+    const tanimlar = [
+      { metin: "▲ Yukarı", yon: -220, aria: "Madde listesini yukarı kaydır" },
+      { metin: "▼ Aşağı", yon: 220, aria: "Madde listesini aşağı kaydır" }
+    ];
+    tanimlar.forEach((tanim, sira) => {
+      let dugme = kontroller.querySelectorAll("button")[sira];
+      if (!dugme) {
+        dugme = document.createElement("button");
+        kontroller.appendChild(dugme);
+      }
+      dugme.textContent = tanim.metin;
+      dugme.type = "button";
+      dugme.setAttribute("aria-label", tanim.aria);
+      dugme.removeAttribute("onclick");
+      if (dugme.dataset.bgysScrollBound !== "1") {
+        dugme.addEventListener("click", () => {
+          liste.scrollBy({ top: tanim.yon, behavior: "smooth" });
+        });
+        dugme.dataset.bgysScrollBound = "1";
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", uygula, { once: true });
+  } else {
+    uygula();
+  }
+})();
