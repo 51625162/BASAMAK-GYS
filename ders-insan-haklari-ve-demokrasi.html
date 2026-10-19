@@ -9,6 +9,28 @@
 .wrap{max-width:1100px;margin:auto;padding:24px 16px 56px}.back{display:inline-block;color:var(--teal);font-weight:700;font-size:13px;margin-bottom:18px}.hero{background:linear-gradient(120deg,#10243e,#175365 72%,#087a75);color:white;border-radius:20px;padding:clamp(22px,4vw,36px);margin-bottom:18px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:#78ded3;font-weight:800}.hero h1{font:800 clamp(25px,4vw,36px)/1.2 Sora,Inter,sans-serif;margin:10px 0}.hero p{color:#d7e6ed;font-size:13px;line-height:1.7;max-width:760px;margin:0}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.toolbar input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;background:white}.btn{border:1px solid var(--line);border-radius:10px;background:white;color:var(--navy);padding:10px 13px;font-weight:700;cursor:pointer}.layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start}.side,.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px}.side{position:sticky;top:12px;max-height:78vh;overflow:auto}.side h2,.panel h2{font:800 16px Sora,Inter,sans-serif;margin:0 0 12px}.nav-link{display:block;font-size:12px;line-height:1.45;padding:9px 10px;border-radius:8px;color:#40566b}.nav-link:hover,.nav-link.active{background:#eaf7f6;color:#087a75;font-weight:700}.section-head{margin:18px 0 10px;padding:10px 12px;background:#edf3f8;border-radius:10px;font-size:12px;font-weight:800;letter-spacing:.03em}.lesson{border:1px solid var(--line);border-radius:14px;padding:17px;margin-bottom:12px;background:#fff;scroll-margin-top:16px}.pill{display:inline-block;border-radius:999px;padding:5px 8px;background:#edf8f7;color:#087a75;font-size:10px;font-weight:800}.lesson h2{font:800 18px/1.4 Sora,Inter,sans-serif;margin:10px 0}.lesson p,.lesson li{font-size:13px;line-height:1.75;color:#43576b}.memory,.quick,.callout{border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px;line-height:1.7}.memory{background:#fff5df;border:1px solid #f7e3b1}.memory b,.quick b,.callout b{display:block;margin-bottom:4px;color:#10243e}.memory p{font-weight:800;color:#7a4b00;margin:0}.quick{background:#edf8f7;border:1px solid #ccece8}.quick ul{padding-left:18px;margin:4px 0 0}.callout{background:#f4f7fb;border:1px solid var(--line)}details.source-text{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}details summary{cursor:pointer;font-size:12px;font-weight:800;color:#087a75}.law-text{white-space:pre-line;font-size:12px;line-height:1.7;color:#536779;padding-top:10px}.quiz-question{padding:12px 0;border-bottom:1px solid var(--line)}.quiz-question p{font-size:13px;font-weight:700}.quiz-question label{display:block;font-size:13px;padding:5px 0;color:#43576b}.result{font-weight:800;margin-top:12px}.hidden{display:none!important}.small{font-size:11px;color:var(--muted);line-height:1.6}.footer{font-size:11px;color:var(--muted);margin-top:16px}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.side{position:relative;top:auto;max-height:330px}.hero{border-radius:14px}.wrap{padding:16px 12px 40px}}
+
+/* Basamak GYS ortak ders tasarimi: koyu tema */
+:root{color-scheme:dark;--navy:#eef3ff;--teal:#8ddcff;--gold:#f5b544;--bg:#07172c;--muted:#a8b8d0;--line:#20395d;--white:#0b1c35}
+html{background:#07172c}body{background:radial-gradient(ellipse at 78% 0%,#172a50,#07172c 45%,#050f20);color:#eef3ff}
+.top{background:#061225;border-bottom:1px solid #20395d;color:#eef3ff}
+.logo{background:linear-gradient(135deg,#0e9e97,#f5b544)}
+.back{color:#8ddcff}
+.hero{background:linear-gradient(120deg,#101b4d,#101f42 64%,#1c3155);border:1px solid #304b8a}
+.eyebrow{color:#8ddcff}.hero p{color:#c7d4e8}
+.toolbar input,.btn{background:#071225;color:#eef3ff;border-color:#294366}
+.side,.panel{background:#09152b;border-color:#20395d;color:#eef3ff}
+.nav-link{color:#eaf0ff}.nav-link:hover,.nav-link.active{background:#182a4a;color:#8ddcff}
+.section-head{background:#102541;color:#eef3ff;border:1px solid #20395d}
+.lesson{background:linear-gradient(145deg,#0b1c35,#0a1930);border-color:#304b8a;color:#eef3ff}
+.pill{background:#282c78;color:#c4c8ff;border:1px solid #4d51c3}
+.lesson p,.lesson li{color:#c7d4e8}
+.memory{background:#2a1b3b;border-color:#9851a0}.memory b,.quick b,.callout b{color:#eef3ff}.memory p{color:#ffd58a}
+.quick{background:#10313e;border-color:#268f86}.callout{background:#08172b;border-color:#365174;color:#dbe6f7}
+details.source-text{border-color:#294366}details summary{color:#8ddcff}.law-text{color:#c7d4e8}
+.quiz-question{border-color:#20395d}.quiz-question label{color:#c7d4e8}.small,.footer{color:#a8b8d0}
+input[type=radio]{accent-color:#8ddcff}
+
 </style></head><body>
 <header class="top"><div class="brand"><span class="logo">BG</span><span>BASAMAK GYS</span></div><a href="konu-cal.html" style="font-size:12px;font-weight:700">Konu listesine dön ↗</a></header>
 <main class="wrap"><a class="back" href="konu-cal.html">← Ortak Konular</a>
