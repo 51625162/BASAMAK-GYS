@@ -354,5 +354,36 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<script>
+/* Tüm ders kutuları için aynı yeşil hover/focus çerçevesi */
+(function(){
+ const css=document.createElement('style');
+ css.textContent=`
+ .study-library .lesson-card,
+ .study-library details.subject {
+   border:1px solid #cbd5e1!important;
+   border-radius:14px!important;
+   transition:border-color .15s ease, box-shadow .15s ease!important;
+ }
+ .study-library .lesson-card:hover,
+ .study-library .lesson-card:focus,
+ .study-library .lesson-card:focus-visible,
+ .study-library details.subject:hover,
+ .study-library details.subject:focus-within {
+   border-color:#0e9e97!important;
+   box-shadow:0 0 0 3px rgba(14,158,151,.12)!important;
+   outline:none!important;
+ }
+ .study-library .lesson-card:focus-visible,
+ .study-library details.subject>summary:focus-visible {
+   outline:2px solid #0e9e97!important;
+   outline-offset:2px!important;
+ }
+ `;
+ document.head.appendChild(css);
+})();
+</script>
+
 </body>
 </html>
