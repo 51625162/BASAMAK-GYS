@@ -2,66 +2,8 @@
 <style>
 :root{color-scheme:dark;--bg:#061326;--line:#29486b;--text:#edf5ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 55% 0%,#17375d 0,#07162a 45%,#040d1a 100%);color:var(--text);font:15px/1.55 Arial,sans-serif}a{color:#a8d9ff;text-decoration:none}.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:#061225ee;border-bottom:1px solid #254365;backdrop-filter:blur(12px)}.brand{font-weight:900}.brand b{display:inline-grid;place-items:center;width:32px;height:32px;margin-right:8px;border-radius:9px;background:linear-gradient(135deg,#5dd9e8,#713de0)}.top small{color:#9cc7eb}.hero{margin:16px auto;max-width:1500px;padding:22px 24px;border:1px solid #34577b;border-radius:18px;background:linear-gradient(110deg,#0b1d34,#102d4b 55%,#211e4b);display:flex;gap:20px;align-items:center}.hero-icon{font-size:44px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.7px;color:#69e1d2}.hero h1{margin:5px 0;font-size:clamp(22px,3vw,34px)}.hero p{margin:5px 0;color:#c4d7ed}.pill{display:inline-block;margin-top:8px;padding:5px 10px;border:1px solid #41648b;border-radius:20px;background:#17365a;font-size:11px;font-weight:bold}.layout{max-width:1500px;margin:auto;padding:0 12px 30px;display:grid;grid-template-columns:minmax(220px,280px) minmax(0,1fr);gap:14px;align-items:start}.sidebar,.reader{min-width:0;border:1px solid var(--line);border-radius:14px;background:linear-gradient(155deg,#0d223d,#08182c);overflow:hidden;box-shadow:0 8px 20px #0003}.side-head{padding:13px;background:linear-gradient(90deg,#163858,#102642);border-bottom:1px solid var(--line);font-weight:bold}.topic-list{max-height:72vh;overflow:auto;padding:7px;display:flex;flex-direction:column;gap:4px}.topic{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px;border-radius:9px;border:1px solid transparent;background:transparent;color:#e6f1ff;cursor:pointer;font-size:12px}.topic span{flex:0 0 27px;height:27px;display:grid;place-items:center;border-radius:50%;background:#713de0;font-weight:900}.topic:hover,.topic.active{background:#123a61;border-color:#258ec2}.search{width:calc(100% - 16px);margin:8px;padding:10px;border-radius:8px;background:#06162a;color:white;border:1px solid #3a5b7e}.reader-head{padding:14px 16px;background:linear-gradient(110deg,#b91e42,#e83b53 48%,#8f2b79);border-bottom:1px solid #ff8194;display:flex;align-items:center;justify-content:space-between;gap:10px}.reader-head h2{font-size:19px;margin:2px 0}.reader-head small{color:#ffe6e8;font-weight:bold;letter-spacing:1px}.counter{border:1px solid #ffffff70;border-radius:10px;padding:6px 10px;text-align:center;min-width:75px}.counter strong{font-size:22px;display:block}.controls{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:#0b2038;border-bottom:1px solid var(--line)}.controls button{background:#153a5c;color:white;border:1px solid #3b6389;border-radius:9px;padding:8px 12px;cursor:pointer}.controls label{display:flex;align-items:center;gap:5px;font-size:12px;color:#c8d9eb}.controls input{width:62px;background:#06162a;color:white;border:1px solid #416181;border-radius:7px;padding:7px}.progress{height:4px;background:#1a3550}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2bd7d2,#ffcf39);transition:width .2s}.pdf-page{display:none}.pdf-page.current{display:block}.page-label{padding:12px 16px;background:#102945;color:#eff7ff;border-bottom:1px solid #2a496b;font-weight:bold}.pdf-page pre{margin:0;padding:22px 20px 30px;white-space:pre-wrap;overflow-wrap:anywhere;color:#dbe8f8;font:14px/1.9 system-ui,Arial,sans-serif;background:linear-gradient(150deg,#0a1d32,#081629);min-height:300px;border-left:3px solid #37b8bb}.bottom{border-top:1px solid var(--line)}.foot{padding:12px 16px;color:#a9c5e1;font-size:11px;background:#08182b}@media(max-width:760px){.top{padding:10px}.top small{font-size:10px}.hero{margin:8px;padding:14px;gap:10px}.hero-icon{font-size:30px}.layout{display:flex;flex-direction:column;padding:0 8px}.sidebar,.reader{width:100%}.topic-list{max-height:250px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.topic{padding:6px;gap:5px;font-size:11px}.topic span{flex-basis:24px;height:24px}.reader-head{padding:12px}.reader-head h2{font-size:16px}.pdf-page pre{padding:15px;font-size:13px;line-height:1.8;min-height:250px}.controls{padding:7px;gap:5px}.controls button{padding:7px 9px}.controls label{font-size:11px}}</style></head><body>
 <header class="top"><a class="brand" href="konu-cal.html"><b>B</b>Basamak GYS</a><small>Ortak Konular · PDF kaynaklı ders</small></header>
-<section class="hero"><div class="hero-icon">📐</div><div><div class="eyebrow">ORTAK KONULAR · 08</div><h1>Matematik, Sayısal Mantık ve Geometri</h1><p>Yüklenen PDF’nin 127 sayfası; konu dizini, sayfa gezgini ve metin arama sistemiyle ders ekranına bağlandı.</p><span class="pill">127 PDF sayfası · 27 ana konu</span></div></section>
-<main class="layout"><aside class="sidebar"><div class="side-head">📚 Konu dizini</div><input class="search" id="search" placeholder="PDF metninde ara…"><div class="topic-list"><button class="topic" data-topic="Temel İşlem Yeteneği, Temel Kavramlar" data-page="3"><span>01</span>Temel İşlem Yeteneği, Temel Kavramlar</button><button class="topic" data-topic="Bölme - Bölünebilme - EBOB - EKOK" data-page="10"><span>02</span>Bölme - Bölünebilme - EBOB - EKOK</button><button class="topic" data-topic="Rasyonel Sayılar" data-page="16"><span>03</span>Rasyonel Sayılar</button><button class="topic" data-topic="Denklem Çözme - Eşitsizlik, Mutlak Değer" data-page="22"><span>04</span>Denklem Çözme - Eşitsizlik, Mutlak Değer</button><button class="topic" data-topic="Üslü Sayılar - Köklü Sayılar" data-page="28"><span>05</span>Üslü Sayılar - Köklü Sayılar</button><button class="topic" data-topic="Çarpanlara Ayırma ve Özdeşlikler" data-page="35"><span>06</span>Çarpanlara Ayırma ve Özdeşlikler</button><button class="topic" data-topic="Oran - Orantı" data-page="39"><span>07</span>Oran - Orantı</button><button class="topic" data-topic="Sayı Kesir Problemleri" data-page="44"><span>08</span>Sayı Kesir Problemleri</button><button class="topic" data-topic="Yaş Problemleri" data-page="46"><span>09</span>Yaş Problemleri</button><button class="topic" data-topic="Yüzde, Faiz, Kâr - Zarar Problemleri" data-page="48"><span>10</span>Yüzde, Faiz, Kâr - Zarar Problemleri</button><button class="topic" data-topic="Karışım Problemleri" data-page="50"><span>11</span>Karışım Problemleri</button><button class="topic" data-topic="Hareket Problemleri" data-page="52"><span>12</span>Hareket Problemleri</button><button class="topic" data-topic="İşçi - Havuz Problemleri" data-page="54"><span>13</span>İşçi - Havuz Problemleri</button><button class="topic" data-topic="Grafik ve Tablo Yorumlama" data-page="57"><span>14</span>Grafik ve Tablo Yorumlama</button><button class="topic" data-topic="Kümeler" data-page="61"><span>15</span>Kümeler</button><button class="topic" data-topic="Fonksiyonlar" data-page="64"><span>16</span>Fonksiyonlar</button><button class="topic" data-topic="İşlem - Modüler Aritmetik" data-page="69"><span>17</span>İşlem - Modüler Aritmetik</button><button class="topic" data-topic="Permütasyon - Kombinasyon - Olasılık" data-page="74"><span>18</span>Permütasyon - Kombinasyon - Olasılık</button><button class="topic" data-topic="Sayısal Mantık" data-page="79"><span>19</span>Sayısal Mantık</button><button class="topic" data-topic="Doğruda ve Üçgende Açılar" data-page="81"><span>20</span>Doğruda ve Üçgende Açılar</button><button class="topic" data-topic="Üçgende Açı-Kenar Bağıntıları ve Özel Üçgenler" data-page="85"><span>21</span>Üçgende Açı-Kenar Bağıntıları ve Özel Üçgenler</button><button class="topic" data-topic="Üçgende Benzerlik - Üçgende Alan" data-page="91"><span>22</span>Üçgende Benzerlik - Üçgende Alan</button><button class="topic" data-topic="Çokgenler ve Dörtgenler" data-page="96"><span>23</span>Çokgenler ve Dörtgenler</button><button class="topic" data-topic="Özel Dörtgenler" data-page="101"><span>24</span>Özel Dörtgenler</button><button class="topic" data-topic="Çember ve Daire" data-page="108"><span>25</span>Çember ve Daire</button><button class="topic" data-topic="Analitik Geometri" data-page="113"><span>26</span>Analitik Geometri</button><button class="topic" data-topic="Katı Cisimler" data-page="122"><span>27</span>Katı Cisimler</button></div></aside><section class="reader"><div class="reader-head"><div><small>PDF KAYNAKLI ÇALIŞMA</small><h2 id="pageTitle">Matematik</h2></div><div class="counter"><strong id="current">1</strong><span>/ 127</span></div></div><div class="controls"><button id="prev">← Önceki</button><label>Sayfa <input id="jump" type="number" min="1" max="127" value="1"></label><button id="next">Sonraki →</button></div><div class="progress"><span id="bar"></span></div><section class="pdf-page" id="page-1" data-page="1"><div class="page-label">PDF SAYFASI 1 / 127</div><pre>MATEMATİK
-TEMEL İŞLEM YETENEĞİ, TEMEL KAVRAMLAR.............................................................................................................. 2
-
-BÖLME - BÖLÜNEBİLME - EBOB - EKOK.........................................................................................................................9
-
-RASYONEL SAYILAR........................................................................................................................................................ 15
-
-DENKLEM ÇÖZME - EŞİTSİZLİK, MUTLAK DEĞER....................................................................................................... 21
-
-ÜSLÜ SAYILAR - KÖKLÜ SAYILAR..................................................................................................................................27
-
-ÇARPANLARA AYIRMA VE ÖZDEŞLİKLER.................................................................................................................... 34
-
-ORAN - ORANTI...............................................................................................................................................................38
-
-SAYI KESİR PROBLEMLERİ............................................................................................................................................. 43
-
-YAŞ PROBLEMLERİ..........................................................................................................................................................45
-
-YÜZDE, FAİZ, KÂR - ZARAR PROBLEMLERİ...................................................................................................................47
-
-KARIŞIM PROBLEMLERİ................................................................................................................................................. 49
-
-HAREKET PROBLEMLERİ................................................................................................................................................ 51
-
-   1      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-2" data-page="2"><div class="page-label">PDF SAYFASI 2 / 127</div><pre>İŞÇİ - HAVUZ PROBLEMLERİ..........................................................................................................................................53
-
-GRAFİK VE TABLO YORUMLAMA...................................................................................................................................55
-
-KÜMELER........................................................................................................................................................................ 60
-
-FONKSİYONLAR..............................................................................................................................................................63
-
-İŞLEM - MODÜLER ARİTMETİK..................................................................................................................................... 68
-
-PERMÜTASYON - KOMBİNASYON - OLASILIK.............................................................................................................73
-
-SAYISAL MANTIK.............................................................................................................................................................78
-
-DOĞRUDA VE ÜÇGENDE AÇILAR................................................................................................................................. 80
-
-ÜÇGENDE AÇI KENAR BAĞINTILARI ÖZEL ÜÇGENLER - AÇIORTAY KENARORTAY BAĞINTILARI......................... 84
-
-ÜÇGENDE BENZERLİK - ÜÇGENDE ALAN................................................................................................................... 90
-
-ÇOKGENLER VE DÖRTGENLER......................................................................................................................................95
-
-ÖZEL DÖRTGENLER......................................................................................................................................................100
-
-ÇEMBER VE DAİRE......................................................................................................................................................... 107
-
-ANALİTİK GEOMETRİ..................................................................................................................................................... 114
-
-KATI CİSİMLER............................................................................................................................................................... 121
-
-
-   2      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-3" data-page="3"><div class="page-label">PDF SAYFASI 3 / 127</div><pre>TEMEL İŞLEM YETENEĞİ, TEMEL KAVRAMLAR
+<section class="hero"><div class="hero-icon">📐</div><div><div class="eyebrow">ORTAK KONULAR · 08</div><h1>Matematik, Sayısal Mantık ve Geometri</h1><p>PDF’nin ilk 2 sayfası çıkarıldı; kalan 125 sayfa konu dizini, sayfa gezgini ve metin arama sistemiyle sunulur.</p><span class="pill">125 PDF sayfası · 27 ana konu</span></div></section>
+<main class="layout"><aside class="sidebar"><div class="side-head">📚 Konu dizini</div><input class="search" id="search" placeholder="PDF metninde ara…"><div class="topic-list"><button class="topic" data-topic="Temel İşlem Yeteneği, Temel Kavramlar" data-page="3"><span>01</span>Temel İşlem Yeteneği, Temel Kavramlar</button><button class="topic" data-topic="Bölme - Bölünebilme - EBOB - EKOK" data-page="10"><span>02</span>Bölme - Bölünebilme - EBOB - EKOK</button><button class="topic" data-topic="Rasyonel Sayılar" data-page="16"><span>03</span>Rasyonel Sayılar</button><button class="topic" data-topic="Denklem Çözme - Eşitsizlik, Mutlak Değer" data-page="22"><span>04</span>Denklem Çözme - Eşitsizlik, Mutlak Değer</button><button class="topic" data-topic="Üslü Sayılar - Köklü Sayılar" data-page="28"><span>05</span>Üslü Sayılar - Köklü Sayılar</button><button class="topic" data-topic="Çarpanlara Ayırma ve Özdeşlikler" data-page="35"><span>06</span>Çarpanlara Ayırma ve Özdeşlikler</button><button class="topic" data-topic="Oran - Orantı" data-page="39"><span>07</span>Oran - Orantı</button><button class="topic" data-topic="Sayı Kesir Problemleri" data-page="44"><span>08</span>Sayı Kesir Problemleri</button><button class="topic" data-topic="Yaş Problemleri" data-page="46"><span>09</span>Yaş Problemleri</button><button class="topic" data-topic="Yüzde, Faiz, Kâr - Zarar Problemleri" data-page="48"><span>10</span>Yüzde, Faiz, Kâr - Zarar Problemleri</button><button class="topic" data-topic="Karışım Problemleri" data-page="50"><span>11</span>Karışım Problemleri</button><button class="topic" data-topic="Hareket Problemleri" data-page="52"><span>12</span>Hareket Problemleri</button><button class="topic" data-topic="İşçi - Havuz Problemleri" data-page="54"><span>13</span>İşçi - Havuz Problemleri</button><button class="topic" data-topic="Grafik ve Tablo Yorumlama" data-page="57"><span>14</span>Grafik ve Tablo Yorumlama</button><button class="topic" data-topic="Kümeler" data-page="61"><span>15</span>Kümeler</button><button class="topic" data-topic="Fonksiyonlar" data-page="64"><span>16</span>Fonksiyonlar</button><button class="topic" data-topic="İşlem - Modüler Aritmetik" data-page="69"><span>17</span>İşlem - Modüler Aritmetik</button><button class="topic" data-topic="Permütasyon - Kombinasyon - Olasılık" data-page="74"><span>18</span>Permütasyon - Kombinasyon - Olasılık</button><button class="topic" data-topic="Sayısal Mantık" data-page="79"><span>19</span>Sayısal Mantık</button><button class="topic" data-topic="Doğruda ve Üçgende Açılar" data-page="81"><span>20</span>Doğruda ve Üçgende Açılar</button><button class="topic" data-topic="Üçgende Açı-Kenar Bağıntıları ve Özel Üçgenler" data-page="85"><span>21</span>Üçgende Açı-Kenar Bağıntıları ve Özel Üçgenler</button><button class="topic" data-topic="Üçgende Benzerlik - Üçgende Alan" data-page="91"><span>22</span>Üçgende Benzerlik - Üçgende Alan</button><button class="topic" data-topic="Çokgenler ve Dörtgenler" data-page="96"><span>23</span>Çokgenler ve Dörtgenler</button><button class="topic" data-topic="Özel Dörtgenler" data-page="101"><span>24</span>Özel Dörtgenler</button><button class="topic" data-topic="Çember ve Daire" data-page="108"><span>25</span>Çember ve Daire</button><button class="topic" data-topic="Analitik Geometri" data-page="113"><span>26</span>Analitik Geometri</button><button class="topic" data-topic="Katı Cisimler" data-page="122"><span>27</span>Katı Cisimler</button></div></aside><section class="reader"><div class="reader-head"><div><small>PDF KAYNAKLI ÇALIŞMA</small><h2 id="pageTitle">Matematik</h2></div><div class="counter"><strong id="current">1</strong><span>/ 125</span></div></div><div class="controls"><button id="prev">← Önceki</button><label>Sayfa <input id="jump" type="number" min="1" max="125" value="1"></label><button id="next">Sonraki →</button></div><div class="progress"><span id="bar"></span></div><section class="pdf-page" id="page-1" data-page="1"><div class="page-label">PDF SAYFASI 1 / 125</div><pre>TEMEL İŞLEM YETENEĞİ, TEMEL KAVRAMLAR
 Rakam: Sayıları ifade ederken kullanılan sembollere rakam denir. {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
                                        SAYI KÜMELERİ
 
@@ -99,7 +41,7 @@ Rakam: Sayıları ifade ederken kullanılan sembollere rakam denir. {0, 1, 2, 3,
 
 
   3      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-4" data-page="4"><div class="page-label">PDF SAYFASI 4 / 127</div><pre>R
+<section class="pdf-page" id="page-2" data-page="2"><div class="page-label">PDF SAYFASI 2 / 125</div><pre>R
                                                                    Q
                                                                Z                         I
                                                            N
@@ -130,7 +72,7 @@ Tek sayılar T, çift sayılar Ç harfi ile gösterilirse;
 
 
 4   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-5" data-page="5"><div class="page-label">PDF SAYFASI 5 / 127</div><pre>Pozitif ve Negatif Sayılar
+<section class="pdf-page" id="page-3" data-page="3"><div class="page-label">PDF SAYFASI 3 / 125</div><pre>Pozitif ve Negatif Sayılar
 
 Sıfırdan büyük sayılara pozitif (+), sıfırdan küçük sayılara negatif (-) sayılar denir.
             Pozitif ve Negatif İşlem İşaretleri
@@ -156,7 +98,7 @@ Sıfırdan büyük sayılara pozitif (+), sıfırdan küçük sayılara negatif 
 
 
 5     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-6" data-page="6"><div class="page-label">PDF SAYFASI 6 / 127</div><pre>a + b en çok olması için en uzak pozitif çarpanlar seçilir.
+<section class="pdf-page" id="page-4" data-page="4"><div class="page-label">PDF SAYFASI 4 / 125</div><pre>a + b en çok olması için en uzak pozitif çarpanlar seçilir.
 
  1 . 12 = 12 → 1 + 12 = 13 olur.
 
@@ -187,7 +129,7 @@ Son terim - İlk terim
 
 
 6     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-7" data-page="7"><div class="page-label">PDF SAYFASI 7 / 127</div><pre>ASAL SAYILAR
+<section class="pdf-page" id="page-5" data-page="5"><div class="page-label">PDF SAYFASI 5 / 125</div><pre>ASAL SAYILAR
 
 
                  Asal Sayıların Özellikleri
@@ -223,7 +165,7 @@ ab + ac = 191 olur.
 
 
 7     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-8" data-page="8"><div class="page-label">PDF SAYFASI 8 / 127</div><pre>a 36
+<section class="pdf-page" id="page-6" data-page="6"><div class="page-label">PDF SAYFASI 6 / 125</div><pre>a 36
  =          a, b Î N ve a ile b
 b 54
 aralarında asal olduğuna göre a + b kaçtır?
@@ -257,7 +199,7 @@ A’nın negatif tam bölen sayısı; (k + 1) × (l + 1) × (m + 1)
 
 
 8     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-9" data-page="9"><div class="page-label">PDF SAYFASI 9 / 127</div><pre>FAKTÖRİYEL
+<section class="pdf-page" id="page-7" data-page="7"><div class="page-label">PDF SAYFASI 7 / 125</div><pre>FAKTÖRİYEL
 Tanım: 1 den n ye kadar olan doğal sayıların çarpımına n faktöriyel denir. n! biçiminde gösterilir.
 
 0! = 1
@@ -284,7 +226,7 @@ Tanım: 1 den n ye kadar olan doğal sayıların çarpımına n faktöriyel deni
 
 
 9     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-10" data-page="10"><div class="page-label">PDF SAYFASI 10 / 127</div><pre>BÖLME - BÖLÜNEBİLME - EBOB - EKOK
+<section class="pdf-page" id="page-8" data-page="8"><div class="page-label">PDF SAYFASI 8 / 125</div><pre>BÖLME - BÖLÜNEBİLME - EBOB - EKOK
                                                                   BÖLME İŞLEMİ
 
 
@@ -317,7 +259,7 @@ M, N, x, y, z birer tam sayı olmak üzere;
 
 
 10       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-11" data-page="11"><div class="page-label">PDF SAYFASI 11 / 127</div><pre>BÖLÜNEBİLME KURALLARI
+<section class="pdf-page" id="page-9" data-page="9"><div class="page-label">PDF SAYFASI 9 / 125</div><pre>BÖLÜNEBİLME KURALLARI
 
 
            2 İle Bölünebilme    • Birler basamağı (0, 2, 4, 6, 8) olan sayılar 2 ile kalansız bölünür.
@@ -354,7 +296,7 @@ M, N, x, y, z birer tam sayı olmak üzere;
 
 
 11   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-12" data-page="12"><div class="page-label">PDF SAYFASI 12 / 127</div><pre>ab iki basamaklı sayısı 2’ye tam bölünüp 5’e bölündüğünde 1 kalanını verdiğine göre a + b en çok kaçtır?
+<section class="pdf-page" id="page-10" data-page="10"><div class="page-label">PDF SAYFASI 10 / 125</div><pre>ab iki basamaklı sayısı 2’ye tam bölünüp 5’e bölündüğünde 1 kalanını verdiğine göre a + b en çok kaçtır?
 
 
 
@@ -389,7 +331,7 @@ M, N, x, y, z birer tam sayı olmak üzere;
 
 
 12   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-13" data-page="13"><div class="page-label">PDF SAYFASI 13 / 127</div><pre>1453 sayısının 4 ile bölümünden kalan kaçtır?                                   Son iki basamağı bölmek yeterlidir.
+<section class="pdf-page" id="page-11" data-page="11"><div class="page-label">PDF SAYFASI 11 / 125</div><pre>1453 sayısının 4 ile bölümünden kalan kaçtır?                                   Son iki basamağı bölmek yeterlidir.
                                                                                     5 3 4
                                                                                   - 4    13
                                                                                     1 3
@@ -419,7 +361,7 @@ EKOK (A, B) = A.B                                                               
 
 
 13    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-14" data-page="14"><div class="page-label">PDF SAYFASI 14 / 127</div><pre>A × B = 60
+<section class="pdf-page" id="page-12" data-page="12"><div class="page-label">PDF SAYFASI 12 / 125</div><pre>A × B = 60
 EBOB(A, B) = 5 ise EKOK(A, B) = ?
 
 
@@ -459,7 +401,7 @@ Kutu Sayısı =                = 15 × 10 × 6 = 900
                   2×3×5
 
 14     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-15" data-page="15"><div class="page-label">PDF SAYFASI 15 / 127</div><pre>Bir vitrindeki lambalar 5 saniye, 8 saniye ve 10 saniyede bir yanmaktadır. Üçü birlikte saat 10 da birlikte yandıklarına göre, birlikte yirmi beşinci yanışlarını saat kaçta
+<section class="pdf-page" id="page-13" data-page="13"><div class="page-label">PDF SAYFASI 13 / 125</div><pre>Bir vitrindeki lambalar 5 saniye, 8 saniye ve 10 saniyede bir yanmaktadır. Üçü birlikte saat 10 da birlikte yandıklarına göre, birlikte yirmi beşinci yanışlarını saat kaçta
 yaparlar?
 
 
@@ -496,7 +438,7 @@ EBOB(540, 420, 240) = 60 (bir gömleğin fiyatı)
 
 
 15     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-16" data-page="16"><div class="page-label">PDF SAYFASI 16 / 127</div><pre>RASYONEL SAYILAR
+<section class="pdf-page" id="page-14" data-page="14"><div class="page-label">PDF SAYFASI 14 / 125</div><pre>RASYONEL SAYILAR
                       Rasyonel Sayıların Özellikleri
 
                                               a
@@ -527,7 +469,7 @@ b
   b                                              b
 
 16   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-17" data-page="17"><div class="page-label">PDF SAYFASI 17 / 127</div><pre>a                   a b        a        d
+<section class="pdf-page" id="page-15" data-page="15"><div class="page-label">PDF SAYFASI 15 / 125</div><pre>a                   a b        a        d
 •   bileşik kesri için   c  ise    =  c +    biçiminde tam sayılı kere dönüşür.
   b                              b        b
                       d
@@ -562,7 +504,7 @@ b
                                                 b d b ×c
 
 17     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-18" data-page="18"><div class="page-label">PDF SAYFASI 18 / 127</div><pre>Rasyonel Sayılarda Sıralama
+<section class="pdf-page" id="page-16" data-page="16"><div class="page-label">PDF SAYFASI 16 / 125</div><pre>Rasyonel Sayılarda Sıralama
 
 • Paydaları eşit olan pozitif rasyonel sayılardan payı büyük olan rasyonel sayı daha büyüktür.
 
@@ -595,7 +537,7 @@ b
 
 
 18   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-19" data-page="19"><div class="page-label">PDF SAYFASI 19 / 127</div><pre>ONDALIK SAYILAR
+<section class="pdf-page" id="page-17" data-page="17"><div class="page-label">PDF SAYFASI 17 / 125</div><pre>ONDALIK SAYILAR
 Paydası 10 sayısının pozitif kuvvetleri olan rasyonel sayılara ondalık sayılar denir.
 
 25          15         2    517
@@ -632,7 +574,7 @@ Paydası 10 sayısının pozitif kuvvetleri olan rasyonel sayılara ondalık say
 
 
 19    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-20" data-page="20"><div class="page-label">PDF SAYFASI 20 / 127</div><pre>1,2   32
+<section class="pdf-page" id="page-18" data-page="18"><div class="page-label">PDF SAYFASI 18 / 125</div><pre>1,2   32
 Örnek:       +
         0,12 3,2
          120 320
@@ -675,7 +617,7 @@ Payda   Devreden rakam kadar (9), Devretmeyen kadar (0)
 
 
 20    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-21" data-page="21"><div class="page-label">PDF SAYFASI 21 / 127</div><pre>1,4 + 2,2 işleminin sonucu kaçtır?
+<section class="pdf-page" id="page-19" data-page="19"><div class="page-label">PDF SAYFASI 19 / 125</div><pre>1,4 + 2,2 işleminin sonucu kaçtır?
   0,07
 
 
@@ -721,7 +663,7 @@ Payda   Devreden rakam kadar (9), Devretmeyen kadar (0)
 
 
 21        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-22" data-page="22"><div class="page-label">PDF SAYFASI 22 / 127</div><pre>DENKLEM ÇÖZME - EŞİTSİZLİK, MUTLAK DEĞER
+<section class="pdf-page" id="page-20" data-page="20"><div class="page-label">PDF SAYFASI 20 / 125</div><pre>DENKLEM ÇÖZME - EŞİTSİZLİK, MUTLAK DEĞER
                                                       DENKLEMLERİN ÖZELLİKLERİ
 
 • Denklemi sağlayan x değerine denklemin kökü denir.
@@ -747,7 +689,7 @@ Payda   Devreden rakam kadar (9), Devretmeyen kadar (0)
 
 
 22    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-23" data-page="23"><div class="page-label">PDF SAYFASI 23 / 127</div><pre>BİRİNCİ DERECEDEN BİR BİLİNMEYENLİ DENKLEMLER
+<section class="pdf-page" id="page-21" data-page="21"><div class="page-label">PDF SAYFASI 21 / 125</div><pre>BİRİNCİ DERECEDEN BİR BİLİNMEYENLİ DENKLEMLER
 
 • a,b Î R ve a ¹ 0     olmak üzere;
 
@@ -785,7 +727,7 @@ III. a = 0 ve b = 0 iken 0 . x + 0 = 0 olur. x yerine bütün reel sayılar yaz
 
 
 23     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-24" data-page="24"><div class="page-label">PDF SAYFASI 24 / 127</div><pre>BİRİNCİ DERECEDEN İKİ BİLİNMEYENLİ DENKLEMLER
+<section class="pdf-page" id="page-22" data-page="22"><div class="page-label">PDF SAYFASI 22 / 125</div><pre>BİRİNCİ DERECEDEN İKİ BİLİNMEYENLİ DENKLEMLER
 • a, b, c ∈ R     a ve b ≠ 0 olmak üzere; ax + by + c = 0 denklemine birinci dereceden iki bilinmeyenli denklem denir.
 
 • İki ya da daha fazla birinci dereceden iki bilinmeyenli denklemden oluşan sisteme denklem sistemi denir.
@@ -825,7 +767,7 @@ Her iki denklemdede aynı değişken yalnız bırakılarak birbirine eşitlenir 
 
 
 24    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-25" data-page="25"><div class="page-label">PDF SAYFASI 25 / 127</div><pre>BASİT EŞİTSİZLİKLER
+<section class="pdf-page" id="page-23" data-page="23"><div class="page-label">PDF SAYFASI 23 / 125</div><pre>BASİT EŞİTSİZLİKLER
 • a ve b birer reel sayı olmak üzere iki sayının birbirine göre üç durumu vardır.
  I. a &lt; b   küçüktür.
 II. a = b   eşittir.
@@ -854,7 +796,7 @@ a×b &lt; 0     ve     a &lt; b iken  &lt;
 
 
 25    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-26" data-page="26"><div class="page-label">PDF SAYFASI 26 / 127</div><pre>a &gt;1      iken x &lt; y
+<section class="pdf-page" id="page-24" data-page="24"><div class="page-label">PDF SAYFASI 24 / 125</div><pre>a &gt;1      iken x &lt; y
  • a &lt; a eşitsizliğinde;
      x        y
 
@@ -894,7 +836,7 @@ a×b &lt; 0     ve     a &lt; b iken  &lt;
 
 
 26       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-27" data-page="27"><div class="page-label">PDF SAYFASI 27 / 127</div><pre>Mutlak Değer Özelli̇ kleri
+<section class="pdf-page" id="page-25" data-page="25"><div class="page-label">PDF SAYFASI 25 / 125</div><pre>Mutlak Değer Özelli̇ kleri
 
      ìïïx, x ³ 0
 • x =í
@@ -930,7 +872,7 @@ a×b &lt; 0     ve     a &lt; b iken  &lt;
 
 
 27           MATEMATİK</pre></section>
-<section class="pdf-page" id="page-28" data-page="28"><div class="page-label">PDF SAYFASI 28 / 127</div><pre>ÜSLÜ SAYILAR - KÖKLÜ SAYILAR
+<section class="pdf-page" id="page-26" data-page="26"><div class="page-label">PDF SAYFASI 26 / 125</div><pre>ÜSLÜ SAYILAR - KÖKLÜ SAYILAR
                                                     ÜSLÜ SAYILAR
 
 
@@ -962,7 +904,7 @@ n tane a sayısının kendisi ile tekrarlı çarpımı ile oluşan an sayısına
 
 
 28     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-29" data-page="29"><div class="page-label">PDF SAYFASI 29 / 127</div><pre>• Üs olarak bilinmeyeni bulunan denklemlere üslü denklemler denir. a x + b y = c
+<section class="pdf-page" id="page-27" data-page="27"><div class="page-label">PDF SAYFASI 27 / 125</div><pre>• Üs olarak bilinmeyeni bulunan denklemlere üslü denklemler denir. a x + b y = c
 
                                                                                                          an       æ a ö÷n
 • Kuvvetleri aynı olan üslü sayılar bölünürken tabanlar bölünür ortak üs bölümün kuvveti olarak yazılır.       = çç ÷÷ dir.
@@ -996,7 +938,7 @@ n tane a sayısının kendisi ile tekrarlı çarpımı ile oluşan an sayısına
 
 
 29    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-30" data-page="30"><div class="page-label">PDF SAYFASI 30 / 127</div><pre>Üslü İfadelerde Toplama
+<section class="pdf-page" id="page-28" data-page="28"><div class="page-label">PDF SAYFASI 28 / 125</div><pre>Üslü İfadelerde Toplama
           Üslü ifadelerde toplama yaparken taban ve üs aynı olmalıdır.
                                                                   n     n         n        n
                                                                  a  + a   + .....a
@@ -1039,7 +981,7 @@ n tane a sayısının kendisi ile tekrarlı çarpımı ile oluşan an sayısına
 
 
 30   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-31" data-page="31"><div class="page-label">PDF SAYFASI 31 / 127</div><pre>23 = 3a üïï
+<section class="pdf-page" id="page-29" data-page="29"><div class="page-label">PDF SAYFASI 29 / 125</div><pre>23 = 3a üïï
  4    bï
           ý ise a × b = ?
 3 = 2 ïþï
@@ -1086,7 +1028,7 @@ eşitliğini sağlayan x = n a reel sayısına a’nın n. dereceden kökü deni
 
 
 31       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-32" data-page="32"><div class="page-label">PDF SAYFASI 32 / 127</div><pre>• 2n+1 a2n+1 = a            2n
+<section class="pdf-page" id="page-30" data-page="30"><div class="page-label">PDF SAYFASI 30 / 125</div><pre>• 2n+1 a2n+1 = a            2n
                                  a2n = a
                                 1
      n                 n
@@ -1128,7 +1070,7 @@ eşitliğini sağlayan x = n a reel sayısına a’nın n. dereceden kökü deni
 
 
 32       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-33" data-page="33"><div class="page-label">PDF SAYFASI 33 / 127</div><pre>Kök Derecesinin Genişletilmesi
+<section class="pdf-page" id="page-31" data-page="31"><div class="page-label">PDF SAYFASI 31 / 125</div><pre>Kök Derecesinin Genişletilmesi
 
                                                              m     m×x
                                                        n m
@@ -1158,7 +1100,7 @@ eşitliğini sağlayan x = n a reel sayısına a’nın n. dereceden kökü deni
 
 
 33   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-34" data-page="34"><div class="page-label">PDF SAYFASI 34 / 127</div><pre>Örnek:        10 : 2 = 10 : 2 = 5
+<section class="pdf-page" id="page-32" data-page="32"><div class="page-label">PDF SAYFASI 32 / 125</div><pre>Örnek:        10 : 2 = 10 : 2 = 5
           4
               64        64 4     4
           4
@@ -1192,7 +1134,7 @@ c = 6 219
 
 
 34     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-35" data-page="35"><div class="page-label">PDF SAYFASI 35 / 127</div><pre>ÇARPANLARA AYIRMA VE ÖZDEŞLİKLER
+<section class="pdf-page" id="page-33" data-page="33"><div class="page-label">PDF SAYFASI 33 / 125</div><pre>ÇARPANLARA AYIRMA VE ÖZDEŞLİKLER
                                            ÇARPANLARA AYIRMA YÖNTEMLERİ
 
                                     Ortak Çarpan Parantezine Alma
@@ -1216,7 +1158,7 @@ c = 6 219
 
 
 35    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-36" data-page="36"><div class="page-label">PDF SAYFASI 36 / 127</div><pre>ax2 + bx + c Biçimindeki Üç Terimli İfadelerin Çarpanlara Ayrılması
+<section class="pdf-page" id="page-34" data-page="34"><div class="page-label">PDF SAYFASI 34 / 125</div><pre>ax2 + bx + c Biçimindeki Üç Terimli İfadelerin Çarpanlara Ayrılması
 
 
 ax 2 + bx + c ifadesinde;
@@ -1246,7 +1188,7 @@ x 2 + bx + c ifadesinde;    b = m + n ve c = m × n     ise;
 
 
 36     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-37" data-page="37"><div class="page-label">PDF SAYFASI 37 / 127</div><pre>ÖZDEŞLİKLERDEN FAYDALANARAK ÇARPANLARA AYIRMA
+<section class="pdf-page" id="page-35" data-page="35"><div class="page-label">PDF SAYFASI 35 / 125</div><pre>ÖZDEŞLİKLERDEN FAYDALANARAK ÇARPANLARA AYIRMA
 
                                        Tam Kare Özdeşlik
            Birincinin karesi, birinci ve ikinci çarpımının iki katı, ikincisinin karesi;
@@ -1273,7 +1215,7 @@ x 2 + bx + c ifadesinde;    b = m + n ve c = m × n     ise;
 
 
 37   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-38" data-page="38"><div class="page-label">PDF SAYFASI 38 / 127</div><pre>Bir tam karenin alabileceği en küçük değer “0”dır.
+<section class="pdf-page" id="page-36" data-page="36"><div class="page-label">PDF SAYFASI 36 / 125</div><pre>Bir tam karenin alabileceği en küçük değer “0”dır.
 
 
 
@@ -1309,7 +1251,7 @@ y + 5 = 0 → y = -5
 
 
 38       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-39" data-page="39"><div class="page-label">PDF SAYFASI 39 / 127</div><pre>ORAN - ORANTI
+<section class="pdf-page" id="page-37" data-page="37"><div class="page-label">PDF SAYFASI 37 / 125</div><pre>ORAN - ORANTI
                                                           ORAN VE ORANTI
 
 • Sayı belirten çoklukların bölme yoluyla karşılaştırılmasına oran denir.
@@ -1341,7 +1283,7 @@ y + 5 = 0 → y = -5
 
 
 39      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-40" data-page="40"><div class="page-label">PDF SAYFASI 40 / 127</div><pre>• a, b, c sayıları sırasıyla x, y, z sayıları ile ters orantılı ise;
+<section class="pdf-page" id="page-38" data-page="38"><div class="page-label">PDF SAYFASI 38 / 125</div><pre>• a, b, c sayıları sırasıyla x, y, z sayıları ile ters orantılı ise;
                                       k     k      k
     a . x = b . y = c . z = k ise; a = , b = , c =
                                       x     y      z
@@ -1385,7 +1327,7 @@ y + 5 = 0 → y = -5
 
 
 40        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-41" data-page="41"><div class="page-label">PDF SAYFASI 41 / 127</div><pre>ORANTI ÇEŞİTLERİ
+<section class="pdf-page" id="page-39" data-page="39"><div class="page-label">PDF SAYFASI 39 / 125</div><pre>ORANTI ÇEŞİTLERİ
 
 
                                                         Doğru Orantı
@@ -1421,7 +1363,7 @@ y + 5 = 0 → y = -5
 
 
 41   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-42" data-page="42"><div class="page-label">PDF SAYFASI 42 / 127</div><pre>x ile y ters orantılıdır. x = 4 iken y = 9 olduğuna göre x = 6 iken y kaçtır?
+<section class="pdf-page" id="page-40" data-page="40"><div class="page-label">PDF SAYFASI 40 / 125</div><pre>x ile y ters orantılıdır. x = 4 iken y = 9 olduğuna göre x = 6 iken y kaçtır?
 
 
 
@@ -1466,7 +1408,7 @@ y + 5 = 0 → y = -5
 
 
 42    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-43" data-page="43"><div class="page-label">PDF SAYFASI 43 / 127</div><pre>-5, 4, 7, 12 sayılarının aritmetik ortalaması kaçtır?
+<section class="pdf-page" id="page-41" data-page="41"><div class="page-label">PDF SAYFASI 41 / 125</div><pre>-5, 4, 7, 12 sayılarının aritmetik ortalaması kaçtır?
                                                                      a ve b sayılarının aritmetik ortalaması geometrik ortalamasına eşittir.
                                                                                  3a + 2b
                                                                      Buna göre             işleminin sonucu kaçtır?
@@ -1503,7 +1445,7 @@ Harmonik ortalama;          =         =       = 5 ' tir.
 
 
 43      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-44" data-page="44"><div class="page-label">PDF SAYFASI 44 / 127</div><pre>SAYI KESİR PROBLEMLERİ
+<section class="pdf-page" id="page-42" data-page="42"><div class="page-label">PDF SAYFASI 42 / 125</div><pre>SAYI KESİR PROBLEMLERİ
 
                                                              SAYI - KESİR PROBLEMLERİ
 
@@ -1537,7 +1479,7 @@ x Herhangi Bir Sayı Olmak Üzere;
 
 
 44     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-45" data-page="45"><div class="page-label">PDF SAYFASI 45 / 127</div><pre>1 1 1                                                          Bir parkta 3 kişilik ve 5 kişilik banklardan toplam 8 tane vardır.
+<section class="pdf-page" id="page-43" data-page="43"><div class="page-label">PDF SAYFASI 43 / 125</div><pre>1 1 1                                                          Bir parkta 3 kişilik ve 5 kişilik banklardan toplam 8 tane vardır.
 Bir üçgenin iç açıları, ,   ile doğru orantılıdır.
                     3 4 6
 En büyük açı kaç derecedir?                                                        Bankların tamamına toplam 36 kişi oturabildiğine göre bu parkta kaç tane
@@ -1580,7 +1522,7 @@ bu sayı kaçtır?
 
 
 45   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-46" data-page="46"><div class="page-label">PDF SAYFASI 46 / 127</div><pre>YAŞ PROBLEMLERİ
+<section class="pdf-page" id="page-44" data-page="44"><div class="page-label">PDF SAYFASI 44 / 125</div><pre>YAŞ PROBLEMLERİ
 
                                                                         YAŞ PROBLEMLERİ
 
@@ -1605,7 +1547,7 @@ n kişinin yaşları toplamı x ise;
 
 
 46      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-47" data-page="47"><div class="page-label">PDF SAYFASI 47 / 127</div><pre>Asya’nın yaşı a, Yusuf’un yaşı y’dir. Asya Yusuf’tan büyüktür.
+<section class="pdf-page" id="page-45" data-page="45"><div class="page-label">PDF SAYFASI 45 / 125</div><pre>Asya’nın yaşı a, Yusuf’un yaşı y’dir. Asya Yusuf’tan büyüktür.
 Bir grup öğrencinin yaşları toplamı 144’tür.
                                                                                                Buna göre kaç yıl sonra Asya’nın yaşı Yusuf’un yaşının 2 katı olur?
 Bu öğrencilerin 3 yıl önceki yaş ortalaması 15 olduğuna göre bu grupta kaç öğrenci vardır?
@@ -1656,7 +1598,7 @@ Ortanca çocuk; x + 3 = 11 + 3 = 14 olur.
 
 
 47       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-48" data-page="48"><div class="page-label">PDF SAYFASI 48 / 127</div><pre>YÜZDE, FAİZ, KÂR - ZARAR PROBLEMLERİ
+<section class="pdf-page" id="page-46" data-page="46"><div class="page-label">PDF SAYFASI 46 / 125</div><pre>YÜZDE, FAİZ, KÂR - ZARAR PROBLEMLERİ
                                                               YÜZDE, FAİZ, KÂR - ZARAR PROBLEMLERİ
 
                                     a
@@ -1696,7 +1638,7 @@ Ortanca çocuk; x + 3 = 11 + 3 = 14 olur.
 
 
 48     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-49" data-page="49"><div class="page-label">PDF SAYFASI 49 / 127</div><pre>32 sayısının %25’i kaçtır?                                                                           420 hangi sayının %30’u dur?
+<section class="pdf-page" id="page-47" data-page="47"><div class="page-label">PDF SAYFASI 47 / 125</div><pre>32 sayısının %25’i kaçtır?                                                                           420 hangi sayının %30’u dur?
 
 
 
@@ -1736,7 +1678,7 @@ y+       y=Z                                                                    
 
 
 49        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-50" data-page="50"><div class="page-label">PDF SAYFASI 50 / 127</div><pre>KARIŞIM PROBLEMLERİ
+<section class="pdf-page" id="page-48" data-page="48"><div class="page-label">PDF SAYFASI 48 / 125</div><pre>KARIŞIM PROBLEMLERİ
 
                                                      KARIŞIM PROBLEMLERİ
 
@@ -1763,7 +1705,7 @@ y+       y=Z                                                                    
 
 
 50   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-51" data-page="51"><div class="page-label">PDF SAYFASI 51 / 127</div><pre>Ağırlıkça % 40’ı şeker olan x gram şekerli su ile ağırlıkça % 20’si şeker olan y gram şekerli su karış-   250 gr %30'luk şekerli suya 25 gr şeker 125 gr su eklenir ise yeni elde edilen şekerli su karışımındaki
+<section class="pdf-page" id="page-49" data-page="49"><div class="page-label">PDF SAYFASI 49 / 125</div><pre>Ağırlıkça % 40’ı şeker olan x gram şekerli su ile ağırlıkça % 20’si şeker olan y gram şekerli su karış-   250 gr %30'luk şekerli suya 25 gr şeker 125 gr su eklenir ise yeni elde edilen şekerli su karışımındaki
 tırılıyor.                                                                                                şeker oranı % kaç olur?
 
 Oluşan karışımın % 30’u şeker olduğuna göre x ve y arasındaki bağıntı ne olur?
@@ -1808,7 +1750,7 @@ Bu helvadaki yağ oranı % kaçtır?                                            
 
 
 51        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-52" data-page="52"><div class="page-label">PDF SAYFASI 52 / 127</div><pre>HAREKET PROBLEMLERİ
+<section class="pdf-page" id="page-50" data-page="50"><div class="page-label">PDF SAYFASI 50 / 125</div><pre>HAREKET PROBLEMLERİ
 
                                                                 KARIŞIM PROBLEMLERİ
 
@@ -1844,7 +1786,7 @@ Bu helvadaki yağ oranı % kaçtır?                                            
 
 
 52     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-53" data-page="53"><div class="page-label">PDF SAYFASI 53 / 127</div><pre>Bir araç, aralarında 180 km olan iki şehir arasını 3 saatte alıyor. Buna göre bu   320 km’lik yolu, hızı 80 km/sa olan bir araç kaç saatte alır?
+<section class="pdf-page" id="page-51" data-page="51"><div class="page-label">PDF SAYFASI 51 / 125</div><pre>Bir araç, aralarında 180 km olan iki şehir arasını 3 saatte alıyor. Buna göre bu   320 km’lik yolu, hızı 80 km/sa olan bir araç kaç saatte alır?
 aracın hızı kaç km/sa'dir?
 
 
@@ -1884,7 +1826,7 @@ V + 2V = 3V                                                                     
 
 
 53     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-54" data-page="54"><div class="page-label">PDF SAYFASI 54 / 127</div><pre>İŞÇİ - HAVUZ PROBLEMLERİ
+<section class="pdf-page" id="page-52" data-page="52"><div class="page-label">PDF SAYFASI 52 / 125</div><pre>İŞÇİ - HAVUZ PROBLEMLERİ
 
                                                                                 İŞÇİ PROBLEMLERİ
 
@@ -1914,7 +1856,7 @@ V + 2V = 3V                                                                     
 
 
 54      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-55" data-page="55"><div class="page-label">PDF SAYFASI 55 / 127</div><pre>HAVUZ PROBLEMLERİ
+<section class="pdf-page" id="page-53" data-page="53"><div class="page-label">PDF SAYFASI 53 / 125</div><pre>HAVUZ PROBLEMLERİ
 •         A           B         • A musluğu tek başına x saatte
 
                                 • B musluğu tek başına y saatte doldursun
@@ -1957,7 +1899,7 @@ t = 8 saatte dolar.                                                             
 
 
 55             MATEMATİK</pre></section>
-<section class="pdf-page" id="page-56" data-page="56"><div class="page-label">PDF SAYFASI 56 / 127</div><pre>GRAFİK VE TABLO YORUMLAMA
+<section class="pdf-page" id="page-54" data-page="54"><div class="page-label">PDF SAYFASI 54 / 125</div><pre>GRAFİK VE TABLO YORUMLAMA
 
                                                                  GRAFİK VE TABLO
 
@@ -1986,7 +1928,7 @@ parsellerdeki farklı bölgeleri... v.b. Daire grafiğinde tamamın 360° olduğ
 
 
 56    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-57" data-page="57"><div class="page-label">PDF SAYFASI 57 / 127</div><pre>Aşağıdaki grafik bir mağazanın alıp sattığı ürünlerin alış-satış fiyatlarını göstermektedir.   Bir aracın yokuşlu bir yolu çıkarken ve inerken başladığı noktaya olan uzaklığı ve harcadığı yakıt miktarı aşağıdaki
+<section class="pdf-page" id="page-55" data-page="55"><div class="page-label">PDF SAYFASI 55 / 125</div><pre>Aşağıdaki grafik bir mağazanın alıp sattığı ürünlerin alış-satış fiyatlarını göstermektedir.   Bir aracın yokuşlu bir yolu çıkarken ve inerken başladığı noktaya olan uzaklığı ve harcadığı yakıt miktarı aşağıdaki
                                                                                                grafiklerde gösterilmiştir.
 
    Satış fiyatı (TL)                                                                           Aracın deposu dolu iken çıkar ve hiç durmadan tekrar aynı yoldan döner. Aracın A noktasına olan uzaklığı Gra-
@@ -2036,7 +1978,7 @@ Toplam= 10.0 + 8.10 + 12(-20) + 20.10 + 10.10                                   
 
 
 57      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-58" data-page="58"><div class="page-label">PDF SAYFASI 58 / 127</div><pre>1 ve 2 ’den 20 km           4 litre
+<section class="pdf-page" id="page-56" data-page="56"><div class="page-label">PDF SAYFASI 56 / 125</div><pre>1 ve 2 ’den 20 km           4 litre
             x km            1 litre
                         20
                    x=      = 5 km
@@ -2067,7 +2009,7 @@ Aradaki fark= 20-5= 15 km bulunur.
 
 
 58     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-59" data-page="59"><div class="page-label">PDF SAYFASI 59 / 127</div><pre>Ayşenur’un 1 saatte çözdüğü soru sayıları ve ders isimleri aşağıdaki       Ayşenur’un son anda fizikten çözdüğü soru sayısı x olsun.Bu durumda
+<section class="pdf-page" id="page-57" data-page="57"><div class="page-label">PDF SAYFASI 57 / 125</div><pre>Ayşenur’un 1 saatte çözdüğü soru sayıları ve ders isimleri aşağıdaki       Ayşenur’un son anda fizikten çözdüğü soru sayısı x olsun.Bu durumda
  sütun grafiğinde gösterilmiştir.                                           toplam soru sayısı= 10+9+(x+5)+6=30+x’dir.
 
                                                                             Fizikten çözülen soru sayısını gösteren daire diliminin merkez açısı=
@@ -2115,7 +2057,7 @@ Aradaki fark= 20-5= 15 km bulunur.
 
 
 59   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-60" data-page="60"><div class="page-label">PDF SAYFASI 60 / 127</div><pre>1
+<section class="pdf-page" id="page-58" data-page="58"><div class="page-label">PDF SAYFASI 58 / 125</div><pre>1
 
                                                                                 30°     2
                                                                                   60°
@@ -2154,7 +2096,7 @@ x=2
 
 
 60    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-61" data-page="61"><div class="page-label">PDF SAYFASI 61 / 127</div><pre>KÜMELER
+<section class="pdf-page" id="page-59" data-page="59"><div class="page-label">PDF SAYFASI 59 / 125</div><pre>KÜMELER
 Küme: İyi tanımlanmış nesneler topluluğuna küme denir. Kümeyi oluşturan nesnelerin her birine kümenin elemanı denir. Bir kümenin eleman sayısı s(A) ile
        gösterilir.
 
@@ -2188,7 +2130,7 @@ Küme: İyi tanımlanmış nesneler topluluğuna küme denir. Kümeyi oluştura
 
 
  61     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-62" data-page="62"><div class="page-label">PDF SAYFASI 62 / 127</div><pre>KÜME ÇEŞİTLERİ
+<section class="pdf-page" id="page-60" data-page="60"><div class="page-label">PDF SAYFASI 60 / 125</div><pre>KÜME ÇEŞİTLERİ
 
                  Boş Küme
 Hiç elemanı olmayan kümeye boş küme denir. { } veya ∅ sembolü ile gösterilir.
@@ -2227,7 +2169,7 @@ Bütün kümeleri kapsayan en geniş kümeye evrensel küme denir. E harfi ile g
 
 
 62   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-63" data-page="63"><div class="page-label">PDF SAYFASI 63 / 127</div><pre>KÜMELERDE İŞLEMLER
+<section class="pdf-page" id="page-61" data-page="61"><div class="page-label">PDF SAYFASI 61 / 125</div><pre>KÜMELERDE İŞLEMLER
 
                    Bir Kümenin Tümleyeni
 
@@ -2268,7 +2210,7 @@ A -B = {x| x Î A ve x Ï B}
 
 
 63       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-64" data-page="64"><div class="page-label">PDF SAYFASI 64 / 127</div><pre>FONKSİYONLAR
+<section class="pdf-page" id="page-62" data-page="62"><div class="page-label">PDF SAYFASI 62 / 125</div><pre>FONKSİYONLAR
                                                                              FONSİYONLAR
                              Sıralı İkili
 a, b ∈ R olmak üzere (a, b) olarak gösterilen ifadeye sıralı ikili denir. Koordinat sisteminde (a, b) sıralı ikilisinde birinci bileşen x, ikinci bileşen y ekseninden alınmak üzere koordinat düzleminin tamamı
@@ -2307,7 +2249,7 @@ f(x) = 2x + 3 olduğuna göre f(1) + f(7) toplamı kaçtır?
 
 
 64       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-65" data-page="65"><div class="page-label">PDF SAYFASI 65 / 127</div><pre>FONSİYON TÜRLERİ
+<section class="pdf-page" id="page-63" data-page="63"><div class="page-label">PDF SAYFASI 63 / 125</div><pre>FONSİYON TÜRLERİ
 
 
                      Birebir Fonksiyon
@@ -2353,7 +2295,7 @@ değildir.                                                                      
 
 
 65       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-66" data-page="66"><div class="page-label">PDF SAYFASI 66 / 127</div><pre>Bileşke Fonksiyon
+<section class="pdf-page" id="page-64" data-page="64"><div class="page-label">PDF SAYFASI 64 / 125</div><pre>Bileşke Fonksiyon
 
 A, B, C boş olmayan kümeler olmak üzere; f: A → B   g: B → C birer fonksiyon olmak üzere; gof: A → C fonksiyonuna bileşke fonksiyon denir. gof(x) = g(f(x))’tir.
 I birim fonksiyon olmak üzere; foI = Iof = f
@@ -2398,7 +2340,7 @@ f fonksiyonu bir permütasyon fonksiyonudur.
 
 
 66        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-67" data-page="67"><div class="page-label">PDF SAYFASI 67 / 127</div><pre>FONKSİYONLARDA DÖRT İŞLEM
+<section class="pdf-page" id="page-65" data-page="65"><div class="page-label">PDF SAYFASI 65 / 125</div><pre>FONKSİYONLARDA DÖRT İŞLEM
 Tanım kümelerinin kesişimi boş olmayan fonksiyonlarda dört işlem yapılabilir.
 
 f : A → R g : B → R f, g : A ∩ B → R
@@ -2430,7 +2372,7 @@ O halde f ( x ) = (a - 2) × x 2 + (a - b + 1) × x + a × b fonksiyonu için;
 
 
 67    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-68" data-page="68"><div class="page-label">PDF SAYFASI 68 / 127</div><pre>a-2 = 0 Þ a = 2
+<section class="pdf-page" id="page-66" data-page="66"><div class="page-label">PDF SAYFASI 66 / 125</div><pre>a-2 = 0 Þ a = 2
  a - b + 1= 0 Þ 2 - b + 1= 3 - b = 0 Þ b = 3
  f ( x ) = (a - 2) × x 2 + (a - b + 1) × x + a × b = a × b = 2 × 3
                    
@@ -2459,7 +2401,7 @@ Kök derecesi çift sayı olan reel fonksiyonlarda kök içi negatif olamaz. O h
 
 
 68    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-69" data-page="69"><div class="page-label">PDF SAYFASI 69 / 127</div><pre>İŞLEM - MODÜLER ARİTMETİK
+<section class="pdf-page" id="page-67" data-page="67"><div class="page-label">PDF SAYFASI 67 / 125</div><pre>İŞLEM - MODÜLER ARİTMETİK
                                                                         İŞLEM
 • A boş olmayan bir küme olmak üzere A kümesinden A kümesine tanımlanan her fonksiyona A da tanımlı işlem denir.  D * Å  gibi sembollerle gösterilir.
 
@@ -2497,7 +2439,7 @@ a * b = 2a + 3b + 5
 
 
 69       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-70" data-page="70"><div class="page-label">PDF SAYFASI 70 / 127</div><pre>TABLOLU İŞLEMLER
+<section class="pdf-page" id="page-68" data-page="68"><div class="page-label">PDF SAYFASI 68 / 125</div><pre>TABLOLU İŞLEMLER
 • A = {a, b, c, d, e}kümesi üzerinde tanımlanan  işlemi tablosu aşağıda verilmiştir.
 
 • Satır ve sütundaki elemanların kesiştiği noktadaki eleman satır ve sütundaki elemanların işlem sonucudur.
@@ -2532,7 +2474,7 @@ Sütun
 
 
 70    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-71" data-page="71"><div class="page-label">PDF SAYFASI 71 / 127</div><pre>R’ de a ∆ b = 3a + 3b - ab - 6 işlemi tanımlanıyor.
+<section class="pdf-page" id="page-69" data-page="69"><div class="page-label">PDF SAYFASI 69 / 125</div><pre>R’ de a ∆ b = 3a + 3b - ab - 6 işlemi tanımlanıyor.
 
  2-1 + 5 -1 işleminin sonucu kaçtır? (2-1 ikinin tersi, 5 -1 beşin tersi)
 
@@ -2567,7 +2509,7 @@ a ≡ b (mod m) şeklinde gösterilir. a ≡ b (mod m) ifadesi aynı zamanda a -
 
 
 71        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-72" data-page="72"><div class="page-label">PDF SAYFASI 72 / 127</div><pre>Modüler Ari̇ tmeti̇ ği̇ n Özelli̇ kleri
+<section class="pdf-page" id="page-70" data-page="70"><div class="page-label">PDF SAYFASI 70 / 125</div><pre>Modüler Ari̇ tmeti̇ ği̇ n Özelli̇ kleri
 
 • Her a, b, c, d, x ∈ Z ve m, n ∈ Z+, m &gt; 1 için;
 
@@ -2609,7 +2551,7 @@ a ≡ b (mod m) şeklinde gösterilir. a ≡ b (mod m) ifadesi aynı zamanda a -
 
 
 72       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-73" data-page="73"><div class="page-label">PDF SAYFASI 73 / 127</div><pre>232011 sayısının birler basamağındaki rakam nedir?
+<section class="pdf-page" id="page-71" data-page="71"><div class="page-label">PDF SAYFASI 71 / 125</div><pre>232011 sayısının birler basamağındaki rakam nedir?
 
 
 
@@ -2661,7 +2603,7 @@ n ∈ N +, 16 5n + 3 ≡ x(mod 11) ise x kaçtır?
 
 
 73         MATEMATİK</pre></section>
-<section class="pdf-page" id="page-74" data-page="74"><div class="page-label">PDF SAYFASI 74 / 127</div><pre>PERMÜTASYON - KOMBİNASYON - OLASILIK
+<section class="pdf-page" id="page-72" data-page="72"><div class="page-label">PDF SAYFASI 72 / 125</div><pre>PERMÜTASYON - KOMBİNASYON - OLASILIK
                                                                    Toplama Yoluyla Sayma
 • İki olaydan biri a farklı yoldan diğeri b farklı yoldan yapılıyorsa bu olaylardan biri veya diğeri a + b farklı yoldan yapılabilir. Toplam kuralında veya bağlacı
   kullanılır.
@@ -2695,7 +2637,7 @@ r £ n olmak üzere; P (n,r ) =
 
 
 74    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-75" data-page="75"><div class="page-label">PDF SAYFASI 75 / 127</div><pre>Dairesel (Dönel) Permütasyon
+<section class="pdf-page" id="page-73" data-page="73"><div class="page-label">PDF SAYFASI 73 / 125</div><pre>Dairesel (Dönel) Permütasyon
 
 n tane elemanın bir çember üzerindeki her bir farklı dizilişine dairesel permütasyon denir. Dairesel permütasyon sayısı bulunurken n tane noktadan bir-
 tanesi başlangıç noktası olarak seçilir. Dolayısıyla n tane elemanın dairesel permütasyonu (n-1)! formülü ile bulunur.
@@ -2734,7 +2676,7 @@ B         B
 
 
 75     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-76" data-page="76"><div class="page-label">PDF SAYFASI 76 / 127</div><pre>4455582 rakamlarından oluşan 7 haneli bir telefon numarası kaç kez arandığında kesinlikle doğrusu bulunur?
+<section class="pdf-page" id="page-74" data-page="74"><div class="page-label">PDF SAYFASI 74 / 125</div><pre>4455582 rakamlarından oluşan 7 haneli bir telefon numarası kaç kez arandığında kesinlikle doğrusu bulunur?
 
 
 
@@ -2780,7 +2722,7 @@ Anahtarlık havada döndüğünde sıralama dairesel sırlamanın yarısı kadar
 
 
 76       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-77" data-page="77"><div class="page-label">PDF SAYFASI 77 / 127</div><pre>Kombi̇ nasyonun Özelli̇ kleri
+<section class="pdf-page" id="page-75" data-page="75"><div class="page-label">PDF SAYFASI 75 / 125</div><pre>Kombi̇ nasyonun Özelli̇ kleri
    æn÷ö æn÷ö            æn÷ö æ n ÷ö
 • çç ÷÷÷ = çç ÷÷÷ = 1 , ççç ÷÷÷ = ççç
    ç        ç                         ÷÷ = n
@@ -2824,7 +2766,7 @@ Düzlemde doğrusal olmayan farklı 3 noktanın birleşim kümesi bir üçgen be
 
 
 77      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-78" data-page="78"><div class="page-label">PDF SAYFASI 78 / 127</div><pre>DENEY                          Bir durum ile ilgili sonuçların elde edilmesi için yapılan işleme denir.
+<section class="pdf-page" id="page-76" data-page="76"><div class="page-label">PDF SAYFASI 76 / 125</div><pre>DENEY                          Bir durum ile ilgili sonuçların elde edilmesi için yapılan işleme denir.
 
 
 
@@ -2873,7 +2815,7 @@ Düzlemde doğrusal olmayan farklı 3 noktanın birleşim kümesi bir üçgen be
 
 
 78   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-79" data-page="79"><div class="page-label">PDF SAYFASI 79 / 127</div><pre>SAYISAL MANTIK
+<section class="pdf-page" id="page-77" data-page="77"><div class="page-label">PDF SAYFASI 77 / 125</div><pre>SAYISAL MANTIK
 • Bu bölümdeki soruların çözümü için belirli bir tek yöntem yoktur.
 
 • Temel matematik bilgileri ve problem çözme becerileri kullanılır.
@@ -2911,7 +2853,7 @@ Zamana karşı yarışılan sınavlarda hız kazanabilmek için oldukça fazla p
 
 
 79     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-80" data-page="80"><div class="page-label">PDF SAYFASI 80 / 127</div><pre>Kübra, Asya, Adem, Yusuf isimli öğrenciler; Türkçe, Matematik, İngilizce ve Almanca kurslarına gitmektedirler.
+<section class="pdf-page" id="page-78" data-page="78"><div class="page-label">PDF SAYFASI 78 / 125</div><pre>Kübra, Asya, Adem, Yusuf isimli öğrenciler; Türkçe, Matematik, İngilizce ve Almanca kurslarına gitmektedirler.
 
   • Her öğrenci iki farklı kursa gitmektedir.
 
@@ -2942,7 +2884,7 @@ Sorunun çözümü için verilen önermeleri bir tablo halinde düzenleyelim.
 
 
 80     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-81" data-page="81"><div class="page-label">PDF SAYFASI 81 / 127</div><pre>DOĞRUDA VE ÜÇGENDE AÇILAR
+<section class="pdf-page" id="page-79" data-page="79"><div class="page-label">PDF SAYFASI 79 / 125</div><pre>DOĞRUDA VE ÜÇGENDE AÇILAR
                                   AÇI
 Başlangıç noktası aynı olan iki ışının birleşimine açı denir.
             A
@@ -2981,7 +2923,7 @@ AëBC veya CëBA veya ëB olarak gösterilir.
 
 
 81     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-82" data-page="82"><div class="page-label">PDF SAYFASI 82 / 127</div><pre>• Ölçüleri toplamı 90 olan iki açıya tümler açılar denir.
+<section class="pdf-page" id="page-80" data-page="80"><div class="page-label">PDF SAYFASI 80 / 125</div><pre>• Ölçüleri toplamı 90 olan iki açıya tümler açılar denir.
                     Tümler Açılar
                                                        • α + β = 90° ise ile α ile β tümlerdir
 
@@ -3025,7 +2967,7 @@ d1 // d2 ve a, b, c, d, x, y, z t gösterdikleri açının ölçüsü olmak üze
 
 
 82    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-83" data-page="83"><div class="page-label">PDF SAYFASI 83 / 127</div><pre>•                      d3
+<section class="pdf-page" id="page-81" data-page="81"><div class="page-label">PDF SAYFASI 81 / 125</div><pre>•                      d3
 
                x              d1
                                          d1 // d2
@@ -3065,7 +3007,7 @@ d1 // d2 ve a, b, c, d, x, y, z t gösterdikleri açının ölçüsü olmak üze
 
 
 83   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-84" data-page="84"><div class="page-label">PDF SAYFASI 84 / 127</div><pre>ÜÇGENDE AÇILAR
+<section class="pdf-page" id="page-82" data-page="82"><div class="page-label">PDF SAYFASI 82 / 125</div><pre>ÜÇGENDE AÇILAR
  • Bir üçgenin iç açılarının toplamı 180°dir.                                       • Bir üçgenin dış açıları toplamı 360°dir.                                         • Bir üçgende bir dış açının ölçüsü kendisine komşu olmayan iki iç açının ölçüleri
                                                                                                                                                                          toplamına eşittir.
  • m(ëA) + m(ëB) + m(ëC) = 180°                                                     • a + b + c = 360°
@@ -3132,7 +3074,7 @@ d1 // d2 ve a, b, c, d, x, y, z t gösterdikleri açının ölçüsü olmak üze
 
 
 84      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-85" data-page="85"><div class="page-label">PDF SAYFASI 85 / 127</div><pre>ÜÇGENDE AÇI KENAR BAĞINTILARI ÖZEL ÜÇGENLER -
+<section class="pdf-page" id="page-83" data-page="83"><div class="page-label">PDF SAYFASI 83 / 125</div><pre>ÜÇGENDE AÇI KENAR BAĞINTILARI ÖZEL ÜÇGENLER -
              AÇIORTAY KENARORTAY BAĞINTILARI
                                                      ÜÇGENDE AÇI - KENAR BAĞINTILARI
 • Bir üçgenin iç açıları ile karşılarındaki kenarlar arasındaki sıralama aynıdır.
@@ -3163,7 +3105,7 @@ d1 // d2 ve a, b, c, d, x, y, z t gösterdikleri açının ölçüsü olmak üze
 
 
 85     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-86" data-page="86"><div class="page-label">PDF SAYFASI 86 / 127</div><pre>ÖZEL ÜÇGENLER
+<section class="pdf-page" id="page-84" data-page="84"><div class="page-label">PDF SAYFASI 84 / 125</div><pre>ÖZEL ÜÇGENLER
 
                                  Kenarlarına Göre Özel Üçgenler
 
@@ -3189,7 +3131,7 @@ d1 // d2 ve a, b, c, d, x, y, z t gösterdikleri açının ölçüsü olmak üze
 
 
 86   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-87" data-page="87"><div class="page-label">PDF SAYFASI 87 / 127</div><pre>Açılarına Göre Özel Üçgenler
+<section class="pdf-page" id="page-85" data-page="85"><div class="page-label">PDF SAYFASI 85 / 125</div><pre>Açılarına Göre Özel Üçgenler
 
                                                                                                                A
                                                                          A
@@ -3241,7 +3183,7 @@ Yukarıda verilenlere göre x kaç cm’dir?                                    
 
 
 87         MATEMATİK</pre></section>
-<section class="pdf-page" id="page-88" data-page="88"><div class="page-label">PDF SAYFASI 88 / 127</div><pre>AÇIORTAY - KENARORTAY BAĞINTILARI
+<section class="pdf-page" id="page-86" data-page="86"><div class="page-label">PDF SAYFASI 86 / 125</div><pre>AÇIORTAY - KENARORTAY BAĞINTILARI
 
                       İç Açıortay Teoremi
               A
@@ -3282,7 +3224,7 @@ AN = n × (n + a) - b × c
 
 
 88          MATEMATİK</pre></section>
-<section class="pdf-page" id="page-89" data-page="89"><div class="page-label">PDF SAYFASI 89 / 127</div><pre>Üçgende Kenarortay
+<section class="pdf-page" id="page-87" data-page="87"><div class="page-label">PDF SAYFASI 87 / 125</div><pre>Üçgende Kenarortay
 Bir üçgende bir kenarının orta noktasını karşısındaki köşeye birleştiren doğru parçasına o kenara ait kenarortay denir.
 [AD], [BC] kenarına ait kenarortaydır.
 
@@ -3322,7 +3264,7 @@ B                           C
 
 
 89        MATEMATİK</pre></section>
-<section class="pdf-page" id="page-90" data-page="90"><div class="page-label">PDF SAYFASI 90 / 127</div><pre>KENARORTAY BAĞINTILARI
+<section class="pdf-page" id="page-88" data-page="88"><div class="page-label">PDF SAYFASI 88 / 125</div><pre>KENARORTAY BAĞINTILARI
           A                Benzer şekilde diğer kenarortaylar için bağıntı uygulanırsa;
                                                        2
                                                    a
@@ -3367,7 +3309,7 @@ B                      C
 
 
 90   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-91" data-page="91"><div class="page-label">PDF SAYFASI 91 / 127</div><pre>ÜÇGENDE BENZERLİK - ÜÇGENDE ALAN
+<section class="pdf-page" id="page-89" data-page="89"><div class="page-label">PDF SAYFASI 89 / 125</div><pre>ÜÇGENDE BENZERLİK - ÜÇGENDE ALAN
                                                                   ÜÇGENDE BENZERLİK
 
                      Benzerlik Oranı
@@ -3410,7 +3352,7 @@ A¿BC ∼ D¿EF olduğundan;      =   =   = k biçimindeki oranların eşitliği
 
 
 91      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-92" data-page="92"><div class="page-label">PDF SAYFASI 92 / 127</div><pre>Tales Teoremi
+<section class="pdf-page" id="page-90" data-page="90"><div class="page-label">PDF SAYFASI 90 / 125</div><pre>Tales Teoremi
 
                  • Birbirine paralel üç doğru, iki kesen ile kesildiğinde ortaya çıkan bazı uzunluklar orantılıdır. d1 // d2 // d3 ise;
                                                                                A               D                d3   |AB|   |DE|
@@ -3461,7 +3403,7 @@ A¿BC ∼ D¿EF olduğundan;      =   =   = k biçimindeki oranların eşitliği
 
 
 92   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-93" data-page="93"><div class="page-label">PDF SAYFASI 93 / 127</div><pre>• Benzer üçgenlerde kenarlar arasındaki benzerlik oranı aynı zamanda kenarortaylar, açıortaylar ve yükseklikler arasındaki orana eşittir.
+<section class="pdf-page" id="page-91" data-page="91"><div class="page-label">PDF SAYFASI 91 / 125</div><pre>• Benzer üçgenlerde kenarlar arasındaki benzerlik oranı aynı zamanda kenarortaylar, açıortaylar ve yükseklikler arasındaki orana eşittir.
 
                                          • Benzer üçgenlerdeki kenarların oranı aynı zamanda çevreleri oranına eşittir.
 
@@ -3514,7 +3456,7 @@ B                               C
 
 
 93       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-94" data-page="94"><div class="page-label">PDF SAYFASI 94 / 127</div><pre>• Bir açısı ve bu açıyı oluşturan kenarların uzunlukları biliniyorsa bu üçgenin alanı açının sinüs değeri ile kenar uzunlukları çarpımının yarısıdır.
+<section class="pdf-page" id="page-92" data-page="92"><div class="page-label">PDF SAYFASI 92 / 125</div><pre>• Bir açısı ve bu açıyı oluşturan kenarların uzunlukları biliniyorsa bu üçgenin alanı açının sinüs değeri ile kenar uzunlukları çarpımının yarısıdır.
 
                          A
                                                   1
@@ -3559,7 +3501,7 @@ B                               C
 
 
 94   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-95" data-page="95"><div class="page-label">PDF SAYFASI 95 / 127</div><pre>• Çevrel çemberin yarıçapı = r olmak üzere;
+<section class="pdf-page" id="page-93" data-page="93"><div class="page-label">PDF SAYFASI 93 / 125</div><pre>• Çevrel çemberin yarıçapı = r olmak üzere;
 
                                             A
 
@@ -3601,7 +3543,7 @@ B                               C
 
 
 95   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-96" data-page="96"><div class="page-label">PDF SAYFASI 96 / 127</div><pre>ÇOKGENLER VE DÖRTGENLER
+<section class="pdf-page" id="page-94" data-page="94"><div class="page-label">PDF SAYFASI 94 / 125</div><pre>ÇOKGENLER VE DÖRTGENLER
                                                                                     ÇOKGEN
 
 Kenarları doğru parçaları olan kapalı geometrik şekillere çokgen denir.
@@ -3644,7 +3586,7 @@ Bir çokgende ardışık olmayan köşeleri birleştiren doğru parçalarına k�
 
 
 96      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-97" data-page="97"><div class="page-label">PDF SAYFASI 97 / 127</div><pre>Dörtgenlerin Özelli̇ kleri
+<section class="pdf-page" id="page-95" data-page="95"><div class="page-label">PDF SAYFASI 95 / 125</div><pre>Dörtgenlerin Özelli̇ kleri
 • Dört kenarı ve dört köşesi olan çokgene dörtgen denir. Aşağıdaki ABCD dörtgeninde a, b, c, d iç açılar a′, b′, c′, d′ dış açılardır. Aynı köşedeki iç ve dış açı bütünlerdir. Ayrıca iç açılar toplamı
   ve dış açılar toplamı 360°dir. Dörtgenin iki köşegeni vardır.
                                                                                                               A       a’                              D
@@ -3699,7 +3641,7 @@ Bir çokgende ardışık olmayan köşeleri birleştiren doğru parçalarına k�
 
 
 97      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-98" data-page="98"><div class="page-label">PDF SAYFASI 98 / 127</div><pre>DÖRTGENLERDE ALAN
+<section class="pdf-page" id="page-96" data-page="96"><div class="page-label">PDF SAYFASI 96 / 125</div><pre>DÖRTGENLERDE ALAN
 • Köşegenleri dik kesişen dörtgenlerin alanı köşegenler çarpımının yarısına eşittir.
                                                                            A
                                                                                                            A
@@ -3738,7 +3680,7 @@ Bir çokgende ardışık olmayan köşeleri birleştiren doğru parçalarına k�
 
 
 98    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-99" data-page="99"><div class="page-label">PDF SAYFASI 99 / 127</div><pre>PARALELKENARDA ALAN
+<section class="pdf-page" id="page-97" data-page="97"><div class="page-label">PDF SAYFASI 97 / 125</div><pre>PARALELKENARDA ALAN
 • Paralelkenarın alanı bir kenar ve kenara ait yüksekliğin çarpımıdır.
 
 •       D                  C
@@ -3775,7 +3717,7 @@ Bir çokgende ardışık olmayan köşeleri birleştiren doğru parçalarına k�
 
 
 99      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-100" data-page="100"><div class="page-label">PDF SAYFASI 100 / 127</div><pre>• [DC] üzerinde alınan bir E noktası ile A ve B köşeleri birleştirilince oluşan ABE üç-                      • ABCD paralelkenarının alanı S olmak üzere;
+<section class="pdf-page" id="page-98" data-page="98"><div class="page-label">PDF SAYFASI 98 / 125</div><pre>• [DC] üzerinde alınan bir E noktası ile A ve B köşeleri birleştirilince oluşan ABE üç-                      • ABCD paralelkenarının alanı S olmak üzere;
   geni ABCD paralelkenarının alanının yarısıdır.
                                                                                                                      D                         C       |AE| = |EB| ve |CF| = |BF| ise;
         D            E                C                                                                                                S
@@ -3831,7 +3773,7 @@ A                             B
 
 
 100         MATEMATİK</pre></section>
-<section class="pdf-page" id="page-101" data-page="101"><div class="page-label">PDF SAYFASI 101 / 127</div><pre>ÖZEL DÖRTGENLER
+<section class="pdf-page" id="page-99" data-page="99"><div class="page-label">PDF SAYFASI 99 / 125</div><pre>ÖZEL DÖRTGENLER
                                                     EŞKENAR DÖRTGEN
 
 • Dört kenarı eşit olan dörtgene eşkenar dörtgen denir.
@@ -3864,7 +3806,7 @@ A                             B
 
 
 101   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-102" data-page="102"><div class="page-label">PDF SAYFASI 102 / 127</div><pre>DELTOİD
+<section class="pdf-page" id="page-100" data-page="100"><div class="page-label">PDF SAYFASI 100 / 125</div><pre>DELTOİD
 
  • Taban uzunlukları eşit olan iki tane ikizkenar üçgenin eş kenarlarının birleştirilmesi ile oluşan şekle deltoid denir.
 
@@ -3895,7 +3837,7 @@ A                             B
 
 
 102   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-103" data-page="103"><div class="page-label">PDF SAYFASI 103 / 127</div><pre>DİKDÖRTGEN
+<section class="pdf-page" id="page-101" data-page="101"><div class="page-label">PDF SAYFASI 101 / 125</div><pre>DİKDÖRTGEN
 
  • Tüm açıları 90° olan özel bir paralelkenardır.
 
@@ -3929,7 +3871,7 @@ A                             B
 
 
 103       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-104" data-page="104"><div class="page-label">PDF SAYFASI 104 / 127</div><pre>KARE
+<section class="pdf-page" id="page-102" data-page="102"><div class="page-label">PDF SAYFASI 102 / 125</div><pre>KARE
 
 
  • Tüm kenar uzunlukları birbirine eşit ve açıları 90° olan dörtgene kare denir.
@@ -3953,7 +3895,7 @@ A                             B
 
 
 104   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-105" data-page="105"><div class="page-label">PDF SAYFASI 105 / 127</div><pre>YAMUK
+<section class="pdf-page" id="page-103" data-page="103"><div class="page-label">PDF SAYFASI 103 / 125</div><pre>YAMUK
 
 
               D       y   C
@@ -3995,7 +3937,7 @@ A                             B
 
 
 105          MATEMATİK</pre></section>
-<section class="pdf-page" id="page-106" data-page="106"><div class="page-label">PDF SAYFASI 106 / 127</div><pre>D                        C
+<section class="pdf-page" id="page-104" data-page="104"><div class="page-label">PDF SAYFASI 104 / 125</div><pre>D                        C
                          S1                       • ABCD yamuğunda [AC] ve [DB] köşegen olmak üzere;
 
                  S                 S              • A(A¿GD) = A(C¿GB) = S,
@@ -4033,7 +3975,7 @@ A                             B
 
 
 106      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-107" data-page="107"><div class="page-label">PDF SAYFASI 107 / 127</div><pre>D          c       C
+<section class="pdf-page" id="page-105" data-page="105"><div class="page-label">PDF SAYFASI 105 / 125</div><pre>D          c       C
 
 
 
@@ -4071,7 +4013,7 @@ A                             B
 
 
 107   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-108" data-page="108"><div class="page-label">PDF SAYFASI 108 / 127</div><pre>ÇEMBER VE DAİRE
+<section class="pdf-page" id="page-106" data-page="106"><div class="page-label">PDF SAYFASI 106 / 125</div><pre>ÇEMBER VE DAİRE
                                                        ÇEMBER VE DAİRE
                         Çember
 
@@ -4104,7 +4046,7 @@ A                             B
 
 
 108    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-109" data-page="109"><div class="page-label">PDF SAYFASI 109 / 127</div><pre>Kiriş
+<section class="pdf-page" id="page-107" data-page="107"><div class="page-label">PDF SAYFASI 107 / 125</div><pre>Kiriş
 • Çember üzerindeki iki noktayı birleştiren doğru parçasına kiriş denir.
 
 •
@@ -4141,7 +4083,7 @@ A                             B
 
 
 109     MATEMATİK</pre></section>
-<section class="pdf-page" id="page-110" data-page="110"><div class="page-label">PDF SAYFASI 110 / 127</div><pre>α
+<section class="pdf-page" id="page-108" data-page="108"><div class="page-label">PDF SAYFASI 108 / 125</div><pre>α
          2            • Köşesi çember üzerinde olan açıya çevre açı denir. Çevre açının ölçüsü gördüğü yayın yarısıdır.
 
 
@@ -4168,7 +4110,7 @@ A                             B
 
 
 110   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-111" data-page="111"><div class="page-label">PDF SAYFASI 111 / 127</div><pre>C
+<section class="pdf-page" id="page-109" data-page="109"><div class="page-label">PDF SAYFASI 109 / 125</div><pre>C
            B
                α
                                            Köşesi çember üzerinde olan, bir teğet, ile kirişin meydana getirdiği açıya teğet kiriş açı denir. Ölçüsü gör-
@@ -4215,7 +4157,7 @@ P
 
 
 111       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-112" data-page="112"><div class="page-label">PDF SAYFASI 112 / 127</div><pre>α            • Çemberde kirişler paralel ise kirişler arasında kalan yayların ölçüleri birbirine eşittir.
+<section class="pdf-page" id="page-110" data-page="110"><div class="page-label">PDF SAYFASI 110 / 125</div><pre>α            • Çemberde kirişler paralel ise kirişler arasında kalan yayların ölçüleri birbirine eşittir.
         2α                          2α
                 α
 
@@ -4263,7 +4205,7 @@ P
 
 
 112   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-113" data-page="113"><div class="page-label">PDF SAYFASI 113 / 127</div><pre>C
+<section class="pdf-page" id="page-111" data-page="111"><div class="page-label">PDF SAYFASI 111 / 125</div><pre>C
                                                         Çembere çizilen teğet ve kesen sonucunda oluşacak uzunluklar için;
                                         O
                                                              2
@@ -4309,7 +4251,7 @@ P
 
 
 113   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-114" data-page="114"><div class="page-label">PDF SAYFASI 114 / 127</div><pre>DAİRE
+<section class="pdf-page" id="page-112" data-page="112"><div class="page-label">PDF SAYFASI 112 / 125</div><pre>DAİRE
 • Çember ve iç bölgesinin birleşimi ile oluşan geometrik şekle daire denir.
 
 • Dairenin Alanı = p . r2
@@ -4352,7 +4294,7 @@ P
 
 
 114       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-115" data-page="115"><div class="page-label">PDF SAYFASI 115 / 127</div><pre>ANALİTİK GEOMETRİ
+<section class="pdf-page" id="page-113" data-page="113"><div class="page-label">PDF SAYFASI 113 / 125</div><pre>ANALİTİK GEOMETRİ
                                              ANALİTİK GEOMETRİ
                     Koordinat Sistemi
                                                                   y (Ordinat)
@@ -4381,7 +4323,7 @@ AB noktaları arasındaki uzaklık; AB =      ( x1 - x 2 ) + (y1 - y 2 )
 
 
 115   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-116" data-page="116"><div class="page-label">PDF SAYFASI 116 / 127</div><pre>Doğru Parçasının Orta Noktası
+<section class="pdf-page" id="page-114" data-page="114"><div class="page-label">PDF SAYFASI 114 / 125</div><pre>Doğru Parçasının Orta Noktası
 
 A(x1, y1)           C                   B(x 2, y2)
 
@@ -4414,7 +4356,7 @@ ABCD paralelkenar ise; x1 + x 3 = x 2 + x 4 ,        y1 + y 3 = y 2 + y 4
 
 
 116    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-117" data-page="117"><div class="page-label">PDF SAYFASI 117 / 127</div><pre>ÜÇGENDE ALAN
+<section class="pdf-page" id="page-115" data-page="115"><div class="page-label">PDF SAYFASI 115 / 125</div><pre>ÜÇGENDE ALAN
                                A(x1, y1)
 
                                                                                              -
@@ -4453,7 +4395,7 @@ ABCD paralelkenar ise; x1 + x 3 = x 2 + x 4 ,        y1 + y 3 = y 2 + y 4
 
 
 117   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-118" data-page="118"><div class="page-label">PDF SAYFASI 118 / 127</div><pre>Eksenleri Kestiği Noktalar Bilinen Doğru Denklemi
+<section class="pdf-page" id="page-116" data-page="116"><div class="page-label">PDF SAYFASI 116 / 125</div><pre>Eksenleri Kestiği Noktalar Bilinen Doğru Denklemi
 
 
                  y
@@ -4497,7 +4439,7 @@ ABCD paralelkenar ise; x1 + x 3 = x 2 + x 4 ,        y1 + y 3 = y 2 + y 4
 
 
 118   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-119" data-page="119"><div class="page-label">PDF SAYFASI 119 / 127</div><pre>Paralel İki Doğru Arasındaki Uzaklık
+<section class="pdf-page" id="page-117" data-page="117"><div class="page-label">PDF SAYFASI 117 / 125</div><pre>Paralel İki Doğru Arasındaki Uzaklık
 
                                A
                                                ax + by + c1 = 0
@@ -4535,7 +4477,7 @@ ABCD paralelkenar ise; x1 + x 3 = x 2 + x 4 ,        y1 + y 3 = y 2 + y 4
 
 
 119   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-120" data-page="120"><div class="page-label">PDF SAYFASI 120 / 127</div><pre>a1 b1
+<section class="pdf-page" id="page-118" data-page="118"><div class="page-label">PDF SAYFASI 118 / 125</div><pre>a1 b1
                                                                                                ¹    ise
                                                                                              a2 b 2
                            •        d1 ve d2 doğruları yalnız bir noktadan kesişir.
@@ -4586,7 +4528,7 @@ ABCD paralelkenar ise; x1 + x 3 = x 2 + x 4 ,        y1 + y 3 = y 2 + y 4
 
 
 120    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-121" data-page="121"><div class="page-label">PDF SAYFASI 121 / 127</div><pre>3x + 4y - 5 = 0 ve -6x - 8y + 20 = 0 doğruları arasındaki uzaklık kaç br’dir?
+<section class="pdf-page" id="page-119" data-page="119"><div class="page-label">PDF SAYFASI 119 / 125</div><pre>3x + 4y - 5 = 0 ve -6x - 8y + 20 = 0 doğruları arasındaki uzaklık kaç br’dir?
 
 
 
@@ -4617,7 +4559,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 121      MATEMATİK</pre></section>
-<section class="pdf-page" id="page-122" data-page="122"><div class="page-label">PDF SAYFASI 122 / 127</div><pre>KATI CİSİMLER
+<section class="pdf-page" id="page-120" data-page="120"><div class="page-label">PDF SAYFASI 120 / 125</div><pre>KATI CİSİMLER
                                             PRİZMA
 
       • Paralel iki kapalı şeklin karşılıklı elemanlarının birleştirilmesi ile oluşan cisme prizma denir. Prizmalar tabanlarına göre isimlendirilir. Bir prizmanın
@@ -4648,7 +4590,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 122   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-123" data-page="123"><div class="page-label">PDF SAYFASI 123 / 127</div><pre>• Dikdörtgen prizmanın açınımı;
+<section class="pdf-page" id="page-121" data-page="121"><div class="page-label">PDF SAYFASI 121 / 125</div><pre>• Dikdörtgen prizmanın açınımı;
                           a
           c                           c
       c                   a               c
@@ -4692,7 +4634,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 123       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-124" data-page="124"><div class="page-label">PDF SAYFASI 124 / 127</div><pre>SİLİNDİR
+<section class="pdf-page" id="page-122" data-page="122"><div class="page-label">PDF SAYFASI 122 / 125</div><pre>SİLİNDİR
 
             • Tabanları daire biçimindeki prizmalara silindir denir.
 
@@ -4731,7 +4673,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 124   MATEMATİK</pre></section>
-<section class="pdf-page" id="page-125" data-page="125"><div class="page-label">PDF SAYFASI 125 / 127</div><pre>r
+<section class="pdf-page" id="page-123" data-page="123"><div class="page-label">PDF SAYFASI 123 / 125</div><pre>r
 
 
 
@@ -4760,7 +4702,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 125       MATEMATİK</pre></section>
-<section class="pdf-page" id="page-126" data-page="126"><div class="page-label">PDF SAYFASI 126 / 127</div><pre>PİRAMİT
+<section class="pdf-page" id="page-124" data-page="124"><div class="page-label">PDF SAYFASI 124 / 125</div><pre>PİRAMİT
 
        • Bir çokgensel bölgenin bulunduğu düzlemin dışındaki bir noktadan bu çokgensel bölgenin köşelerine doğru parçaları indirilerek elde edilen üç
          boyutlu cisme piramit denir.
@@ -4800,7 +4742,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 
 
 126    MATEMATİK</pre></section>
-<section class="pdf-page" id="page-127" data-page="127"><div class="page-label">PDF SAYFASI 127 / 127</div><pre>Di̇ k Koni̇ ni̇ n Alanı
+<section class="pdf-page" id="page-125" data-page="125"><div class="page-label">PDF SAYFASI 125 / 125</div><pre>Di̇ k Koni̇ ni̇ n Alanı
                                                                 T
                                 T                               α
                                                             a             a
@@ -4837,7 +4779,7 @@ A noktasının orijine uzaklığı 4 birimdir.
 127   MATEMATİK</pre></section><div class="controls bottom"><button id="prev2">← Önceki</button><span id="footCount">Sayfa 1 / 127</span><button id="next2">Sonraki →</button></div><div class="foot">Kaynak: yüklenen “Matematik, Sayısal Mantık, Geometri (Tümü)” PDF’si. Sayfa sırası ve konu başlıkları kaynak dosyaya göre korunmuştur.</div></section></main>
 <script>
 const pages=[...document.querySelectorAll('.pdf-page')];let current=1;
-function show(n){current=Math.max(1,Math.min(127,Number(n)||1));pages.forEach(p=>p.classList.toggle('current',Number(p.dataset.page)===current));document.getElementById('current').textContent=current;document.getElementById('jump').value=current;document.getElementById('footCount').textContent='Sayfa '+current+' / 127';document.getElementById('bar').style.width=(current/127*100)+'%';document.querySelectorAll('.topic').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===current));document.getElementById('pageTitle').textContent=current<=2?'İçindekiler':(pages[current-1].querySelector('pre').textContent.split('\n').find(x=>x.trim())||'Matematik').trim().slice(0,70);history.replaceState(null,'','#page-'+current)}
+function show(n){current=Math.max(1,Math.min(125,Number(n)||1));pages.forEach(p=>p.classList.toggle('current',Number(p.dataset.page)===current));document.getElementById('current').textContent=current;document.getElementById('jump').value=current;document.getElementById('footCount').textContent='Sayfa '+current+' / 125';document.getElementById('bar').style.width=(current/125*100)+'%';document.querySelectorAll('.topic').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===current));document.getElementById('pageTitle').textContent=current<=2?'Matematik':(pages[current-1].querySelector('pre').textContent.split('\n').find(x=>x.trim())||'Matematik').trim().slice(0,70);history.replaceState(null,'','#page-'+current)}
 ['prev','prev2'].forEach(id=>document.getElementById(id).addEventListener('click',()=>show(current-1)));['next','next2'].forEach(id=>document.getElementById(id).addEventListener('click',()=>show(current+1)));document.getElementById('jump').addEventListener('change',e=>show(e.target.value));document.querySelectorAll('.topic').forEach(b=>b.addEventListener('click',()=>show(b.dataset.page)));
 document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.trim().toLocaleLowerCase('tr');document.querySelectorAll('.topic').forEach(b=>b.style.display=b.textContent.toLocaleLowerCase('tr').includes(q)?'flex':'none');if(q){const found=pages.find(p=>p.querySelector('pre').textContent.toLocaleLowerCase('tr').includes(q));if(found)show(found.dataset.page)}});
 const h=location.hash.match(/page-(\d+)/);show(h?h[1]:1);
