@@ -164,5 +164,29 @@ button{font:700 13px Inter,Arial,sans-serif;border:0;border-radius:10px;padding:
 </main>
 <script src="db.js?v=20261015-4"></script>
 <script>bgysRequireAuth();</script>
+
+<script>
+/* Katalogda kanun/yönetmelik başlığına tıklanınca doğrudan ders sayfasını aç */
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.study-library details.subject').forEach(function(group){
+    var summary=group.querySelector(':scope > summary');
+    var lesson=group.querySelector('.subject-topics a.topic-link');
+    if(!summary||!lesson)return;
+    summary.setAttribute('role','link');
+    summary.setAttribute('tabindex','0');
+    summary.setAttribute('aria-label',(summary.innerText||'Dersi aç').trim()+' — dersi aç');
+    summary.style.cursor='pointer';
+    function openLesson(event){
+      if(event.type==='keydown' && event.key!=='Enter' && event.key!==' ')return;
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href=lesson.href;
+    }
+    summary.addEventListener('click',openLesson);
+    summary.addEventListener('keydown',openLesson);
+  });
+});
+</script>
+
 </body>
 </html>
