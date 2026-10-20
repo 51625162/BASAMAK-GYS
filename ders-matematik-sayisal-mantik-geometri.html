@@ -652,8 +652,69 @@
 <h3>İncelenen Kaynaklar ve Ek Çalışma</h3>
 <ul><li><a href="https://puanlabs.com/konu-anlatimi/kpss-lisans-matematik-tablo-grafik" target="_blank" rel="noopener">Puanlabs — KPSS Tablo ve Grafik Yorumlama</a></li><li><a href="https://kpssasistanim.com/exam/kpss-ortaogretim/subjects/matematik/topics/tablo-grafik" target="_blank" rel="noopener">KPSS Asistanım — Tablo ve Grafik</a></li><li><a href="https://kpssyurdu.com/konu/tablo-ve-grafik-yorumlama/" target="_blank" rel="noopener">KPSS Yurdu — Tablo ve Grafik Yorumlama</a></li><li><a href="https://kpsshapnot.net/grafik-tablo" target="_blank" rel="noopener">KPSS Hapnot — Grafik ve Tablo</a></li></ul>
 </div></div></details>
-<details class="topic" id="konu-15"><summary><span class="num">15</span>Kümeler</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
-<details class="topic" id="konu-16"><summary><span class="num">16</span>Fonksiyonlar</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
+<details class="topic" id="konu-15"><summary><span class="num">15</span>Kümeler</summary><div class="topic-body"><div class="lesson-content">
+<h3>1. Küme Nedir?</h3>
+<p><strong>Küme</strong>, elemanları kesin olarak belirlenebilen nesneler topluluğudur. Kümeler genellikle büyük harfle, elemanları süslü parantezle gösterilir.</p>
+<div class="example">A = {2, 4, 6, 8} ise 4 ∈ A, fakat 5 ∉ A. Burada ∈ “elemanıdır”, ∉ ise “elemanı değildir” demektir.</div>
+<p>“Güzel sayılar” kişiye göre değişebilir; bu nedenle iyi tanımlı bir küme değildir. “10'dan küçük pozitif çift sayılar” ise A = {2, 4, 6, 8} biçiminde açıkça belirlenebilir.</p>
+<h3>2. Kümeleri Gösterme Yöntemleri</h3>
+<ul><li><strong>Liste yöntemi:</strong> A = {1, 2, 3, 4}</li><li><strong>Ortak özellik yöntemi:</strong> A = {x | x, 4'ten küçük pozitif tam sayıdır}</li><li><strong>Venn şeması:</strong> Küme elemanları kapalı bir eğrinin içinde gösterilir.</li></ul>
+<div class="note"><strong>Önemli:</strong> Kümede elemanların sırası ve tekrarı önemli değildir. {1, 2, 2, 3} = {3, 2, 1}; bu kümenin 3 elemanı vardır.</div>
+<h3>3. Temel Küme Sembolleri</h3>
+<table><thead><tr><th>Sembol</th><th>Anlamı</th><th>Örnek</th></tr></thead><tbody><tr><td>∈</td><td>Elemanıdır</td><td>2 ∈ A</td></tr><tr><td>∉</td><td>Elemanı değildir</td><td>7 ∉ A</td></tr><tr><td>⊆</td><td>Alt kümesidir</td><td>A ⊆ B</td></tr><tr><td>∪</td><td>Birleşim</td><td>A ∪ B</td></tr><tr><td>∩</td><td>Kesişim</td><td>A ∩ B</td></tr><tr><td>\</td><td>Fark</td><td>A \ B</td></tr><tr><td>∅</td><td>Boş küme</td><td>∅ = { }</td></tr><tr><td>E</td><td>Evrensel küme</td><td>İncelenen tüm elemanlar</td></tr></tbody></table>
+<h3>4. Boş Küme ve Evrensel Küme</h3>
+<p><strong>Boş küme (∅)</strong> hiç elemanı olmayan kümedir; eleman sayısı 0'dır. <strong>Evrensel küme (E)</strong>, o soruda ele alınan bütün olası elemanları içerir. Tümleyen işlemi evrensel kümeye göre belirlenir.</p>
+<div class="example">E = {1, 2, 3, 4, 5, 6}, A = {2, 4, 6} ise A'nın tümleyeni A′ = {1, 3, 5} olur.</div>
+<h3>5. Alt Küme ve Alt Küme Sayısı</h3>
+<p>A kümesinin her elemanı B kümesinde de bulunuyorsa A, B'nin alt kümesidir: A ⊆ B. Her küme kendisinin alt kümesidir ve boş küme her kümenin alt kümesidir.</p>
+<div class="example">A = {a, b, c} için alt kümeler: ∅, {a}, {b}, {c}, {a,b}, {a,c}, {b,c}, {a,b,c}. Toplam <strong>2³ = 8</strong> alt küme vardır.</div>
+<ul><li>n elemanlı kümenin alt küme sayısı: <strong>2ⁿ</strong>.</li><li>Öz alt küme sayısı (kümenin kendisi hariç): <strong>2ⁿ − 1</strong>.</li><li>Boş olmayan alt küme sayısı da <strong>2ⁿ − 1</strong>.</li><li>Hem boş küme hem kümenin kendisi hariç alt küme sayısı: <strong>2ⁿ − 2</strong>.</li></ul>
+<div class="note">“Öz alt küme” ifadesi bazı kaynaklarda alt kümenin kendisinden farklı olmasını vurgular. Soru “boş olmayan öz alt küme” derse hem ∅ hem de kümenin kendisi çıkarılır: 2ⁿ − 2.</div>
+<h3>6. Birleşim ve Kesişim</h3>
+<p><strong>Birleşim (A ∪ B):</strong> A veya B kümesinde bulunan tüm elemanlardır. Ortak eleman bir kez yazılır. <strong>Kesişim (A ∩ B):</strong> Her iki kümede ortak olan elemanlardır.</p>
+<div style="border:1px solid #d5dce5;border-radius:12px;padding:14px;margin:12px 0;background:#fff;color:#1f2937">
+<p style="font-weight:700;margin:0 0 8px">Venn şeması örneği</p>
+<svg viewBox="0 0 320 175" role="img" aria-label="A kümesi 1,2,3; B kümesi 3,4,5; kesişimde 3 bulunan Venn şeması" style="width:100%;height:auto;max-height:220px">
+<rect x="5" y="5" width="310" height="165" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="122" cy="88" r="55" fill="#93c5fd" fill-opacity="0.72" stroke="#2563eb" stroke-width="2"/>
+<circle cx="198" cy="88" r="55" fill="#86efac" fill-opacity="0.68" stroke="#16a34a" stroke-width="2"/>
+<g fill="#1e293b" font-size="13" font-weight="600" text-anchor="middle"><text x="91" y="84">1, 2</text><text x="160" y="84">3</text><text x="228" y="84">4, 5</text><text x="91" y="43">A</text><text x="230" y="43">B</text></g>
+</svg>
+<p style="margin:8px 0 0">A = {1, 2, 3}, B = {3, 4, 5}</p>
+<p style="margin:4px 0">A ∪ B = {1, 2, 3, 4, 5}</p><p style="margin:4px 0">A ∩ B = {3}</p>
+</div>
+<h3>7. Fark Kümesi ve Tümleyen</h3>
+<p><strong>A \ B</strong>, A'da olup B'de olmayan elemanlardır. Farkta sıra önemlidir: A \ B ile B \ A aynı olmak zorunda değildir.</p>
+<div class="example">A = {1, 2, 3, 4}, B = {3, 4, 5} ise A \ B = {1, 2}; B \ A = {5}.</div>
+<p><strong>A'nın tümleyeni (A′)</strong>, evrensel kümede bulunup A'da bulunmayan elemanlardır. A′ = E \ A.</p>
+<div class="note"><strong>Hatırla:</strong> Birleşim “en az birinde”, kesişim “ikisinde de”, fark “ilk kümede ama ikincide değil”, tümleyen “evrensel kümede ama A'da değil” anlamına gelir.</div>
+<h3>8. Kümelerde Eleman Sayısı Formülleri</h3>
+<p>İki kümenin birleşiminde ortak elemanlar iki kez sayıldığı için kesişim bir kez çıkarılır.</p>
+<div class="example"><strong>İki küme:</strong> s(A ∪ B) = s(A) + s(B) − s(A ∩ B).</div>
+<div class="example"><strong>Örnek:</strong> 30 kişi futbol, 22 kişi basketbol seviyor; 10 kişi ikisini de seviyorsa en az birini seven kişi sayısı = 30 + 22 − 10 = <strong>42</strong>.</div>
+<p>Üç kümede çift kesişimler çıkarılır, üç kümenin ortak kesişimi yeniden eklenir:</p>
+<div class="example">s(A ∪ B ∪ C) = s(A)+s(B)+s(C) − s(A∩B) − s(A∩C) − s(B∩C) + s(A∩B∩C).</div>
+<h3>9. Venn Şemalı Problemler</h3>
+<p>Anket ve tercih sorularında önce “ikisinin de” diyenleri ortak bölgeye yerleştir. Sonra yalnız A ve yalnız B sayılarını bul. En son tüm grubu ve hiçbirini seçmeyenleri hesapla.</p>
+<div class="example"><strong>Örnek:</strong> 50 kişilik sınıfta 28 kişi futbol, 20 kişi basketbol seviyor, 8 kişi ikisini de seviyor. En az birini seven = 28 + 20 − 8 = 40. Hiçbirini sevmeyen = 50 − 40 = <strong>10 kişi</strong>. Yalnız futbol = 28 − 8 = <strong>20 kişi</strong>; yalnız basketbol = 20 − 8 = <strong>12 kişi</strong>.</div>
+<h3>10. De Morgan Kuralları</h3>
+<ul><li>(A ∪ B)′ = A′ ∩ B′</li><li>(A ∩ B)′ = A′ ∪ B′</li></ul>
+<p>Birleşimin tümleyeni, iki kümenin ayrı ayrı tümleyenlerinin kesişimidir. Kesişimin tümleyeni ise ayrı ayrı tümleyenlerin birleşimidir.</p>
+<h3>11. Sık Yapılan Hatalar</h3>
+<ul><li>Birleşimde ortak elemanları iki kez saymak.</li><li>A \ B ile B \ A işlemlerini aynı sanmak.</li><li>∈ (eleman) ile ⊆ (alt küme) sembollerini karıştırmak.</li><li>Alt küme sayısında 2ⁿ yerine n² yazmak.</li><li>“Hiçbirini sevmeyen” sayısı için evrensel kümeden birleşimi çıkarmayı unutmak.</li><li>Üç küme formülünde üçlü kesişimi eklemeyi unutmak.</li></ul>
+<h3>12. Çözümlü Mini Test</h3>
+<details class="question"><summary>1. A = {1, 2, 3}, B = {3, 4, 5}. A ∩ B nedir?</summary><div class="answer"><p>Her iki kümede ortak olan tek eleman 3'tür.</p><p><strong>Cevap: {3}</strong></p></div></details>
+<details class="question"><summary>2. Aynı kümeler için A ∪ B nedir?</summary><div class="answer"><p>Her iki kümedeki farklı elemanları bir kez yaz: 1, 2, 3, 4, 5.</p><p><strong>Cevap: {1, 2, 3, 4, 5}</strong></p></div></details>
+<details class="question"><summary>3. A = {1, 2, 3, 4}, B = {3, 4, 5}. A \ B nedir?</summary><div class="answer"><p>A'da olup B'de olmayan elemanlar 1 ve 2'dir.</p><p><strong>Cevap: {1, 2}</strong></p></div></details>
+<details class="question"><summary>4. 5 elemanlı bir kümenin kaç alt kümesi vardır?</summary><div class="answer"><p>Alt küme sayısı = 2ⁿ = 2⁵ = <strong>32</strong>.</p><p><strong>Cevap: 32</strong></p></div></details>
+<details class="question"><summary>5. 40 kişilik sınıfta 25 kişi A, 18 kişi B grubunda ve 10 kişi her iki grupta. Hiçbir grupta olmayan kaç kişi vardır?</summary><div class="answer"><p>En az bir grupta olan = 25 + 18 − 10 = 33. Hiçbirinde olmayan = 40 − 33 = <strong>7 kişi</strong>.</p><p><strong>Cevap: 7</strong></p></div></details>
+<details class="question"><summary>6. E = {1, 2, 3, 4, 5, 6}, A = {2, 4, 6}. A′ nedir?</summary><div class="answer"><p>E'de olup A'da olmayan elemanlar 1, 3 ve 5'tir.</p><p><strong>Cevap: {1, 3, 5}</strong></p></div></details>
+<details class="question"><summary>7. 4 elemanlı bir kümenin boş olmayan öz alt küme sayısı kaçtır?</summary><div class="answer"><p>2⁴ − 2 = 16 − 2 = <strong>14</strong>. Boş küme ve kümenin kendisi çıkarılır.</p><p><strong>Cevap: 14</strong></p></div></details>
+<h3>Hızlı Tekrar Kartı</h3>
+<div class="note"><strong>∈:</strong> elemanıdır. <strong>⊆:</strong> alt kümesidir.<br><strong>A ∪ B:</strong> en az birinde olanlar.<br><strong>A ∩ B:</strong> ortak elemanlar.<br><strong>A \ B:</strong> A'da olup B'de olmayanlar.<br><strong>A′:</strong> evrensel kümede olup A'da olmayanlar.<br><strong>Alt küme sayısı:</strong> 2ⁿ.<br><strong>İki küme birleşimi:</strong> s(A)+s(B)−s(A∩B).<br><strong>Hiçbiri:</strong> evrensel küme − birleşim.</div>
+<h3>Kaynaklar ve Ek Çalışma</h3>
+<ul><li><a href="https://www.sorucozmeplatformu.com/konu/matematik-kumeler" target="_blank" rel="noopener">SoruÇözme — Kümeler Konu Anlatımı</a></li><li><a href="https://www.sinavaraci.com/kumeler-ve-kume-problemleri/" target="_blank" rel="noopener">Sınav Aracı — Kümeler ve Küme Problemleri</a></li><li><a href="https://numicorn.com/kpss/konu-anlatim/onlisans/kpss-matematik-kumeler" target="_blank" rel="noopener">Numicorn — KPSS Önlisans Kümeler</a></li></ul>
+</div></div></details><details class="topic" id="konu-16"><summary><span class="num">16</span>Fonksiyonlar</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-17"><summary><span class="num">17</span>İşlem ve Modüler Aritmetik</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-18"><summary><span class="num">18</span>Permütasyon, Kombinasyon ve Olasılık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-19"><summary><span class="num">19</span>Sayısal Mantık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
