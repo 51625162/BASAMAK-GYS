@@ -667,5 +667,46 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<style id="basamak-design-final-fix">
+/* Alan Konuları — tek ve tutarlı, açık mavi/beyaz tasarım */
+:root{color-scheme:light}
+html,body{background:#f2f6fb!important;color:#243b53!important}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important}
+.wrap{max-width:1180px!important}
+.wrap>.hero{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ background:linear-gradient(120deg,#fff 0%,#edf5ff 60%,#eaf8f5 100%)!important;
+ color:#203a54!important;border:1px solid #d9e6f2!important;border-radius:24px!important;
+ padding:clamp(24px,4vw,40px)!important;margin-bottom:24px!important;
+ box-shadow:0 10px 28px rgba(34,70,105,.07)!important
+}
+.wrap>.hero:before{content:"";position:absolute;z-index:-1;right:-55px;top:-80px;width:240px;height:240px;border-radius:50%;background:rgba(93,160,210,.10)!important;border:1px solid rgba(93,160,210,.15)!important}
+.wrap>.hero:after{content:none!important;display:none!important}
+.wrap>.hero .eyebrow{color:#347b9f!important;font-weight:800!important;letter-spacing:.1em!important}
+.wrap>.hero h1{color:#183b59!important;text-shadow:none!important}
+.wrap>.hero p{color:#526b80!important;max-width:790px!important}
+.study-library .lesson-grid{gap:14px!important}
+.study-library .lesson-card,.study-library details.subject{
+ background:#fff!important;border:1px solid #dbe5ef!important;border-radius:16px!important;
+ box-shadow:0 3px 12px rgba(30,64,95,.045)!important;
+ transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+}
+.study-library .lesson-card:hover,.study-library .lesson-card:focus-visible,
+.study-library details.subject:hover,.study-library details.subject:focus-within{
+ border:1px solid #63a9c5!important;background:#fbfdff!important;
+ box-shadow:0 0 0 3px rgba(72,151,184,.12)!important;transform:translateY(-1px)!important;outline:none!important
+}
+.study-library .lesson-card .lesson-title,.study-library details.subject>summary,
+.study-library .topic-link{color:#203d58!important}
+.study-library .lesson-card .lesson-title:before,.study-library details.subject>summary:before{color:#477c9e!important}
+@media(max-width:600px){
+ .wrap{padding-left:14px!important;padding-right:14px!important}
+ .wrap>.hero{border-radius:18px!important;padding:22px 18px!important}
+ .study-library .lesson-grid{gap:10px!important}
+ .study-library .lesson-card, .study-library details.subject{border-radius:13px!important}
+}
+</style>
+
 </body>
 </html>
