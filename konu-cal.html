@@ -278,6 +278,89 @@ button *{color:#fff!important}
 }
 </style>
 
+
+<style id="basamak-clean-catalogue-v2">
+/* Clean mobile-first catalogue cards — overrides legacy catalogue patches */
+.study-library .lesson-grid{display:grid!important;grid-template-columns:1fr!important;gap:13px!important;counter-reset:catalogue!important}
+.study-library .lesson-card,.study-library details.subject{
+  counter-increment:catalogue!important;position:relative!important;display:block!important;
+  width:100%!important;min-height:0!important;margin:0!important;padding:0!important;
+  border:1px solid #e0e5e1!important;border-radius:16px!important;overflow:hidden!important;
+  background:#fff!important;box-shadow:0 2px 7px rgba(22,40,32,.035)!important;
+  color:#1b2d42!important;text-decoration:none!important;
+  transition:border-color .16s ease,box-shadow .16s ease,background .16s ease!important
+}
+.study-library .lesson-card{padding:20px 18px 20px 66px!important}
+.study-library .lesson-card .lesson-title{
+ position:static!important;margin:0 0 7px!important;padding:0!important;
+ color:#1b2d42!important;font-size:15px!important;font-weight:750!important;
+ line-height:1.55!important;overflow-wrap:anywhere!important
+}
+.study-library .lesson-card .lesson-title:before{
+ content:counter(catalogue)!important;position:absolute!important;left:18px!important;top:20px!important;
+ display:grid!important;place-items:center!important;width:32px!important;height:32px!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;
+ background:#edf6f1!important;box-shadow:none!important;color:#176b4d!important;
+ font-size:13px!important;font-weight:800!important;line-height:1!important
+}
+.study-library .lesson-card p{
+ margin:0!important;color:#697887!important;font-size:12px!important;
+ line-height:1.7!important;overflow-wrap:anywhere!important
+}
+.study-library details.subject>summary{
+ position:relative!important;display:block!important;padding:20px 18px 20px 66px!important;
+ margin:0!important;background:#fff!important;color:#1b2d42!important;
+ cursor:pointer!important;list-style:none!important;font-size:15px!important;line-height:1.55!important
+}
+.study-library details.subject>summary::-webkit-details-marker{display:none!important}
+.study-library details.subject>summary:before{
+ content:counter(catalogue)!important;position:absolute!important;left:18px!important;top:20px!important;
+ display:grid!important;place-items:center!important;width:32px!important;height:32px!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;
+ background:#edf6f1!important;box-shadow:none!important;color:#176b4d!important;
+ font-size:13px!important;font-weight:800!important;line-height:1!important
+}
+.study-library details.subject>summary b{
+ display:block!important;margin:0!important;color:#1b2d42!important;
+ font-size:15px!important;font-weight:750!important;line-height:1.55!important;overflow-wrap:anywhere!important
+}
+.study-library details.subject>summary span{
+ display:block!important;margin:7px 0 0!important;color:#697887!important;
+ font-size:12px!important;line-height:1.7!important;text-align:left!important
+}
+.study-library .lesson-card:hover,.study-library .lesson-card:focus-visible,
+.study-library details.subject:hover,.study-library details.subject:focus-within{
+ border-color:#27815d!important;background:#fbfdfb!important;
+ box-shadow:0 0 0 2px rgba(39,129,93,.10)!important;outline:none!important
+}
+.study-library .lesson-card:focus-visible,.study-library details.subject>summary:focus-visible{
+ outline:2px solid #27815d!important;outline-offset:2px!important
+}
+.study-library .subject-topics{padding:0 14px 14px 66px!important}
+.study-library .topic-link{
+ display:block!important;padding:12px!important;border:1px solid #e1e8e3!important;
+ border-radius:11px!important;background:#f8fbf8!important
+}
+.study-library .topic-link b{font-size:13px!important;line-height:1.55!important;color:#1b2d42!important}
+.study-library .topic-link span{font-size:11px!important;line-height:1.65!important;color:#697887!important}
+.study-library .topic-link em{font-size:11px!important;color:#176b4d!important}
+.study-library .subject-note{padding:0 14px 14px 66px!important;font-size:11px!important;line-height:1.65!important;color:#697887!important}
+@media(min-width:760px){
+ .study-library .lesson-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+ .study-library .lesson-card,.study-library details.subject{border-radius:17px!important}
+}
+@media(max-width:600px){
+ .study-library .lesson-grid{gap:11px!important}
+ .study-library .lesson-card{padding:17px 14px 17px 58px!important;border-radius:14px!important}
+ .study-library .lesson-card .lesson-title:before{left:14px!important;top:17px!important;width:29px!important;height:29px!important;border-radius:8px!important}
+ .study-library details.subject>summary{padding:17px 14px 17px 58px!important}
+ .study-library details.subject>summary:before{left:14px!important;top:17px!important;width:29px!important;height:29px!important;border-radius:8px!important}
+ .study-library .lesson-card .lesson-title,.study-library details.subject>summary b{font-size:14px!important;line-height:1.6!important}
+ .study-library .lesson-card p,.study-library details.subject>summary span{font-size:12px!important;line-height:1.7!important}
+ .study-library .subject-topics,.study-library .subject-note{padding-left:14px!important;padding-right:14px!important}
+}
+</style>
+
 </head>
 <body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · DS Şefliği</small></header>
