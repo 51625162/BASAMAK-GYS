@@ -1109,7 +1109,58 @@
 <details class="question"><summary>6. Eğimleri 4 ve −1/4 olan iki doğru birbirine dik midir?</summary><div class="answer"><p>4×(−1/4)=−1 olduğundan <strong>dik doğrulardır</strong>.</p></div></details>
 <h3>12. Ek çalışma kaynakları</h3><ul><li><a href="https://www.youtube.com/results?search_query=KPSS+matematik+analitik+geometri+konu+anlat%C4%B1m%C4%B1" target="_blank" rel="noopener">YouTube – Analitik geometri konu anlatımı</a></li><li><a href="https://www.google.com/search?q=KPSS+analitik+geometri+%C3%A7%C3%B6z%C3%BCml%C3%BC+sorular" target="_blank" rel="noopener">Analitik geometri çözümlü sorular</a></li></ul>
 </div></div></details>
-<details class="topic" id="konu-27"><summary><span class="num">27</span>Katı Cisimler</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
+<details class="topic" id="konu-27"><summary><span class="num">27</span>Katı Cisimler</summary><div class="topic-body"><div class="lesson-content">
+<p>Bu konuda üç boyutlu şekillerin <strong>hacmini</strong> (içine ne kadar sığar?) ve <strong>yüzey alanını</strong> (dış yüzeyinin toplamı ne kadar?) hesaplayacağız. Soruda verilen ölçüleri doğru belirle, formülü yaz, sonra yerine koy.</p>
+<div class="rule"><strong>İki temel kavram</strong><br>• <b>Hacim:</b> İç boşluğu dolduran birim küp sayısı gibi düşünülür. Birimleri cm³, m³, dm³ olur.<br>• <b>Alan:</b> Cismin dış yüzeyini kaplayan alan. Birimleri cm², m² olur.<br>• Ölçüler aynı birime çevrilmeden işlem yapılmaz. Soruda aksi belirtilmedikçe π için 3,14 veya 22/7 kullanılabilir.</div>
+<h3>1. Küp ve dikdörtgenler prizması</h3>
+<div class="worked"><svg viewBox="0 0 320 150" role="img" aria-label="Küp çizimi" style="width:100%;max-width:320px;display:block;margin:auto"><g fill="#dceeff" stroke="#24649a" stroke-width="2"><path d="M55 53 L135 53 L135 133 L55 133 Z"/><path d="M55 53 L88 25 L168 25 L135 53 Z"/><path d="M135 53 L168 25 L168 105 L135 133 Z" fill="#b8d7f3"/></g><g fill="none" stroke="#24649a" stroke-width="2"><path d="M55 53 L88 25 L88 105 L55 133"/><path d="M88 105 L168 105"/></g><g font-size="12" fill="#173c65" font-weight="bold"><text x="88" y="147">a</text><text x="39" y="94">a</text><text x="145" y="93">a</text></g></svg>
+<p><strong>Küp:</strong> Bütün ayrıtları a olan cisim.</p>
+<p class="mathline"><b>Hacim:</b> V = a³ &nbsp; | &nbsp; <b>Toplam yüzey alanı:</b> A = 6a²</p>
+<p><b>Yüz köşegeni:</b> a√2 &nbsp; | &nbsp; <b>Cisim köşegeni:</b> a√3</p>
+<p><strong>Dikdörtgenler prizması:</strong> Kenarları a, b, c ise:</p>
+<p class="mathline">V = abc &nbsp; | &nbsp; A = 2(ab + ac + bc) &nbsp; | &nbsp; d = √(a² + b² + c²)</p></div>
+<h3>2. Silindir</h3>
+<div class="worked"><svg viewBox="0 0 320 160" role="img" aria-label="Silindir çizimi" style="width:100%;max-width:320px;display:block;margin:auto"><ellipse cx="145" cy="35" rx="65" ry="20" fill="#e4f4ed" stroke="#16836e" stroke-width="2"/><path d="M80 35 V115 C80 126 109 135 145 135 S210 126 210 115 V35" fill="#c9eadf" stroke="#16836e" stroke-width="2"/><ellipse cx="145" cy="115" rx="65" ry="20" fill="#c9eadf" stroke="#16836e" stroke-width="2"/><path d="M145 35 V115 M145 35 L210 35" stroke="#16836e" stroke-width="2" stroke-dasharray="4 4"/><g fill="#145b4f" font-size="12" font-weight="bold"><text x="151" y="80">h</text><text x="172" y="29">r</text></g></svg>
+<p>Tabanı yarıçapı r olan dairedir; yüksekliği h.</p>
+<p class="mathline"><b>Hacim:</b> V = πr²h</p>
+<p class="mathline"><b>Yanal alan:</b> 2πrh &nbsp; | &nbsp; <b>Toplam alan:</b> 2πr² + 2πrh = 2πr(r+h)</p>
+<p><em>Hatırla:</em> İki dairesel taban vardır. Toplam alanda iki tabanın alanını da ekle.</p></div>
+<h3>3. Koni</h3>
+<div class="worked"><svg viewBox="0 0 320 165" role="img" aria-label="Koni çizimi" style="width:100%;max-width:320px;display:block;margin:auto"><path d="M150 20 L75 125 A75 22 0 0 0 225 125 Z" fill="#fce8cf" stroke="#b66a1d" stroke-width="2"/><ellipse cx="150" cy="125" rx="75" ry="22" fill="#f9d9b2" stroke="#b66a1d" stroke-width="2"/><path d="M150 20 V125 M150 125 H225 M150 20 L225 125" fill="none" stroke="#b66a1d" stroke-width="2" stroke-dasharray="4 4"/><g fill="#85470f" font-size="12" font-weight="bold"><text x="157" y="77">h</text><text x="187" y="145">r</text><text x="194" y="66">ℓ</text></g></svg>
+<p>Taban yarıçapı r, dik yüksekliği h, ana doğrusu (eğik uzunluğu) ℓ olsun.</p>
+<p class="mathline"><b>Hacim:</b> V = πr²h / 3</p>
+<p class="mathline"><b>Yanal alan:</b> πrℓ &nbsp; | &nbsp; <b>Toplam alan:</b> πrℓ + πr² = πr(ℓ+r)</p>
+<p>Dik konide <span class="mathline">ℓ = √(r²+h²)</span> bağıntısı kullanılır. Hacimde ℓ değil, dik yükseklik h kullanılır.</p></div>
+<h3>4. Küre ve yarım küre</h3>
+<div class="worked"><svg viewBox="0 0 320 145" role="img" aria-label="Küre ve yarım küre çizimleri" style="width:100%;max-width:320px;display:block;margin:auto"><circle cx="83" cy="68" r="43" fill="#e6e4ff" stroke="#6555ad" stroke-width="2"/><ellipse cx="83" cy="68" rx="43" ry="13" fill="none" stroke="#6555ad" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M83 68 L126 68" stroke="#6555ad" stroke-width="2"/><path d="M180 70 A43 43 0 0 1 266 70 L180 70 Z" fill="#dcd8ff" stroke="#6555ad" stroke-width="2"/><path d="M180 70 A43 13 0 0 0 266 70" fill="none" stroke="#6555ad" stroke-width="2"/><g fill="#45378d" font-size="12" font-weight="bold"><text x="99" y="62">r</text><text x="199" y="100">yarım küre</text><text x="51" y="125">küre</text></g></svg>
+<p><strong>Küre:</strong> Yarıçap r.</p>
+<p class="mathline"><b>Hacim:</b> V = 4πr³ / 3 &nbsp; | &nbsp; <b>Yüzey alanı:</b> A = 4πr²</p>
+<p><strong>Yarım küre:</strong></p>
+<p class="mathline"><b>Hacim:</b> V = 2πr³ / 3</p>
+<p class="mathline"><b>Yalnız eğri yüzey:</b> 2πr² &nbsp; | &nbsp; <b>Taban dâhil toplam alan:</b> 3πr²</p>
+<p>Alan sorusunda tabanın dâhil olup olmadığını dikkatle oku.</p></div>
+<h3>5. Formüller hızlı bakış tablosu</h3>
+<table><thead><tr><th>Cisim</th><th>Hacim</th><th>Yüzey alanı</th></tr></thead><tbody>
+<tr><td>Küp</td><td>a³</td><td>6a²</td></tr><tr><td>Dikdörtgenler prizması</td><td>abc</td><td>2(ab+ac+bc)</td></tr><tr><td>Silindir</td><td>πr²h</td><td>2πr(r+h)</td></tr><tr><td>Koni</td><td>πr²h/3</td><td>πr(r+ℓ)</td></tr><tr><td>Küre</td><td>4πr³/3</td><td>4πr²</td></tr><tr><td>Yarım küre</td><td>2πr³/3</td><td>3πr² (taban dâhil)</td></tr></tbody></table>
+<h3>6. Çözümlü örnekler</h3>
+<div class="worked"><h4>Örnek 1 — Küp</h4><p>Bir küpün ayrıtı 4 cm. Hacmi ve toplam yüzey alanı?</p><p><b>Çözüm:</b> V = 4³ = <b>64 cm³</b>. A = 6·4² = 6·16 = <b>96 cm²</b>.</p></div>
+<div class="worked"><h4>Örnek 2 — Dikdörtgenler prizması</h4><p>Kenarları 2, 3 ve 5 cm olan prizmanın hacmi?</p><p><b>Çözüm:</b> V = 2·3·5 = <b>30 cm³</b>.</p></div>
+<div class="worked"><h4>Örnek 3 — Silindir</h4><p>r = 3 cm, h = 5 cm ve π = 3 alındığında hacim kaçtır?</p><p><b>Çözüm:</b> V = πr²h = 3·3²·5 = 3·9·5 = <b>135 cm³</b>.</p></div>
+<div class="worked"><h4>Örnek 4 — Koni</h4><p>r = 3 cm, h = 4 cm, ℓ = 5 cm olan koninin hacmi?</p><p><b>Çözüm:</b> V = π·3²·4/3 = 12π cm³. (π = 3 alınırsa 36 cm³.) Yanal alan sorulsaydı πrℓ = 15π cm² olurdu.</p></div>
+<div class="worked"><h4>Örnek 5 — Küre</h4><p>Yarıçapı 3 cm olan kürenin yüzey alanı, π = 3 için kaçtır?</p><p><b>Çözüm:</b> A = 4πr² = 4·3·9 = <b>108 cm²</b>.</p></div>
+<div class="worked"><h4>Örnek 6 — Birim dönüşümü</h4><p>2 dm³ kaç cm³ eder?</p><p><b>Çözüm:</b> 1 dm = 10 cm olduğundan 1 dm³ = 10³ = 1000 cm³. Dolayısıyla 2 dm³ = <b>2000 cm³</b>.</p></div>
+<h3>7. Sınavda dikkat edilecek noktalar</h3>
+<ul><li>Hacim birimi küplüdür (cm³); alan birimi karelidir (cm²).</li><li>Yarıçap verilmişse çapı kullanma; çap verilmişse r = çap/2 yap.</li><li>Silindir ve koninin daire tabanı alanı πr²'dir.</li><li>Koni hacminde 1/3 çarpanı vardır; silindirde yoktur.</li><li>Yüzey alanı hesaplanırken görünmeyen arka yüzler de hesaba katılır.</li><li>Benzer cisimlerde uzunluk k katına çıkarsa alan k², hacim k³ katına çıkar.</li></ul>
+<div class="rule"><strong>Hızlı tekrar kartı</strong><br>• Hacim = taban alanı × yükseklik (koni için bunun 1/3'ü).<br>• Küp: a³ ve 6a².<br>• Silindir: πr²h ve 2πr(r+h).<br>• Küre: 4πr³/3 ve 4πr².<br>• Uzunluk birimi → alan için karesi, hacim için küpü.</div>
+<h3>8. Kendini dene — çözümleri aç</h3>
+<details class="worked"><summary><b>Soru 1:</b> Ayrıtı 5 cm olan küpün hacmi nedir?</summary><p class="answer">V = 5³ = <b>125 cm³</b>.</p></details>
+<details class="worked"><summary><b>Soru 2:</b> 2 cm × 4 cm × 6 cm prizmanın hacmi nedir?</summary><p class="answer">V = 2·4·6 = <b>48 cm³</b>.</p></details>
+<details class="worked"><summary><b>Soru 3:</b> r = 2 cm, h = 7 cm silindirin hacmi nedir?</summary><p class="answer">V = π·2²·7 = <b>28π cm³</b>.</p></details>
+<details class="worked"><summary><b>Soru 4:</b> r = 3 cm, h = 6 cm koninin hacmi nedir?</summary><p class="answer">V = π·3²·6/3 = <b>18π cm³</b>.</p></details>
+<details class="worked"><summary><b>Soru 5:</b> Yarıçapı 2 cm olan kürenin yüzey alanı nedir?</summary><p class="answer">A = 4π·2² = <b>16π cm²</b>.</p></details>
+<details class="worked"><summary><b>Soru 6:</b> Küpün ayrıtı 2 katına çıkarılırsa hacmi kaç katına çıkar?</summary><p class="answer">Hacim ayrıtın küpüyle değişir: 2³ = <b>8 kat</b>.</p></details>
+<p><strong>Ek çalışma:</strong> <a href="https://www.khanacademy.org/math/geometry" target="_blank" rel="noopener noreferrer">Khan Academy — Geometri</a> (üç boyutlu şekiller ve alan/hacim konularını çalışmak için).</p>
+</div></div></details>
 </div></main>
 <style id="matematik-aydinlik-mod">
 :root{color-scheme:light;--bg:#f4f7fb;--line:#d8e2ee;--text:#203047}
