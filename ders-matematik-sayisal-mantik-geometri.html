@@ -783,7 +783,52 @@
 <div class="note"><strong>Fonksiyon:</strong> her girdiye tam bir çıktı.<br><strong>Tanım kümesi:</strong> girdiler; <strong>görüntü kümesi:</strong> gerçekleşen çıktılar.<br><strong>Bire bir:</strong> farklı girdiler farklı çıktılar.<br><strong>Örten:</strong> görüntü kümesi = değer kümesi.<br><strong>Bileşke:</strong> (f∘g)(x)=f(g(x)); içten dışa git.<br><strong>Ters:</strong> x-y'yi değiştir, y'yi yalnız bırak.<br><strong>Grafik:</strong> (a,b) noktası varsa f(a)=b.</div>
 <h3>Kaynaklar ve Ek Çalışma</h3>
 <ul><li><a href="https://www.sorucozmeplatformu.com/konu/matematik-fonksiyonlar" target="_blank" rel="noopener">SoruÇözme — Fonksiyonlar Konu Anlatımı</a></li><li><a href="https://www.sinavaraci.com/fonksiyonlar/" target="_blank" rel="noopener">Sınav Aracı — Fonksiyonlar</a></li><li><a href="https://kadrom.com/kpss-soru-coz/matematik/matematik-fonksiyonlar" target="_blank" rel="noopener">Kadrom — KPSS Fonksiyon Soruları</a></li><li><a href="https://kpsspusulasi.com/soru-kovani/matematik/20" target="_blank" rel="noopener">KPSS Pusulası — Çözümlü Fonksiyon Soruları</a></li></ul>
-</div></div></details><details class="topic" id="konu-17"><summary><span class="num">17</span>İşlem ve Modüler Aritmetik</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
+</div></div></details><details class="topic" id="konu-17"><summary><span class="num">17</span>İşlem ve Modüler Aritmetik</summary><div class="topic-body"><div class="lesson-content">
+<h3>1. Özel Tanımlı İşlem</h3>
+<p>Soruda bir sembol için yeni kural verilir. Sembolü normal işlem gibi düşünme; tanımı aynen uygula.</p>
+<div class="example"><strong>Örnek:</strong> a ★ b = 2a + b ise 3 ★ 5 = 2×3 + 5 = <strong>11</strong>.</div>
+<div class="note"><strong>Sıra önemlidir:</strong> a ★ b ile b ★ a farklı olabilir. a ★ b = 3a − 2b ise 5 ★ 4 = 7, fakat 4 ★ 5 = 2.</div>
+<h3>2. İç İçe İşlem</h3>
+<p>Önce parantez içini hesapla, sonucu dıştaki işlemde kullan.</p>
+<div class="example">a ★ b = a + 2b ise (2 ★ 1) ★ 3: önce 2 ★ 1 = 4; sonra 4 ★ 3 = <strong>10</strong>.</div>
+<h3>3. İşlem Özellikleri</h3>
+<ul><li><strong>Değişme:</strong> a ★ b = b ★ a.</li><li><strong>Birleşme:</strong> (a ★ b) ★ c = a ★ (b ★ c).</li><li><strong>Birim eleman:</strong> a ★ e = e ★ a = a.</li><li><strong>Ters eleman:</strong> a ile işlem yapıldığında birim elemanı veren eleman.</li></ul>
+<p>Her özel işlem bu özelliklerin hepsini taşımaz. Önce birim elemanı bul, ardından ters elemanı araştır.</p>
+<div class="example"><strong>Örnek:</strong> a ⊙ b = a + b − 4. Birim e için a+e−4=a, dolayısıyla e=<strong>4</strong>. 3'ün tersi t ise 3+t−4=4; buradan t=<strong>5</strong>.</div>
+<h3>4. Modüler Aritmetik ve Kalan</h3>
+<p>a mod n, a sayısının n'ye bölümünden kalandır. Kalan 0 ile n−1 arasında olur.</p>
+<div style="border:1px solid #d5dce5;border-radius:12px;padding:14px;margin:12px 0;background:#fff;color:#1f2937"><p style="font-weight:700;margin:0 0 8px">17 mod 5 = 2</p><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#dbeafe;padding:8px;border-radius:6px">5</span><span style="background:#dbeafe;padding:8px;border-radius:6px">5</span><span style="background:#dbeafe;padding:8px;border-radius:6px">5</span><span style="background:#dcfce7;border:2px solid #16a34a;padding:6px;border-radius:6px">2 kalan</span></div><p style="margin:8px 0 0">17 = 5×3 + 2. Üç tam grup 15 eder ve 2 artar.</p></div>
+<p>Genel bağıntı: a = n·q + r ve 0 ≤ r &lt; n. a ≡ b (mod n) demek, a ile b'nin n'ye bölümünden kalanların aynı olmasıdır.</p>
+<div class="example"><strong>Örnek:</strong> 47 ≡ 5 (mod 6), çünkü 47 = 6×7 + 5.</div>
+<h3>5. Kalanlarla İşlem Yapma</h3>
+<p>Toplama, çıkarma ve çarpma işleminde sayıları önce kalanlarıyla değiştirebilirsin.</p>
+<div class="example">38 + 57 mod 5: kalanlar 3 ve 2; 3+2=5, kalan <strong>0</strong>.</div>
+<div class="example">38×57 mod 5: kalanlar 3 ve 2; 3×2=6, 6 mod 5 = <strong>1</strong>.</div>
+<div class="note">Modüler aritmetikte bölme her zaman doğrudan yapılamaz. Denklem sorularında bölenin mod ile ilişkisini kontrol etmek gerekir.</div>
+<h3>6. Büyük Üslü Sayılar</h3>
+<p>Kuvvetlerin kalanları döngü oluşturabilir. Döngüyü bul, üssü döngü uzunluğuna böl ve kalan üssü kullan.</p>
+<div class="example"><strong>Örnek:</strong> 3'ün 7'ye göre kuvvetlerinde kalanlar 3, 2, 6, 4, 5, 1 olarak döner. Döngü uzunluğu 6'dır. 3⁵⁰ için 50 mod 6 = 2; dolayısıyla kalan 3² mod 7 = <strong>2</strong>.</div>
+<h3>7. Birler Basamağı, Gün ve Saat</h3>
+<ul><li>Birler basamağı için mod 10 kullanılır.</li><li>Haftanın günleri 7 günde döner.</li><li>12 saatlik saat için mod 12, 24 saatlik saat için mod 24 kullanılır.</li></ul>
+<div class="example"><strong>Örnek:</strong> Bugün salıysa 100 gün sonra hangi gün? 100 mod 7 = 2; iki gün sonrası <strong>perşembe</strong>.</div>
+<div class="example"><strong>Örnek:</strong> 7'nin birler basamağı döngüsü 7, 9, 3, 1 şeklindedir. 7²⁰ için 20 mod 4 = 0 olduğundan döngünün son basamağı <strong>1</strong> olur.</div>
+<h3>8. İşlem Tablosu Soruları</h3>
+<p>Tablo verilirse satır ve sütun başlıklarını doğru eşleştir. Birim eleman, satır ve sütununda diğer elemanları değiştirmeyen elemandır.</p>
+<h3>9. Sık Yapılan Hatalar</h3>
+<ul><li>Özel işlemde a ile b'nin yerini değiştirmek.</li><li>İç içe işlemde parantezi yanlış sırada hesaplamak.</li><li>Birim elemanı bulmadan ters eleman aramak.</li><li>Kalanın bö­lenden küçük olması gerektiğini unutmak.</li><li>Üs döngüsünde üs tam bölündüğünde döngünün son elemanını kaçırmak.</li><li>Gün hesabında başlangıç gününü tekrar saymak.</li></ul>
+<h3>10. Çözümlü Mini Test</h3>
+<details class="question"><summary>1. a ★ b = 2a + 3b ise 5 ★ 4 kaçtır?</summary><div class="answer"><p>10 + 12 = <strong>22</strong>.</p><p><strong>Cevap: 22</strong></p></div></details>
+<details class="question"><summary>2. a ★ b = a + b − 3 ise 7 ★ 5 kaçtır?</summary><div class="answer"><p>7 + 5 − 3 = <strong>9</strong>.</p><p><strong>Cevap: 9</strong></p></div></details>
+<details class="question"><summary>3. 28 mod 6 kaçtır?</summary><div class="answer"><p>28 = 6×4 + 4. <strong>Cevap: 4</strong></p></div></details>
+<details class="question"><summary>4. 100 mod 9 kaçtır?</summary><div class="answer"><p>100 = 9×11 + 1. <strong>Cevap: 1</strong></p></div></details>
+<details class="question"><summary>5. 3⁵⁰ sayısının 7 ile bölümünden kalan kaçtır?</summary><div class="answer"><p>50 mod 6 = 2; 3² mod 7 = <strong>2</strong>.</p><p><strong>Cevap: 2</strong></p></div></details>
+<details class="question"><summary>6. Bugün cuma ise 45 gün sonra hangi gündür?</summary><div class="answer"><p>45 mod 7 = 3. Cuma'dan üç gün sonrası <strong>pazartesi</strong>.</p></div></details>
+<details class="question"><summary>7. a ⊙ b = a + b − 4 işleminde birim eleman kaçtır?</summary><div class="answer"><p>a+e−4=a olduğundan e=<strong>4</strong>.</p></div></details>
+<h3>Hızlı Tekrar Kartı</h3>
+<div class="note"><strong>Özel işlem:</strong> verilen kuralı aynen uygula.<br><strong>Birim:</strong> a ★ e = e ★ a = a.<br><strong>Mod:</strong> a = n·q + r; 0 ≤ r &lt; n.<br><strong>Denk mod:</strong> aynı kalanı verir.<br><strong>Büyük üs:</strong> kalan döngüsünü bul.<br><strong>Gün:</strong> 7'ye göre kalan; <strong>birler basamağı:</strong> mod 10.</div>
+<h3>Kaynaklar ve Ek Çalışma</h3>
+<ul><li><a href="https://puanlabs.com/konu-anlatimi/kpss-lisans-matematik-islem-moduler-aritmetik" target="_blank" rel="noopener">Puanlabs — İşlem ve Modüler Aritmetik</a></li><li><a href="https://dersarsivi.com.tr/kpss-matematik-islem-ve-moduler-aritmetik-konu-anlatimi-ve-ornek-sorular" target="_blank" rel="noopener">Ders Arşivi — Konu Anlatımı</a></li><li><a href="https://kpsspusulasi.com/soru-kovani/matematik/19" target="_blank" rel="noopener">KPSS Pusulası — Çözümlü Sorular</a></li><li><a href="https://www.sorucozmeplatformu.com/konu/matematik-moduler-aritmetik" target="_blank" rel="noopener">SoruÇözme — Modüler Aritmetik</a></li></ul>
+</div></div></details>
 <details class="topic" id="konu-18"><summary><span class="num">18</span>Permütasyon, Kombinasyon ve Olasılık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-19"><summary><span class="num">19</span>Sayısal Mantık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-20"><summary><span class="num">20</span>Doğruda ve Üçgende Açılar</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
