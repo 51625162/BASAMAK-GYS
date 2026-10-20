@@ -714,8 +714,76 @@
 <div class="note"><strong>∈:</strong> elemanıdır. <strong>⊆:</strong> alt kümesidir.<br><strong>A ∪ B:</strong> en az birinde olanlar.<br><strong>A ∩ B:</strong> ortak elemanlar.<br><strong>A \ B:</strong> A'da olup B'de olmayanlar.<br><strong>A′:</strong> evrensel kümede olup A'da olmayanlar.<br><strong>Alt küme sayısı:</strong> 2ⁿ.<br><strong>İki küme birleşimi:</strong> s(A)+s(B)−s(A∩B).<br><strong>Hiçbiri:</strong> evrensel küme − birleşim.</div>
 <h3>Kaynaklar ve Ek Çalışma</h3>
 <ul><li><a href="https://www.sorucozmeplatformu.com/konu/matematik-kumeler" target="_blank" rel="noopener">SoruÇözme — Kümeler Konu Anlatımı</a></li><li><a href="https://www.sinavaraci.com/kumeler-ve-kume-problemleri/" target="_blank" rel="noopener">Sınav Aracı — Kümeler ve Küme Problemleri</a></li><li><a href="https://numicorn.com/kpss/konu-anlatim/onlisans/kpss-matematik-kumeler" target="_blank" rel="noopener">Numicorn — KPSS Önlisans Kümeler</a></li></ul>
-</div></div></details><details class="topic" id="konu-16"><summary><span class="num">16</span>Fonksiyonlar</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
-<details class="topic" id="konu-17"><summary><span class="num">17</span>İşlem ve Modüler Aritmetik</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
+</div></div></details><details class="topic" id="konu-16"><summary><span class="num">16</span>Fonksiyonlar</summary><div class="topic-body"><div class="lesson-content">
+<h3>1. Fonksiyon Nedir? Makine Gibi Düşün</h3>
+<p>Fonksiyon, tanım kümesindeki <strong>her elemana tam olarak bir çıktı</strong> veren eşleme kuralıdır. Bir makineye x girer, kural uygulanır ve f(x) çıktısı alınır.</p>
+<div style="border:1px solid #d5dce5;border-radius:12px;padding:14px;margin:12px 0;background:#fff;color:#1f2937">
+<p style="font-weight:700;margin:0 0 10px">Fonksiyon makinesi: f(x) = 2x + 1</p>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;text-align:center">
+<div style="padding:12px;border:2px solid #60a5fa;border-radius:10px;min-width:55px"><strong>x = 3</strong><div style="font-size:12px">Girdi</div></div><span style="font-size:22px">→</span>
+<div style="padding:12px;background:#dbeafe;border:2px solid #2563eb;border-radius:10px;min-width:100px"><strong>2x + 1</strong><div style="font-size:12px">Kural</div></div><span style="font-size:22px">→</span>
+<div style="padding:12px;border:2px solid #16a34a;background:#dcfce7;border-radius:10px;min-width:55px"><strong>7</strong><div style="font-size:12px">Çıktı</div></div>
+</div><p style="margin:10px 0 0">3 makineye girer: 2×3 + 1 = 7 çıkar. Yani f(3) = 7.</p></div>
+<div class="note"><strong>En önemli şart:</strong> Tanım kümesindeki her elemandan bir ok çıkmalı ve bu ok yalnızca bir elemana gitmeli. İki farklı girdi aynı çıktıya gidebilir; bu, fonksiyon olmasına engel değildir.</div>
+<h3>2. Tanım Kümesi, Değer Kümesi ve Görüntü Kümesi</h3>
+<p>f: A → B yazımında A tanım kümesi, B değer kümesidir. A'daki elemanların gerçekten ulaştığı çıktılar ise görüntü kümesi f(A)'dır.</p>
+<div style="border:1px solid #d5dce5;border-radius:12px;padding:12px;margin:12px 0;background:#fff;color:#1f2937">
+<p style="font-weight:700;margin:0 0 8px">Eşleme şeması</p>
+<svg viewBox="0 0 320 170" role="img" aria-label="A kümesindeki 1,2,3 elemanları B kümesindeki 3,5,7 değerlerine eşleniyor" style="width:100%;height:auto;max-height:220px">
+<rect x="18" y="18" width="92" height="136" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/><rect x="210" y="18" width="92" height="136" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+<g fill="#1e293b" font-size="12" font-weight="600" text-anchor="middle"><text x="64" y="34">A</text><text x="256" y="34">B</text><text x="64" y="62">1</text><text x="64" y="94">2</text><text x="64" y="126">3</text><text x="256" y="62">3</text><text x="256" y="94">5</text><text x="256" y="126">7</text></g>
+<g stroke="#64748b" stroke-width="1.7" fill="none"><path d="M80 58 L239 58"/><path d="M80 90 L239 90"/><path d="M80 122 L239 122"/></g>
+</svg>
+<p style="margin:4px 0">f(x)=2x+1 için A={1,2,3} ise f(A)={3,5,7} olur.</p></div>
+<h3>3. Bir Bağıntının Fonksiyon Olma Koşulu</h3>
+<ul><li>Tanım kümesindeki her eleman eşlenmelidir.</li><li>Her girdi yalnızca bir çıktıya eşlenmelidir.</li><li>Farklı girdiler aynı çıktıya gidebilir.</li></ul>
+<div class="example"><strong>Fonksiyon:</strong> 1→a, 2→a, 3→b. Her girdinin tek çıktısı vardır.</div>
+<div class="example"><strong>Fonksiyon değil:</strong> 1→a ve 1→b. Aynı girdi iki farklı çıktıya gönderilmiştir.</div>
+<div class="note"><strong>Grafik ipucu:</strong> Bir grafiğe çizilen herhangi bir düşey doğru eğriyi iki farklı noktada kesiyorsa o grafik y=f(x) biçiminde bir fonksiyon değildir.</div>
+<h3>4. Fonksiyonda Değer Bulma</h3>
+<p>f(x) kuralında x yerine soruda verilen sayıyı yaz. Parantezi koru ve işlem önceliğine dikkat et.</p>
+<div class="example"><strong>Örnek:</strong> f(x)=3x−2 ise f(4)=3×4−2=12−2=<strong>10</strong>.</div>
+<div class="example"><strong>Örnek:</strong> f(x)=x²+2x ise f(−3)=(−3)²+2×(−3)=9−6=<strong>3</strong>. Negatif sayının karesi pozitiftir.</div>
+<div class="example"><strong>Örnek:</strong> f(x+1)=2x+5 verilirse f(4) için x+1=4 olmalı, buradan x=3. f(4)=2×3+5=<strong>11</strong>.</div>
+<h3>5. Fonksiyon Türleri</h3>
+<table><thead><tr><th>Tür</th><th>Anlamı</th><th>Örnek</th></tr></thead><tbody><tr><td>Bire bir</td><td>Farklı girdiler farklı çıktılar verir</td><td>f(x)=2x</td></tr><tr><td>Örten</td><td>Değer kümesindeki her eleman görüntüdür</td><td>f(A)=B</td></tr><tr><td>İçine</td><td>Değer kümesinde boşta eleman kalır</td><td>f(A) ⊂ B</td></tr><tr><td>Sabit</td><td>Her girdinin çıktısı aynı</td><td>f(x)=5</td></tr><tr><td>Birim</td><td>Girdi değişmeden çıkar</td><td>f(x)=x</td></tr></tbody></table>
+<p>Bire bir fonksiyon için f(a)=f(b) eşitliği a=b sonucunu vermelidir. Örten fonksiyonda görüntü kümesi değer kümesinin tamamına eşittir. Tanım kümesi ve değer kümesi belirtilmeden örtenlik her zaman yalnızca formülden anlaşılamayabilir.</p>
+<h3>6. Fonksiyonlarda Dört İşlem</h3>
+<p>f ve g fonksiyonları için aynı x değerinde işlem yapılır:</p>
+<ul><li>(f+g)(x)=f(x)+g(x)</li><li>(f−g)(x)=f(x)−g(x)</li><li>(f·g)(x)=f(x)·g(x)</li><li>(f/g)(x)=f(x)/g(x), ancak g(x)≠0 olmalıdır.</li></ul>
+<div class="example"><strong>Örnek:</strong> f(x)=x+2, g(x)=3x ise (f+g)(2)=f(2)+g(2)=4+6=<strong>10</strong>.</div>
+<h3>7. Bileşke Fonksiyon</h3>
+<p>(f∘g)(x)=f(g(x)) demektir. Önce içteki g uygulanır, sonra çıkan sonuç f'nin içine yazılır. Sıra önemlidir; genellikle f∘g ile g∘f aynı değildir.</p>
+<div style="border:1px solid #d5dce5;border-radius:12px;padding:12px;margin:12px 0;background:#fff;color:#1f2937">
+<p style="font-weight:700;margin:0 0 8px">Bileşke: içten dışa</p>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;text-align:center"><div style="padding:10px;border:2px solid #60a5fa;border-radius:8px">x=2</div><span>→</span><div style="padding:10px;background:#dbeafe;border-radius:8px"><strong>g(x)=3x</strong><br/>6</div><span>→</span><div style="padding:10px;background:#dcfce7;border-radius:8px"><strong>f(x)=x+1</strong><br/>7</div></div>
+<p style="margin:8px 0 0">(f∘g)(2)=f(g(2))=f(6)=7.</p></div>
+<div class="example"><strong>Örnek:</strong> f(x)=x+1 ve g(x)=2x ise (g∘f)(3)=g(f(3))=g(4)=<strong>8</strong>. Önce f, sonra g.</div>
+<h3>8. Ters Fonksiyon</h3>
+<p>Ters fonksiyon, uygun koşullarda girdi ile çıktının rollerini değiştirir. Bir fonksiyonun tersinin fonksiyon olabilmesi için fonksiyonun bire bir olması gerekir (tanımlı olduğu kümelerde).</p>
+<div class="example"><strong>Örnek:</strong> f(x)=2x+3. y=2x+3 yaz, x ve y'nin yerini değiştir: x=2y+3. y'yi yalnız bırak: y=(x−3)/2. Bu nedenle <strong>f⁻¹(x)=(x−3)/2</strong>.</div>
+<div class="note"><strong>Uyarı:</strong> f⁻¹(x), 1/f(x) anlamına gelmez. Ters fonksiyon ile çarpmaya göre tersini karıştırma.</div>
+<h3>9. Bilinmeyen Katsayı ve f(ax+b) Soruları</h3>
+<div class="example"><strong>Örnek:</strong> f(x)=ax+2 ve f(3)=11 ise 3a+2=11, 3a=9, a=<strong>3</strong>.</div>
+<div class="example"><strong>Örnek:</strong> f(2x−1)=5x+4 ise f(3)'ü bulalım. 2x−1=3 olduğunda x=2 olur. Bu yüzden f(3)=5×2+4=<strong>14</strong>.</div>
+<h3>10. Grafik Okuma</h3>
+<p>Fonksiyon grafiğinde x değeri yatay eksenden, f(x) yani y değeri dikey eksenden okunur. f(a) isteniyorsa x=a noktasından grafiğe çıkıp y değerini bul. Kökler, grafiğin x eksenini kestiği veya değdiği noktalardaki x değerleridir.</p>
+<div class="note">Grafik sorularında noktayı (x, y) sırasıyla oku. Örneğin (2, 5) noktası grafikteyse f(2)=5 olur; f(5)=2 olduğu anlamına gelmez.</div>
+<h3>11. Sık Yapılan Hatalar</h3>
+<ul><li>Tanım kümesindeki bir girdinin iki farklı çıktısı olabileceğini sanmak.</li><li>f(−2) hesaplarken parantezi veya negatif işaretini unutmak.</li><li>Tanım kümesi, değer kümesi ve görüntü kümesini karıştırmak.</li><li>Bileşkede dıştaki fonksiyonu önce uygulamak.</li><li>Ters fonksiyonda x ve y'yi değiştirip y'yi yalnız bırakmayı unutmak.</li><li>f⁻¹(x) ile 1/f(x)'i aynı sanmak.</li><li>Bölüm fonksiyonunda paydayı sıfır yapan değerleri gözden kaçırmak.</li></ul>
+<h3>12. Çözümlü Mini Test</h3>
+<details class="question"><summary>1. f(x)=2x+3 ise f(4) kaçtır?</summary><div class="answer"><p>f(4)=2×4+3=8+3=<strong>11</strong>.</p><p><strong>Cevap: 11</strong></p></div></details>
+<details class="question"><summary>2. f(x)=x²−2x ise f(−3) kaçtır?</summary><div class="answer"><p>(−3)²−2×(−3)=9+6=<strong>15</strong>.</p><p><strong>Cevap: 15</strong></p></div></details>
+<details class="question"><summary>3. f(x)=ax+1 ve f(2)=9 ise a kaçtır?</summary><div class="answer"><p>2a+1=9 ⇒ 2a=8 ⇒ <strong>a=4</strong>.</p><p><strong>Cevap: 4</strong></p></div></details>
+<details class="question"><summary>4. f(x)=x+2, g(x)=3x ise (f∘g)(2) kaçtır?</summary><div class="answer"><p>Önce g(2)=6. Ardından f(6)=8. <strong>Cevap: 8</strong></p></div></details>
+<details class="question"><summary>5. f(x)=3x−6 fonksiyonunun tersi nedir?</summary><div class="answer"><p>y=3x−6. Değişkenleri değiştir: x=3y−6. 3y=x+6, y=(x+6)/3. <strong>f⁻¹(x)=(x+6)/3</strong>.</p></div></details>
+<details class="question"><summary>6. A={1,2,3}, f(x)=x+4 ise görüntü kümesi nedir?</summary><div class="answer"><p>f(1)=5, f(2)=6, f(3)=7. <strong>f(A)={5,6,7}</strong>.</p></div></details>
+<details class="question"><summary>7. f(2x+1)=3x−2 ise f(5) kaçtır?</summary><div class="answer"><p>2x+1=5 ⇒ x=2. f(5)=3×2−2=<strong>4</strong>.</p><p><strong>Cevap: 4</strong></p></div></details>
+<h3>Hızlı Tekrar Kartı</h3>
+<div class="note"><strong>Fonksiyon:</strong> her girdiye tam bir çıktı.<br><strong>Tanım kümesi:</strong> girdiler; <strong>görüntü kümesi:</strong> gerçekleşen çıktılar.<br><strong>Bire bir:</strong> farklı girdiler farklı çıktılar.<br><strong>Örten:</strong> görüntü kümesi = değer kümesi.<br><strong>Bileşke:</strong> (f∘g)(x)=f(g(x)); içten dışa git.<br><strong>Ters:</strong> x-y'yi değiştir, y'yi yalnız bırak.<br><strong>Grafik:</strong> (a,b) noktası varsa f(a)=b.</div>
+<h3>Kaynaklar ve Ek Çalışma</h3>
+<ul><li><a href="https://www.sorucozmeplatformu.com/konu/matematik-fonksiyonlar" target="_blank" rel="noopener">SoruÇözme — Fonksiyonlar Konu Anlatımı</a></li><li><a href="https://www.sinavaraci.com/fonksiyonlar/" target="_blank" rel="noopener">Sınav Aracı — Fonksiyonlar</a></li><li><a href="https://kadrom.com/kpss-soru-coz/matematik/matematik-fonksiyonlar" target="_blank" rel="noopener">Kadrom — KPSS Fonksiyon Soruları</a></li><li><a href="https://kpsspusulasi.com/soru-kovani/matematik/20" target="_blank" rel="noopener">KPSS Pusulası — Çözümlü Fonksiyon Soruları</a></li></ul>
+</div></div></details><details class="topic" id="konu-17"><summary><span class="num">17</span>İşlem ve Modüler Aritmetik</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-18"><summary><span class="num">18</span>Permütasyon, Kombinasyon ve Olasılık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-19"><summary><span class="num">19</span>Sayısal Mantık</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
 <details class="topic" id="konu-20"><summary><span class="num">20</span>Doğruda ve Üçgende Açılar</summary><div class="topic-body"><p><strong>Bu bölüm birlikte hazırlanacak.</strong></p><p>Konu anlatımı, temel kurallar, işlem adımları ve çözümlü örnekler bu alana eklenecek.</p><div class="placeholder">Durum: İçerik henüz eklenmedi. Hazır olduğunda bu konuyu adım adım dolduracağız.</div></div></details>
