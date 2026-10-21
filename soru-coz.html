@@ -16,7 +16,7 @@
 .question-hero-art{width:100%;max-width:440px;justify-self:center}.question-hero-art svg{display:block;width:100%;height:auto;filter:drop-shadow(0 12px 22px rgba(0,0,0,.15))}
 @media(max-width:760px){.question-hero{grid-template-columns:1fr;padding:25px 20px 20px;gap:4px}.question-hero-art{max-width:320px;margin-top:4px}.question-features{grid-template-columns:repeat(2,minmax(0,1fr))}.question-feature{font-size:.8rem;padding:9px}.question-hero-copy>p{font-size:.93rem}}
 
- .mini-test-box{border:1px solid #ffd9df;background:linear-gradient(135deg,#fff7f8,#fff);border-radius:18px;padding:18px;margin:16px 0}.mini-test-heading{display:flex;gap:12px;align-items:center}.mini-test-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#ffe4e8;color:#d92d45;font-size:1.5rem}.mini-test-heading h3{margin:0 0 4px}.mini-test-heading p{margin:0;color:var(--muted)}.mini-test-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-top:16px}.mini-test-controls label{font-weight:700}.mini-test-controls select{padding:12px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit}.mini-test-controls button{grid-column:1/-1}.mini-test-note{margin-bottom:0}@media(max-width:560px){.mini-test-controls{grid-template-columns:1fr}.mini-test-controls button{grid-column:auto}}\n</style></head><body>
+ .test-mode-panel{border:1px solid var(--line);border-radius:18px;padding:18px;margin:16px 0;background:#fff}.test-mode-panel h3{margin:0 0 6px}.test-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.test-mode-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;border:1px solid var(--line);background:#f8fafc;border-radius:14px;padding:16px;color:var(--navy);font:inherit;cursor:pointer}.test-mode-card.active{border-color:var(--teal);background:#eaf8f7;box-shadow:0 0 0 2px #0e9e971c}.mode-symbol{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e5edff;color:#155eef;font-size:1.35rem}.test-mode-card strong{font-size:1rem}.test-mode-card small{color:var(--muted);line-height:1.45}.part-test-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-top:16px;padding:14px;background:#f8fafc;border-radius:12px}.part-test-settings label{font-weight:700}.part-test-settings select{padding:11px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit;min-width:0}.part-test-settings button{grid-column:1/-1}@media(max-width:560px){.test-mode-options{grid-template-columns:1fr}.part-test-settings{grid-template-columns:1fr}.part-test-settings button{grid-column:auto}}\n</style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero question-hero">
@@ -46,8 +46,27 @@
 <div class="tabs" role="tablist" aria-label="Soru çalışma türü"><button class="tab-btn active" id="tabTest" type="button" role="tab" aria-selected="true" aria-controls="panelTest">Test Çöz</button></div>
 <section class="panel tab-panel" id="panelTest" role="tabpanel" aria-labelledby="tabTest"><h2>Test Çöz</h2><p class="hint">Dersini ve konu aralığını seç. Mini testlerle küçük adımlarla ilerle.</p>
 
-<div id="testTopicSelect" class="topic-list"></div><div class="mini-test-box" id="miniTestBox" hidden><div class="mini-test-heading"><span class="mini-test-icon">⚡</span><div><h3 id="miniTestTitle">Mini Test</h3><p><span id="miniTestSubtitle">Seçtiğin dersten kısa bir test çöz.</span></p></div></div>
-<div class="mini-test-controls"><label for="miniTestCount">Soru sayısı</label><select id="miniTestCount"><option value="5">5 soru</option><option value="10" selected>10 soru</option><option value="15">15 soru</option><option value="20">20 soru</option></select><button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button></div><p class="hint">Seçtiğin dersin mevcut soru havuzundan mini test hazırlanır.</p></div>
+<div id="testTopicSelect" class="topic-list"></div>
+<div id="testModePanel" class="test-mode-panel" hidden>
+  <h3 id="selectedCourseTitle">Ders seçildi</h3>
+  <p class="hint">Nasıl çalışmak istiyorsun?</p>
+  <div class="test-mode-options">
+    <button class="test-mode-card" type="button" id="mixedTestMode"><span class="mode-symbol">↔</span><strong>Karışık Soru Çöz</strong><small>Seçtiğin dersin soru havuzundan farklı konular karışık gelsin.</small></button>
+    <button class="test-mode-card" type="button" id="partTestMode"><span class="mode-symbol">▤</span><strong>Parça / Konu Mini Testi</strong><small>Yalnızca seçtiğin parça veya konuya ait soruları çöz.</small></button>
+  </div>
+  <div id="partTestSettings" hidden class="part-test-settings">
+    <label for="partRangeSelect">Parça / konu seç</label>
+    <select id="partRangeSelect"></select>
+    <label for="miniTestCount">Soru sayısı</label>
+    <select id="miniTestCount"><option value="5">5 soru</option><option value="10" selected>10 soru</option><option value="15">15 soru</option><option value="20">20 soru</option></select>
+    <button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button>
+  </div>
+  <div id="mixedTestSettings" hidden class="part-test-settings">
+    <label for="mixedTestCount">Soru sayısı</label>
+    <select id="mixedTestCount"><option value="10">10 soru</option><option value="20" selected>20 soru</option><option value="30">30 soru</option><option value="50">50 soru</option></select>
+    <button class="btn primary" id="startMixedTest" type="button">Karışık Testi Başlat</button>
+  </div>
+</div>
 <div class="divider"></div><h2 id="testProgress">Test için konu seç</h2><div id="testPractice" class="muted">Test alanından bir konu seç.</div></section></main>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -254,12 +273,17 @@ const testBox=document.getElementById("testPractice");
 const testProgress=document.getElementById("testProgress");
 const testTopics=document.getElementById("testTopicSelect");
 const miniTestCount=document.getElementById("miniTestCount");
-const miniTestBox=document.getElementById("miniTestBox");
-const miniTestTitle=document.getElementById("miniTestTitle");
-const miniTestSubtitle=document.getElementById("miniTestSubtitle");
-let activeMiniLimit=0;
+const mixedTestCount=document.getElementById("mixedTestCount");
+const testModePanel=document.getElementById("testModePanel");
+const selectedCourseTitle=document.getElementById("selectedCourseTitle");
+const partRangeSelect=document.getElementById("partRangeSelect");
+const partTestSettings=document.getElementById("partTestSettings");
+const mixedTestSettings=document.getElementById("mixedTestSettings");
+const mixedTestMode=document.getElementById("mixedTestMode");
+const partTestMode=document.getElementById("partTestMode");
+let activeMiniLimit=0, activeTestMode="part", activePartRange=null;
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
-function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
+function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);if(activeTestMode==="part"&&activePartRange){return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
 function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
 function renderTest(){
  const list=getQuestions(testGroup);
@@ -271,8 +295,28 @@ function renderTest(){
  testBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="test-answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" id="testCheck" type="button">Cevabı kontrol et</button><div id="testFeedback"></div><div id="testNext"></div></article>';
 }
 async function saveTopicTestProgress(group,list,correct,wrong,blank){try{if(typeof bgysAdd!=="function")return;await bgysAdd("ilerleme",{type:"test",title:group.title+" · Konu Testi",topic:group.title,correct,wrong,blank,total:list.length,percent:Math.round(correct/list.length*100),finishedAt:Date.now()});}catch(e){console.error("Test ilerlemesi kaydedilemedi:",e);}}
-document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}activeMiniLimit=Number(miniTestCount.value)||10;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
-testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");miniTestBox.hidden=false;miniTestTitle.textContent="Mini Test · "+testGroup.title;miniTestSubtitle.textContent="Seçtiğin dersin konularından mini test çöz.";renderTest();miniTestBox.scrollIntoView({behavior:"smooth",block:"start"});});
+function buildPartRanges(){
+  if(!testGroup)return;
+  const max=testGroup.max, ranges=[];
+  // Create selectable study chunks based on the course's available article range.
+  for(let start=testGroup.min;start<=max;start+=10){const end=Math.min(start+9,max);ranges.push({min:start,max:end,label:"Madde "+start+"–"+end});}
+  partRangeSelect.innerHTML=ranges.map((r,i)=>'<option value="'+i+'">'+r.label+'</option>').join("");
+  partRangeSelect.dataset.ranges=JSON.stringify(ranges);
+  activePartRange=ranges[0]||null;
+}
+function selectTestMode(mode){
+  activeTestMode=mode;activeMiniLimit=0;testCurrent=0;testOutcomes={};testProgressSaved=false;
+  mixedTestMode.classList.toggle("active",mode==="mixed");partTestMode.classList.toggle("active",mode==="part");
+  mixedTestSettings.hidden=mode!=="mixed";partTestSettings.hidden=mode!=="part";
+  if(mode==="mixed")activePartRange=null;else updatePartRange();
+}
+function updatePartRange(){const ranges=JSON.parse(partRangeSelect.dataset.ranges||"[]");activePartRange=ranges[Number(partRangeSelect.value)]||ranges[0]||null;}
+mixedTestMode.addEventListener("click",()=>selectTestMode("mixed"));
+partTestMode.addEventListener("click",()=>selectTestMode("part"));
+partRangeSelect.addEventListener("change",updatePartRange);
+document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}selectTestMode("part");updatePartRange();activeMiniLimit=Number(miniTestCount.value)||10;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+document.getElementById("startMixedTest").addEventListener("click",()=>{if(!testGroup)return;selectTestMode("mixed");activeMiniLimit=Number(mixedTestCount.value)||20;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;activePartRange=null;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");testModePanel.hidden=false;selectedCourseTitle.textContent=testGroup.title;partTestSettings.hidden=true;mixedTestSettings.hidden=true;mixedTestMode.classList.remove("active");partTestMode.classList.remove("active");buildPartRanges();testModePanel.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
  if(e.target.id==="testCheck"){
   const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
