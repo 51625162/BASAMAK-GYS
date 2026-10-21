@@ -2,10 +2,40 @@
 <html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f4f7fb"><title>Matematik, Sayısal Mantık ve Geometri | Basamak GYS</title>
 <style>
 :root{color-scheme:dark;--bg:#061326;--line:#29486b;--text:#edf5ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 55% 0%,#17375d 0,#07162a 45%,#040d1a 100%);color:var(--text);font:15px/1.6 Arial,sans-serif}a{color:#a8d9ff;text-decoration:none}.top{position:sticky;top:0;z-index:5;padding:13px 18px;background:#061225ee;border-bottom:1px solid #254365}.brand{font-weight:900}.hero{max-width:1100px;margin:18px auto;padding:22px;border:1px solid #34577b;border-radius:18px;background:linear-gradient(110deg,#0b1d34,#102d4b 55%,#211e4b)}.eyebrow{font-size:11px;letter-spacing:1.5px;color:#69e1d2;font-weight:800}.hero h1{margin:6px 0;font-size:clamp(23px,4vw,34px)}.hero p{color:#c4d7ed;margin:6px 0}.note{margin-top:14px;padding:12px;border:1px solid #41648b;border-radius:10px;background:#102640;color:#d5e8fa}.wrap{max-width:1100px;margin:auto;padding:0 12px 36px}.section-title{font-size:19px;margin:20px 0 10px}.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.topic{border:1px solid var(--line);border-radius:12px;background:linear-gradient(145deg,#0d223d,#08182c);overflow:hidden}.topic summary{list-style:none;cursor:pointer;padding:13px;display:flex;align-items:center;gap:10px;font-weight:700}.topic summary::-webkit-details-marker{display:none}.num{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;background:#173b60;color:#79e4d5;font-weight:900}.topic summary:after{content:'＋';margin-left:auto;color:#79e4d5}.topic[open] summary:after{content:'−'}.topic-body{padding:0 14px 15px;color:#c9dced}.topic-body p{margin:8px 0}.placeholder{border-left:3px solid #43c8ba;padding:9px 12px;background:#0b2b35;border-radius:0 8px 8px 0;color:#bcefe7;font-size:13px}.back{display:inline-block;margin:14px 0;color:#8eddd8;font-weight:bold}@media(max-width:700px){.topics{grid-template-columns:1fr}.hero{margin:10px 8px;padding:16px}.wrap{padding:0 8px 30px}}
+
+/* Basamak GYS matematik dersi: görsel konu kütüphanesi */
+:root{color-scheme:light;--bg:#eef5fb;--line:#dce8f3;--text:#122b54}
+body{background:radial-gradient(ellipse at 8% 0%,#e0fbf3 0,#f2f7ff 38%,#edf4fc 100%);color:#122b54;font-family:Inter,Arial,sans-serif}
+.top{background:#102747;color:#fff;box-shadow:0 5px 18px #17385c18}
+.hero{max-width:1100px;border:1px solid #d8e7f2;border-radius:24px;background:linear-gradient(120deg,#faffff,#e7f8f6 48%,#eaf1ff);color:#122b54;box-shadow:0 12px 28px #1e47700b;position:relative;overflow:hidden}
+.hero:after{content:"∑";position:absolute;right:18px;top:-28px;font-size:150px;font-weight:900;color:#1876e812;pointer-events:none}
+.eyebrow{color:#0d9187;font-weight:900}.hero h1{font:800 clamp(24px,4vw,36px)/1.18 Inter,Arial,sans-serif;max-width:700px}.hero p{color:#536c88}.note{background:#fff;border:1px solid #d8e8f2;color:#48627e;border-radius:13px}
+.wrap{max-width:1100px}.back{color:#087f86}.section-title{font-size:20px;font-weight:900}
+.topics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.topic{border:1px solid #dce6f0;border-radius:17px;background:linear-gradient(140deg,#fff,#f4f8ff);box-shadow:0 5px 14px #193c5b09;transition:transform .15s,border-color .15s;overflow:hidden}
+.topic:nth-child(4n+2){background:linear-gradient(140deg,#fff,#edfbf7);border-color:#d6eee6}
+.topic:nth-child(4n+3){background:linear-gradient(140deg,#fff,#fff6e9);border-color:#f2e4d1}
+.topic:nth-child(4n){background:linear-gradient(140deg,#fff,#f4f0ff);border-color:#e5def8}
+.topic:hover{transform:translateY(-2px);border-color:#9bc8f6}
+.topic summary{min-height:78px;padding:13px 14px;gap:11px;color:#17365f;font-size:13px;line-height:1.45}
+.num{flex:0 0 43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#14b8bd,#07818e);color:#fff;font-size:15px;box-shadow:0 4px 10px #098d9c20}
+.topic:nth-child(4n+2) .num{background:linear-gradient(145deg,#1987ff,#0755ca)}
+.topic:nth-child(4n+3) .num{background:linear-gradient(145deg,#ffad39,#e96c12)}
+.topic:nth-child(4n) .num{background:linear-gradient(145deg,#9271ff,#5a38cb)}
+.topic summary:after{content:"›";font-size:25px;color:#1677ef;margin-left:auto}
+.topic[open] summary:after{content:"⌄";color:#0b9387}
+.topic-body{padding:0 15px 16px;color:#344f70}
+.topic-body .lesson-content,.topic-body .placeholder{background:#fff;border:1px solid #e0eaf3;border-radius:13px;padding:14px;color:#294765}
+.topic-body h3{color:#12345d}.topic-body .rule,.topic-body .worked,.topic-body .definition{border-radius:11px}
+.topic-body a{color:#0878c9}
+.topic-search-wrap{display:flex;gap:10px;align-items:center;margin:12px 0 16px}
+#mathTopicSearch{width:100%;border:1px solid #d8e5f1;background:#fff;border-radius:14px;padding:14px 16px;font-size:14px;color:#17365f;box-shadow:0 5px 15px #17385c08}
+.topic-count{font-size:12px;color:#647b95;margin:0 0 10px}
+@media(max-width:700px){.topics{grid-template-columns:1fr}.hero{margin:10px 8px;padding:18px}.hero:after{font-size:100px;right:0}.topic summary{min-height:70px}.wrap{padding:0 10px 30px}}
 </style></head><body>
 <header class="top"><a class="brand" href="konu-cal.html">◈ Basamak GYS</a></header>
 <section class="hero"><div class="eyebrow">ORTAK KONULAR · 08</div><h1>Matematik, Sayısal Mantık ve Geometri</h1><p>Bu dersin konu başlıklarını hazırladık. İçerikleri seninle birlikte sırayla dolduracağız.</p><div class="note"><strong>Çalışma düzenimiz:</strong> Her konuda önce anlaşılır konu anlatımı, ardından adım adım çözümlü örnekler ve en sonda kısa tekrar. İçerik eklemediğimiz bölümler şimdilik boş taslaktır; tamamlanmış gibi gösterilmez.</div></section>
-<main class="wrap"><a class="back" href="konu-cal.html">← Ortak Konulara dön</a><h2 class="section-title">Konu dizini · 27 başlık</h2><div class="topics">
+<main class="wrap"><a class="back" href="konu-cal.html">← Ortak Konulara dön</a><h2 class="section-title">📚 Matematik, Sayısal Mantık ve Geometri</h2><p class="topic-count">27 konu başlığı · Bir konuyu açarak anlatım ve çözümlü örneklere ulaş.</p><div class="topic-search-wrap"><input id="mathTopicSearch" type="search" placeholder="Konu ara: EBOB, oran, üçgen, mantık…" aria-label="Matematik konularında ara"></div><div class="topics" id="mathTopicGrid">
 <details class="topic" id="konu-1"><summary><span class="num">01</span>Temel İşlem Yeteneği ve Temel Kavramlar</summary><div class="topic-body">
 <style>
 .lesson-content{color:#d6e5f6}.lesson-content h3{margin:24px 0 8px;color:#8fe5dc;font-size:18px}.lesson-content h4{margin:0 0 8px;color:#e4f2ff;font-size:15px}.lesson-content p{line-height:1.8}.lesson-content .definition,.lesson-content .rule,.lesson-content .worked{border:1px solid #2b4b6b;background:#0a1c31;border-radius:11px;padding:13px;margin:12px 0}.lesson-content .rule{border-left:4px solid #4dd6c4;background:#0b2a34}.lesson-content .worked{background:#10243b}.lesson-content .answer{padding:9px 11px;border-left:3px solid #4dd6c4;background:#0b302f;border-radius:0 7px 7px 0;color:#baf5e8}.lesson-content .mathline{font-size:16px;font-weight:800;color:#fff;letter-spacing:.2px}.lesson-content table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}.lesson-content th,.lesson-content td{border:1px solid #34516f;padding:9px;text-align:left}.lesson-content th{background:#173554;color:#bfe9ff}.lesson-content a{color:#8edcff;text-decoration:underline}.lesson-content .source-list li{margin:8px 0;line-height:1.6}
@@ -1264,6 +1294,10 @@ svg text{fill:currentColor}
 @media(max-width:700px){.hero{background:#fff!important}.topic summary{background:#fff!important}}
 </style>
 
+
+<script>
+(()=>{const input=document.getElementById("mathTopicSearch");const grid=document.getElementById("mathTopicGrid");if(!input||!grid)return;const cards=[...grid.querySelectorAll("details.topic")];input.addEventListener("input",()=>{const q=input.value.trim().toLocaleLowerCase("tr");cards.forEach(card=>{card.hidden=!card.querySelector("summary").innerText.toLocaleLowerCase("tr").includes(q);});const visible=cards.filter(c=>!c.hidden).length;let status=document.getElementById("mathSearchCount");if(!status){status=document.createElement("p");status.id="mathSearchCount";status.className="topic-count";grid.before(status);}status.textContent=q?visible+" konu bulundu":"Tüm 27 konu listeleniyor";});})();
+</script>
 </body></html>
 
 }body p,body li,body label,body small,body td,body th,body dd,body dt,body summary,body span,body div,body h1,body h2,body h3,body h4,body h5,body strong,body b,body em{color:#293d55!important}body a{color:#075fa8!important}header,nav,.top,.navbar,.site-header,.header,.app-header,.page-header{background:#fff!important;color:#17375e!important;border-color:#dbe5f0!important}main,.main,.container,.wrap,.content,.page-content,.lesson-content{color:#293d55!important}[class*="card"],[class*="panel"],[class*="lesson"],[class*="topic"],[class*="content"],[class*="summary"],[class*="article"],[class*="law"],[class*="section"],[class*="question"],[class*="example"],[class*="note"],[class*="rule"],[class*="intro"],[class*="hero"],details{background-color:#fff!important;color:#293d55!important;border-color:#d8e3ef!important}[class*="menu"],[class*="nav-list"],[class*="toc"],[class*="index-list"]{background:#f8fbff!important;color:#293d55!important}h1,h2,h3,h4,h5,strong,b,summary{color:#18385e!important}p,li,label,small,td,dd,dt{color:#344a62!important}button,input,select,textarea{background:#fff!important;color:#263b54!important;border-color:#cbd9e8!important}button{font-weight:600}table{background:#fff!important;color:#293d55!important;border-collapse:collapse!important}th{background:#e8f2fc!important;color:#23476d!important}td,th{border-color:#d8e3ef!important}pre,code,.pdf-text,.source-text{background:#f0f4f9!important;color:#293d55!important}.rule,.note,.important,.exam-tip,.exam-note{background:#eef8f7!important;color:#24564f!important;border-color:#b9e3dc!important}.answer,.solution,.correct-answer{background:#eaf8f0!important;color:#205c45!important}.badge,.pill,.tag{background:#e8f2ff!important;color:#174b84!important}svg text{fill:#293d55}@media(max-width:700px){body{font-size:16px!important;line-height:1.65!important}p,li{line-height:1.7!important}h1{font-size:1.8rem!important}h2{font-size:1.45rem!important}}</style>
