@@ -291,6 +291,6 @@ testBox.addEventListener("click",e=>{
  if(e.target.id==="testNextButton"){testCurrent++;renderTest();}
  if(e.target.id==="testRestart"){testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();}
 });
-qaBox.addEventListener("click",e=>{if(e.target.id==="qaShowAnswer"){qaAnswerShown=true;renderQA();}if(e.target.id==="qaNext"){qaCurrent++;qaAnswerShown=false;renderQA();}if(e.target.id==="qaRestart"){qaCurrent=0;qaAnswerShown=false;renderQA();}});
-renderTopicButtons(testTopics,null,"test");renderTopicButtons(qaTopics,null,"qa");renderTest();renderQA();
+
+renderTopicButtons(testTopics,null,"test");renderTest();
 </script><script src="db.js?v=20261015-1"></script><script>bgysRequireAuth();</script></body></html>
