@@ -16,7 +16,7 @@
 .question-hero-art{width:100%;max-width:440px;justify-self:center}.question-hero-art svg{display:block;width:100%;height:auto;filter:drop-shadow(0 12px 22px rgba(0,0,0,.15))}
 @media(max-width:760px){.question-hero{grid-template-columns:1fr;padding:25px 20px 20px;gap:4px}.question-hero-art{max-width:320px;margin-top:4px}.question-features{grid-template-columns:repeat(2,minmax(0,1fr))}.question-feature{font-size:.8rem;padding:9px}.question-hero-copy>p{font-size:.93rem}}
 
- .test-mode-panel{border:1px solid var(--line);border-radius:18px;padding:18px;margin:16px 0;background:#fff}.test-mode-panel h3{margin:0 0 6px}.test-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.test-mode-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;border:1px solid var(--line);background:#f8fafc;border-radius:14px;padding:16px;color:var(--navy);font:inherit;cursor:pointer}.test-mode-card.active{border-color:var(--teal);background:#eaf8f7;box-shadow:0 0 0 2px #0e9e971c}.mode-symbol{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e5edff;color:#155eef;font-size:1.35rem}.test-mode-card strong{font-size:1rem}.test-mode-card small{color:var(--muted);line-height:1.45}.part-test-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-top:16px;padding:14px;background:#f8fafc;border-radius:12px}.part-test-settings label{font-weight:700}.part-test-settings select{padding:11px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit;min-width:0}.part-test-settings button{grid-column:1/-1}@media(max-width:560px){.test-mode-options{grid-template-columns:1fr}.part-test-settings{grid-template-columns:1fr}.part-test-settings button{grid-column:auto}}\n</style></head><body>
+ .repeat-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:14px;background:#f1f5f9;border-radius:12px;font-weight:650}.repeat-toggle input{width:18px;height:18px;accent-color:var(--teal)}.test-mode-panel{border:1px solid var(--line);border-radius:18px;padding:18px;margin:16px 0;background:#fff}.test-mode-panel h3{margin:0 0 6px}.test-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.test-mode-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;border:1px solid var(--line);background:#f8fafc;border-radius:14px;padding:16px;color:var(--navy);font:inherit;cursor:pointer}.test-mode-card.active{border-color:var(--teal);background:#eaf8f7;box-shadow:0 0 0 2px #0e9e971c}.mode-symbol{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e5edff;color:#155eef;font-size:1.35rem}.test-mode-card strong{font-size:1rem}.test-mode-card small{color:var(--muted);line-height:1.45}.part-test-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-top:16px;padding:14px;background:#f8fafc;border-radius:12px}.part-test-settings label{font-weight:700}.part-test-settings select{padding:11px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit;min-width:0}.part-test-settings button{grid-column:1/-1}@media(max-width:560px){.test-mode-options{grid-template-columns:1fr}.part-test-settings{grid-template-columns:1fr}.part-test-settings button{grid-column:auto}}\n</style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
 <section class="hero question-hero">
@@ -48,6 +48,7 @@
 
 <div id="testTopicSelect" class="topic-list"></div>
 <div id="testModePanel" class="test-mode-panel" hidden>
+  <label class="repeat-toggle"><input type="checkbox" id="allowSolvedQuestions"> Daha önce çözdüğüm sorular tekrar karşıma çıkabilsin</label>
   <h3 id="selectedCourseTitle">Ders seçildi</h3>
   <p class="hint">Nasıl çalışmak istiyorsun?</p>
   <div class="test-mode-options">
@@ -276,8 +277,12 @@ const mixedTestSettings=document.getElementById("mixedTestSettings");
 const mixedTestMode=document.getElementById("mixedTestMode");
 const partTestMode=document.getElementById("partTestMode");
 let activeMiniLimit=0, activeTestMode="part", activePartRange=null;
+const solvedQuestionIds=new Set();
+const allowSolvedQuestions=document.getElementById("allowSolvedQuestions");
+async function loadSolvedQuestionIds(){try{if(typeof bgysGetAll!=="function")return;const rows=await bgysGetAll("ilerleme");rows.filter(x=>x.type==="question-solved").forEach(x=>solvedQuestionIds.add(x.questionId));}catch(e){console.warn("Çözülen sorular yüklenemedi",e);}}
+async function saveSolvedQuestion(q,correct){try{if(typeof bgysAdd==="function")await bgysAdd("ilerleme",{type:"question-solved",questionId:q.id,topic:q.topic,correct,solvedAt:Date.now()});}catch(e){console.warn("Soru çözümü kaydedilemedi",e);}}
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
-function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);if(activeTestMode==="part"&&activePartRange){return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
+function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{if(!allowSolvedQuestions.checked&&solvedQuestionIds.has(q.id))return false;if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);if(activeTestMode==="part"&&activePartRange){return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
 function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
 function renderTest(){
  const list=getQuestions(testGroup);
@@ -316,7 +321,7 @@ testBox.addEventListener("click",e=>{
   const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
   if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}
   if(answered.has("test-"+q.id))return;answered.add("test-"+q.id);
-  const ok=picked.value===q.answer;testOutcomes[q.id]=ok;testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
+  const ok=picked.value===q.answer;testOutcomes[q.id]=ok;solvedQuestionIds.add(q.id);saveSolvedQuestion(q,ok);testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
   feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru seçenek: '+q.answer)+'<br><br><b>Açıklama:</b> '+esc(q.explanation)+'</div>';
   const saveControls=document.createElement("div");saveControls.className="actions";
   saveControls.innerHTML='<button class="btn soft" type="button" id="toggleFavorite">☆ Favorilere ekle</button><button class="btn soft" type="button" id="saveWrong">Yanlışlarım listesine kaydet</button>';
@@ -334,5 +339,5 @@ testBox.addEventListener("click",e=>{
  if(e.target.id==="testRestart"){testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();}
 });
 
-renderTopicButtons(testTopics,null,"test");renderTest();
+loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
 </script><script src="db.js?v=20261015-1"></script><script>bgysRequireAuth();</script></body></html>
