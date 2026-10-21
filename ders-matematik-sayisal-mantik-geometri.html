@@ -1298,4 +1298,5 @@ svg text{fill:currentColor}
 <script>
 (()=>{const input=document.getElementById("mathTopicSearch");const grid=document.getElementById("mathTopicGrid");if(!input||!grid)return;const cards=[...grid.querySelectorAll("details.topic")];input.addEventListener("input",()=>{const q=input.value.trim().toLocaleLowerCase("tr");cards.forEach(card=>{card.hidden=!card.querySelector("summary").innerText.toLocaleLowerCase("tr").includes(q);});const visible=cards.filter(c=>!c.hidden).length;let status=document.getElementById("mathSearchCount");if(!status){status=document.createElement("p");status.id="mathSearchCount";status.className="topic-count";grid.before(status);}status.textContent=q?visible+" konu bulundu":"Tüm 27 konu listeleniyor";});})();
 </script>
+<script>(function(){if(!window.location.hash){window.location.replace(new URL("matematik.html",window.location.href).href);}})();</script>
 </body></html>
