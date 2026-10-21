@@ -168,6 +168,21 @@ details.subject .subject-note{padding:0 16px 14px!important;color:#607286;font-s
  content:none!important;display:none!important;background:none!important;border:0!important;
 }
 
+
+/* Accessibility/contrast refinement */
+:root{--muted:#45576b;--line:#c6d3e0}
+body{color:#10243e}
+.hero p{color:#f0f6fb}
+.hint,.lesson p,.topic-link span,.subject-note,.panel .hint{color:#45576b}
+.alan-heading p{color:#40566f}
+.alan-lesson-card{border-color:#c8d7e7;background:#fff;box-shadow:0 3px 12px rgba(16,43,97,.09)}
+.alan-title{color:#102b61;font-weight:700}
+.alan-arrow{background:linear-gradient(145deg,#10a978,#087d5e);color:#fff}
+.lesson-note{color:#263c52}
+.lesson-note .lesson-lead{color:#45576b}
+.lesson-note p,.lesson-note li{color:#263c52}
+@media (prefers-contrast:more){.alan-lesson-card,.panel,.subject,.topic-link{border-color:#7b8da2}.hint,.lesson p,.topic-link span{color:#263c52}}
+
 </style>
 <style>
 /* Ortak Konular başlığı: Alan Konuları hero tasarımıyla uyumlu */
