@@ -51,19 +51,15 @@
   <h3 id="selectedCourseTitle">Ders seçildi</h3>
   <p class="hint">Nasıl çalışmak istiyorsun?</p>
   <div class="test-mode-options">
-    <button class="test-mode-card" type="button" id="mixedTestMode"><span class="mode-symbol">↔</span><strong>Karışık Soru Çöz</strong><small>Seçtiğin dersin soru havuzundan farklı konular karışık gelsin.</small></button>
-    <button class="test-mode-card" type="button" id="partTestMode"><span class="mode-symbol">▤</span><strong>Parça / Konu Mini Testi</strong><small>Yalnızca seçtiğin parça veya konuya ait soruları çöz.</small></button>
+    <button class="test-mode-card" type="button" id="mixedTestMode"><span class="mode-symbol">↔</span><strong>Karışık Soru Çöz</strong><small>Seçtiğin dersin soru havuzundan farklı konular karışık gelsin. Soru sayısını birlikte belirleyeceğiz.</small></button>
+    <button class="test-mode-card" type="button" id="partTestMode"><span class="mode-symbol">▤</span><strong>Parça / Konu Mini Testi</strong><small>Yalnızca seçtiğin parça veya konuya ait soruları çöz. Soru sayısını birlikte belirleyeceğiz.</small></button>
   </div>
   <div id="partTestSettings" hidden class="part-test-settings">
     <label for="partRangeSelect">Parça / konu seç</label>
     <select id="partRangeSelect"></select>
-    <label for="miniTestCount">Soru sayısı</label>
-    <select id="miniTestCount"><option value="5">5 soru</option><option value="10" selected>10 soru</option><option value="15">15 soru</option><option value="20">20 soru</option></select>
     <button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button>
   </div>
   <div id="mixedTestSettings" hidden class="part-test-settings">
-    <label for="mixedTestCount">Soru sayısı</label>
-    <select id="mixedTestCount"><option value="10">10 soru</option><option value="20" selected>20 soru</option><option value="30">30 soru</option><option value="50">50 soru</option></select>
     <button class="btn primary" id="startMixedTest" type="button">Karışık Testi Başlat</button>
   </div>
 </div>
@@ -272,8 +268,6 @@ const tabTest=document.getElementById("tabTest");
 const testBox=document.getElementById("testPractice");
 const testProgress=document.getElementById("testProgress");
 const testTopics=document.getElementById("testTopicSelect");
-const miniTestCount=document.getElementById("miniTestCount");
-const mixedTestCount=document.getElementById("mixedTestCount");
 const testModePanel=document.getElementById("testModePanel");
 const selectedCourseTitle=document.getElementById("selectedCourseTitle");
 const partRangeSelect=document.getElementById("partRangeSelect");
@@ -314,8 +308,8 @@ function updatePartRange(){const ranges=JSON.parse(partRangeSelect.dataset.range
 mixedTestMode.addEventListener("click",()=>selectTestMode("mixed"));
 partTestMode.addEventListener("click",()=>selectTestMode("part"));
 partRangeSelect.addEventListener("change",updatePartRange);
-document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}selectTestMode("part");updatePartRange();activeMiniLimit=Number(miniTestCount.value)||10;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
-document.getElementById("startMixedTest").addEventListener("click",()=>{if(!testGroup)return;selectTestMode("mixed");activeMiniLimit=Number(mixedTestCount.value)||20;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}selectTestMode("part");updatePartRange();activeMiniLimit=0;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+document.getElementById("startMixedTest").addEventListener("click",()=>{if(!testGroup)return;selectTestMode("mixed");activeMiniLimit=0;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
 testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;activePartRange=null;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");testModePanel.hidden=false;selectedCourseTitle.textContent=testGroup.title;partTestSettings.hidden=true;mixedTestSettings.hidden=true;mixedTestMode.classList.remove("active");partTestMode.classList.remove("active");buildPartRanges();testModePanel.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
  if(e.target.id==="testCheck"){
