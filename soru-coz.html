@@ -45,9 +45,10 @@
 </section>
 <div class="tabs" role="tablist" aria-label="Soru çalışma türü"><button class="tab-btn active" id="tabTest" type="button" role="tab" aria-selected="true" aria-controls="panelTest">Test Çöz</button></div>
 <section class="panel tab-panel" id="panelTest" role="tabpanel" aria-labelledby="tabTest"><h2>Test Çöz</h2><p class="hint">Dersini ve konu aralığını seç. Mini testlerle küçük adımlarla ilerle.</p>
-<div class="mini-test-box"><div class="mini-test-heading"><span class="mini-test-icon">⚡</span><div><h3>Mini Test</h3><p>Seçtiğin konudan kısa bir test çöz.</p></div></div>
-<div class="mini-test-controls"><label for="miniTestCount">Soru sayısı</label><select id="miniTestCount"><option value="5">5 soru</option><option value="10" selected>10 soru</option><option value="15">15 soru</option><option value="20">20 soru</option></select><button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button></div><p class="hint">Önce aşağıdan ders/konu seç. Mini test, seçilen konu aralığındaki mevcut soruları kullanır.</p></div>
-<div id="testTopicSelect" class="topic-list"></div><div class="divider"></div><h2 id="testProgress">Test için konu seç</h2><div id="testPractice" class="muted">Test alanından bir konu seç.</div></section></main>
+
+<div id="testTopicSelect" class="topic-list"></div><div class="mini-test-box" id="miniTestBox" hidden><div class="mini-test-heading"><span class="mini-test-icon">⚡</span><div><h3 id="miniTestTitle">Mini Test</h3><p><span id="miniTestSubtitle">Seçtiğin dersten kısa bir test çöz.</span></p></div></div>
+<div class="mini-test-controls"><label for="miniTestCount">Soru sayısı</label><select id="miniTestCount"><option value="5">5 soru</option><option value="10" selected>10 soru</option><option value="15">15 soru</option><option value="20">20 soru</option></select><button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button></div><p class="hint">Seçtiğin dersin mevcut soru havuzundan mini test hazırlanır.</p></div>
+<div class="divider"></div><h2 id="testProgress">Test için konu seç</h2><div id="testPractice" class="muted">Test alanından bir konu seç.</div></section></main>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const questions=[
@@ -253,6 +254,9 @@ const testBox=document.getElementById("testPractice");
 const testProgress=document.getElementById("testProgress");
 const testTopics=document.getElementById("testTopicSelect");
 const miniTestCount=document.getElementById("miniTestCount");
+const miniTestBox=document.getElementById("miniTestBox");
+const miniTestTitle=document.getElementById("miniTestTitle");
+const miniTestSubtitle=document.getElementById("miniTestSubtitle");
 let activeMiniLimit=0;
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
 function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
@@ -267,8 +271,8 @@ function renderTest(){
  testBox.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="test-answer" value="'+k+'"><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<button class="btn primary" id="testCheck" type="button">Cevabı kontrol et</button><div id="testFeedback"></div><div id="testNext"></div></article>';
 }
 async function saveTopicTestProgress(group,list,correct,wrong,blank){try{if(typeof bgysAdd!=="function")return;await bgysAdd("ilerleme",{type:"test",title:group.title+" · Konu Testi",topic:group.title,correct,wrong,blank,total:list.length,percent:Math.round(correct/list.length*100),finishedAt:Date.now()});}catch(e){console.error("Test ilerlemesi kaydedilemedi:",e);}}
-document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders/konu seç";return;}activeMiniLimit=Number(miniTestCount.value)||10;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();});
-testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");renderTest();});
+document.getElementById("startMiniTest").addEventListener("click",()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}activeMiniLimit=Number(miniTestCount.value)||10;testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");miniTestBox.hidden=false;miniTestTitle.textContent="Mini Test · "+testGroup.title;miniTestSubtitle.textContent="Seçtiğin dersin konularından mini test çöz.";renderTest();miniTestBox.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
  if(e.target.id==="testCheck"){
   const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
