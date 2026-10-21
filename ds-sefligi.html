@@ -13,6 +13,15 @@
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:17px;min-height:140px;display:flex;gap:12px;align-items:flex-start}.ico{background:#e8f7f5;border-radius:11px;width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;font-size:18px}.card h3{font:700 14px Sora,Inter,sans-serif;margin:2px 0 7px}.card p{color:var(--muted);font-size:12px;line-height:1.55;margin:0}.status{display:inline-block;margin-top:10px;font-size:10px;font-weight:800;color:#788797;background:#f1f4f7;border-radius:20px;padding:5px 8px}
 .foot{margin-top:15px;background:white;border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--muted);font-size:11px;line-height:1.6}.foot strong{color:var(--navy)}
 @media(max-width:560px){.top small{max-width:125px;text-align:right;line-height:1.4}.wrap{padding:18px 13px 38px}.hero{border-radius:18px}.grid{grid-template-columns:1fr;gap:9px}.card{min-height:unset;padding:15px}.head{margin-top:26px}}
+
+/* Accessibility/contrast refinement */
+:root{--muted:#45576b;--line:#c6d3e0}
+body{color:#10243e}
+.hero p{color:#f0f6fb}
+.card{border-color:#c6d3e0;box-shadow:0 3px 12px rgba(16,36,62,.07)}
+.card p{color:#45576b}
+.status{color:#45576b;background:#e7edf3}
+
 </style></head>
 <body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Denetimli Serbestlik Şefliği</small></header>
