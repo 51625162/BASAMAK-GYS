@@ -70,6 +70,23 @@
 #modeScreen.part-mode-active .question-filter{background:linear-gradient(135deg,#f2fbf9,#eaf7f4);border-color:#d4ebe5}
 #modeScreen.part-mode-active .filter-icon{background:#d9f1eb;color:#08776e}
 @media(max-width:600px){.mode-view-banner{align-items:flex-start;padding:16px 14px;gap:12px}.mode-view-icon{flex-basis:46px;width:46px;height:46px;border-radius:14px;font-size:25px}.mode-view-copy h2{font-size:19px}.mode-view-copy p{font-size:12px}}
+
+/* Karışık Soru Çöz için özel arayüz; parça/konu ekranından bağımsız */
+.mixed-course-card{display:flex;align-items:center;gap:14px;margin:18px 0;padding:17px;border:1px solid #ffe4bf;border-radius:18px;background:linear-gradient(120deg,#fffaf0,#fff5e4)}
+.mixed-course-icon{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:16px;background:#ff9418;color:white;font-size:30px}
+.mixed-course-card>div{flex:1;min-width:0}.mixed-course-card h3{margin:0;color:#122b55;font-size:18px;line-height:1.3}.mixed-course-card p{margin:7px 0 0;color:#71849b;font-size:13px}.mixed-course-arrow{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e5f1ff;color:#1673df;font-size:32px}
+.mixed-feature-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 20px;padding:15px 8px;border-radius:18px;background:linear-gradient(120deg,#f1f8ff,#eaf4ff)}
+.mixed-feature-strip>div{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;color:#102f72}.mixed-feature-strip span{display:grid;place-items:center;width:58px;height:52px;border-radius:14px;background:#fff;color:#0877f9;font-size:28px;font-weight:900}.mixed-feature-strip small{font-size:12px;line-height:1.35}
+#modeScreen.mixed-mode-active .question-filter{margin-top:12px;padding:18px;border-color:#cce4ff;background:linear-gradient(135deg,#f1f8ff,#eaf5ff);border-radius:20px}
+#modeScreen.mixed-mode-active .question-filter-heading strong{font-size:19px;color:#102b66}#modeScreen.mixed-mode-active .question-filter-heading small{font-size:13px}#modeScreen.mixed-mode-active .filter-icon{width:48px;height:48px;font-size:24px}
+#modeScreen.mixed-mode-active .mixed-settings-card{margin-top:14px;padding:18px;border:1px solid #d3e8ff;border-radius:20px;background:linear-gradient(145deg,#f5faff,#edf7ff)}
+.mixed-settings-heading{display:flex;align-items:center;gap:12px;margin-bottom:18px}.mixed-settings-heading>span{font-size:29px;color:#0877f9}.mixed-settings-heading strong{display:block;font-size:19px;color:#102b66}.mixed-settings-heading small{display:block;margin-top:3px;color:#6682a5;font-size:13px}
+#mixedTestSettings label{display:block;margin:0 0 8px;color:#102b66;font-weight:800;font-size:14px}#mixedQuestionCount{margin-bottom:18px;min-height:50px;font-size:15px}
+#modeScreen.mixed-mode-active #startMixedTest{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:58px;border:0;border-radius:14px;background:linear-gradient(100deg,#0878f9,#1765ed);color:#fff;font-size:17px;font-weight:800;box-shadow:0 8px 16px #0878f925}
+.mixed-shuffle{font-size:24px}.mixed-info-note{display:flex;align-items:flex-start;gap:12px;margin-top:14px;padding:14px;border-radius:14px;background:#e0f0ff;color:#28558d}.mixed-info-note>span{display:grid;place-items:center;flex:0 0 27px;height:27px;border-radius:50%;background:#0878f9;color:white;font-weight:900}.mixed-info-note p{margin:0;font-size:12px;line-height:1.55}
+.part-only-hint{display:none}#modeScreen.mixed-mode-active .part-only-hint{display:none}#modeScreen.mixed-mode-active .mixed-only-hint{display:block}
+#modeScreen.part-mode-active .mixed-course-card,#modeScreen.part-mode-active .mixed-feature-strip,#modeScreen.part-mode-active .mixed-only-hint{display:none!important}#modeScreen.part-mode-active .part-only-hint{display:block}#modeScreen.part-mode-active .mixed-settings-card{display:none!important}
+@media(max-width:600px){.mixed-course-card{padding:13px;gap:10px}.mixed-course-icon{flex-basis:48px;height:48px}.mixed-course-card h3{font-size:16px}.mixed-feature-strip{gap:4px;padding:12px 5px}.mixed-feature-strip span{width:46px;height:44px;font-size:23px}.mixed-feature-strip small{font-size:11px}.mixed-settings-heading strong{font-size:17px}}
 </style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
@@ -120,15 +137,20 @@
     </select>
     <p class="filter-note" id="questionFilterNote">Önce çözmediğin sorular gösterilir.</p>
   </div>
-  <h3 id="selectedCourseTitle">Ders seçildi</h3>
-  <p class="hint">Seçtiğin çalışma türüne göre testi aşağıdan başlat.</p>
+  <div class="mixed-course-card"><span class="mixed-course-icon">▣</span><div><h3 id="selectedCourseTitle">Ders seçildi</h3><p>Konu anlatımı · Örnek sorular · Testler</p></div><span class="mixed-course-arrow">›</span></div>
+  <div class="mixed-feature-strip" aria-label="Karışık soru çöz özellikleri"><div><span>▱</span><small>Tüm<br>konulardan</small></div><div><span>?</span><small>Karışık<br>soru havuzu</small></div><div><span>▥</span><small>Seviyene<br>uygun</small></div><div><span>◎</span><small>Tekrar<br>çalış</small></div></div>
+  <p class="hint mixed-only-hint">Karışık test için filtreleri seç.</p><p class="hint part-only-hint">Parçayı seçip Mini Testi Başlat düğmesine bas.</p>
   <div id="partTestSettings" hidden class="part-test-settings">
     <label for="partRangeSelect">Parça / konu seç</label>
     <select id="partRangeSelect"></select>
     <button class="btn primary" id="startMiniTest" type="button" onclick="window.bgysStartMiniTestFallback && window.bgysStartMiniTestFallback()">Mini Testi Başlat</button>
   </div>
-  <div id="mixedTestSettings" hidden class="part-test-settings">
-    <button class="btn primary" id="startMixedTest" type="button">Karışık Testi Başlat</button>
+  <div id="mixedTestSettings" hidden class="part-test-settings mixed-settings-card">
+    <div class="mixed-settings-heading"><span>⚙</span><div><strong>Soru filtreleri</strong><small>Karışık test için filtreleri seç.</small></div></div>
+    <label for="mixedQuestionCount">Soru sayısı</label>
+    <select id="mixedQuestionCount" class="question-status-select"><option value="10">10 soru</option><option value="20" selected>20 soru</option><option value="30">30 soru</option><option value="50">50 soru</option><option value="all">Tüm uygun sorular</option></select>
+    <button class="btn primary" id="startMixedTest" type="button"><span class="mixed-shuffle">⇄</span> Karışık Testi Başlat</button>
+    <div class="mixed-info-note"><span>i</span><p>Seçtiğin kriterlere göre tüm konulardan karışık sorular getirilir. Bu bölüm, Parça / Konu Testi’nden bağımsızdır.</p></div>
   </div>
 </div>
 <div class="divider"></div><h2 id="testProgress">Test için konu seç</h2><div id="testPractice" class="muted">Test alanından bir konu seç.</div></section></main>
@@ -1056,7 +1078,7 @@ window.bgysStartMiniTestFallback=function(){
   }
 };
 document.getElementById("startMiniTest").onclick=window.bgysStartMiniTestFallback;
-document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");const count=document.getElementById("mixedQuestionCount")?.value||"20";activeMiniLimit=count==="all"?0:Number(count);activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;if(!activeQuestionList.length){testBox.innerHTML='<div class="result bad">Bu filtrelerle eşleşen soru bulunamadı. Soru durumunu değiştirip tekrar dene.</div>';return;}renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
 testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");testModePanel.hidden=false;selectedCourseTitle.textContent=testGroup.title;partTestSettings.hidden=true;mixedTestSettings.hidden=true;mixedTestMode.classList.remove("active");partTestMode.classList.remove("active");buildPartRanges();testModePanel.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
  if(e.target.id==="testCheck"){
