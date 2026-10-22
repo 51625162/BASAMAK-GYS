@@ -1270,4 +1270,13 @@ window.bgysLaunchCmkMixedTest = function(){
     draw();box.scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){console.error("Mixed test:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı. Sayfayı yenileyip tekrar deneyin.</div>';}
 };
+ // Eski karışık test tıklama dinleyicisini kaldır: eski ve yeni başlatıcı aynı anda çalışıyordu.
+ // Butonu klonlamak önceki addEventListener bağlarını temizler.
+ (function(){
+   const oldButton=document.getElementById("startMixedTest");
+   if(!oldButton) return;
+   const newButton=oldButton.cloneNode(true);
+   oldButton.replaceWith(newButton);
+   newButton.onclick=window.bgysLaunchCmkMixedTest;
+ })();
 </script></body></html>
