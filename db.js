@@ -400,7 +400,34 @@ async function bgysDelete(storeName, id) {
   await bgysInitFirebase();
   let user = bgysCurrentUser();
   if (!user) user = await bgysWaitForAuth();
-  await bgysUserCollection(storeName).doc(String(id)).update({ deleted: true, deletedAt: Date.now() });
+
+  // Yerel yedek kayıtları Firestore'da bulunmaz. Bunları buluttan silmeye
+  // çalışmak permission-denied üretir; yalnızca o kullanıcıya ait localStorage'dan kaldır.
+  const localId = String(id).startsWith("local-");
+  if (storeName === "favorilerYanlislar" && localId) {
+    const rows = bgysGetLocalPracticeRecords(storeName).filter(r => String(r.id) !== String(id));
+    localStorage.setItem(bgysLocalPracticeKey(storeName), JSON.stringify(rows));
+    return true;
+  }
+
+  try {
+    if (!user) throw new Error("Giriş yapılmamış");
+    await bgysUserCollection(storeName).doc(String(id)).update({ deleted: true, deletedAt: Date.now() });
+    return true;
+  } catch (e) {
+    // Yalnızca favoriler/yanlışlar için izin reddedilirse yerel kaydı silmeyi dene.
+    // Bulut kaydı silinemiyorsa, aynı ID yerelde yoksa hatayı gizleme.
+    if (storeName === "favorilerYanlislar" &&
+        (e.code === "permission-denied" || /Missing or insufficient permissions/i.test(e.message || ""))) {
+      const rows = bgysGetLocalPracticeRecords(storeName);
+      const filtered = rows.filter(r => String(r.id) !== String(id));
+      if (filtered.length !== rows.length) {
+        localStorage.setItem(bgysLocalPracticeKey(storeName), JSON.stringify(filtered));
+        return true;
+      }
+    }
+    throw e;
+  }
 }
 
 // Silinenler (çöp kutusu) listesini getirir — mevcut bölüme göre filtrelenir.
