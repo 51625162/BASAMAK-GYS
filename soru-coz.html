@@ -745,6 +745,26 @@ loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");ren
    a.classList.toggle("active",cat==="area");b.classList.toggle("active",cat==="common");
  }
  a.addEventListener("click",()=>{cat="area";draw()});b.addEventListener("click",()=>{cat="common";draw()});search.addEventListener("input",draw);sort.addEventListener("change",draw);
+ root.addEventListener("click",function(ev){
+   const card=ev.target.closest("[data-course]"); if(!card||!card.dataset.bank)return;
+   const bankId=card.dataset.bank;
+   const meta=({cmk5271:["5271 Sayılı Ceza Muhakemesi Kanunu",166],kanun5402:["5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu",30],anayasa:["1982 Türkiye Cumhuriyeti Anayasası",56],yonetmelik:["Denetimli Serbestlik Hizmetleri Yönetmeliği",104]})[bankId];
+   if(!meta)return;
+   const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");
+   if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");
+   const panel=document.getElementById("testModePanel"),part=document.getElementById("partTestSettings"),mixed=document.getElementById("mixedTestSettings");
+   if(panel)panel.hidden=false;if(part)part.hidden=false;if(mixed)mixed.hidden=true;
+   const title=document.getElementById("selectedCourseTitle"),progress=document.getElementById("testProgress"),practice=document.getElementById("testPractice");
+   if(title)title.textContent=meta[0];if(progress){progress.textContent=meta[0]+" — Parça / Konu Testi";progress.style.display="block";}if(practice){practice.textContent="Parçayı seçip Mini Testi Başlat düğmesine bas.";practice.style.display="block";}
+   const select=document.getElementById("partRangeSelect");
+   if(select){
+    const rr=bankId==="cmk5271"?[[1,32,"1. Parça · Madde 1–32"],[33,42,"2. Parça · Madde 33–42"],[43,61,"3. Parça · Madde 43–61"],[62,73,"4. Parça · Madde 62–73"],[74,89,"5. Parça · Madde 74–89"],[90,99,"6. Parça · Madde 90–99"],[100,115,"7. Parça · Madde 100–115"],[116,134,"8. Parça · Madde 116–134"],[135,140,"9. Parça · Madde 135–140"],[141,144,"10. Parça · Madde 141–144"],[145,149,"11. Parça · Madde 145–149"],[150,156,"12. Parça · Madde 150–156"],[157,161,"13. Parça · Madde 157–161"],[162,166,"14. Parça · Madde 162–166"]]:Array.from({length:Math.ceil(meta[1]/10)},(_,i)=>[i*10+1,Math.min((i+1)*10,meta[1]),"Madde "+(i*10+1)+"–"+Math.min((i+1)*10,meta[1])]);
+    select.innerHTML=rr.map((r,i)=>'<option value="'+i+'">'+r[2]+'</option>').join("");
+    select.dataset.ranges=JSON.stringify(rr.map(r=>({min:r[0],max:r[1],label:r[2]})));
+   }
+   if(typeof window.buildPartRanges==="function"){try{window.buildPartRanges();}catch(err){console.error(err);}}
+   if(part)part.scrollIntoView({behavior:"smooth",block:"center"});
+ });
  draw();
 })();
 </script><script src="db.js?v=20261022-independent-pools2"></script><script>bgysRequireAuth();</script></body></html>
