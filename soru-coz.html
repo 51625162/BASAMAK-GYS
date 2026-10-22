@@ -363,18 +363,18 @@ const partTestMode=document.getElementById("partTestMode");
 let activeMiniLimit=0, activeTestMode="part", activePartRange=null, activeQuestionList=null;
 const solvedQuestionIds=new Set();
 const questionStatusFilter=document.getElementById("questionStatusFilter");
-async function loadSolvedQuestionIds(){try{if(typeof bgysGetAll!=="function")return;const rows=await bgysGetAll("ilerleme");rows.filter(x=>x.type==="question-solved").forEach(x=>solvedQuestionIds.add(x.questionId));}catch(e){console.warn("Çözülen sorular yüklenemedi",e);}}
+async function loadSolvedQuestionIds(){try{if(typeof bgysGetAll!=="function")return;const rows=await bgysGetAll("ilerleme");solvedQuestionIds.clear();rows.filter(x=>x.type==="question-solved"&&x.questionId!=null).forEach(x=>solvedQuestionIds.add(String(x.questionId)));}catch(e){console.warn("Çözülen sorular yüklenemedi",e);}}
 function updateQuestionFilterNote(){const note=document.getElementById("questionFilterNote");if(!note)return;note.textContent=questionStatusFilter.value==="solved"?"Yalnızca daha önce çözdüğün sorular gösterilir.":questionStatusFilter.value==="all"?"Çözdüğün ve henüz çözmediğin tüm sorular gösterilir.":"Yalnızca henüz çözmediğin sorular gösterilir.";}
-questionStatusFilter.addEventListener("change",()=>{updateQuestionFilterNote();activeQuestionList=null;testCurrent=0;testOutcomes={};testProgressSaved=false;});
+questionStatusFilter.addEventListener("change",async()=>{updateQuestionFilterNote();await loadSolvedQuestionIds();activeQuestionList=null;testCurrent=0;testOutcomes={};testProgressSaved=false;if(testGroup){testBox.innerHTML='<p class="muted">Filtre uygulandı. Testi başlatmak için seçtiğin test türündeki başlat düğmesine bas.</p>';}});
 updateQuestionFilterNote();
 async function saveSolvedQuestion(q,correct){try{if(typeof bgysAdd==="function")await bgysAdd("ilerleme",{type:"question-solved",questionId:q.id,topic:q.topic,correct,solvedAt:Date.now()});}catch(e){console.warn("Soru çözümü kaydedilemedi",e);}}
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
-function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{const isSolved=solvedQuestionIds.has(q.id);if(questionStatusFilter.value==="solved"&&!isSolved)return false;if(questionStatusFilter.value==="unsolved"&&isSolved)return false;if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;if(group.id==="cmk5271"&&!String(q.topic).startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);if(activeTestMode==="part"&&activePartRange){return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
+function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{const isSolved=solvedQuestionIds.has(String(q.id));if(questionStatusFilter.value==="solved"&&!isSolved)return false;if(questionStatusFilter.value==="unsolved"&&isSolved)return false;if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı Kanun"))return false;if(group.id==="cmk5271"&&!String(q.topic).startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"))return false;const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;const n=Number(m[1]);if(activeTestMode==="part"&&activePartRange){return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
 function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
 function renderTest(){
  const list=activeQuestionList||getQuestions(testGroup);
  if(!testGroup){testProgress.textContent="Test için konu seç";testBox.innerHTML='<p class="muted">Test alanından bir konu seç.</p>';return;}
- if(!list.length){testProgress.textContent=testGroup.title;testBox.innerHTML='<div class="result bad">Bu konuda henüz test sorusu yok.</div>';return;}
+ if(!list.length){testProgress.textContent=testGroup.title;const statusLabel=questionStatusFilter.value==="solved"?"çözdüğün":questionStatusFilter.value==="unsolved"?"henüz çözmediğin":"seçilen";testBox.innerHTML='<div class="result bad">Bu testte filtreye uygun '+statusLabel+' soru bulunamadı. Soru filtresini değiştirerek tekrar deneyebilirsin.</div>';return;}
  if(testCurrent>=list.length){testProgress.textContent=testGroup.title+' · Tamamlandı';const done=list.filter(q=>Object.prototype.hasOwnProperty.call(testOutcomes,q.id));const correct=done.filter(q=>testOutcomes[q.id]===true).length,wrong=done.filter(q=>testOutcomes[q.id]===false).length,blank=list.length-done.length;testBox.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış: '+wrong+' · Cevaplanmayan: '+blank+'<br>Başarı: '+Math.round(correct/list.length*100)+'%</div><button class="btn primary" id="testRestart">Testi yeniden başlat</button>';if(!testProgressSaved){testProgressSaved=true;saveTopicTestProgress(testGroup,list,correct,wrong,blank);}return;}
  const q=list[testCurrent];
  testProgress.textContent=testGroup.title+' · Soru '+(testCurrent+1)+' / '+list.length;
@@ -407,7 +407,7 @@ document.getElementById("startMixedTest").addEventListener("click",async()=>{if(
 testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");testModePanel.hidden=false;selectedCourseTitle.textContent=testGroup.title;partTestSettings.hidden=true;mixedTestSettings.hidden=true;mixedTestMode.classList.remove("active");partTestMode.classList.remove("active");buildPartRanges();testModePanel.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
  if(e.target.id==="testCheck"){
-  const q=getQuestions(testGroup)[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
+  const q=(activeQuestionList||getQuestions(testGroup))[testCurrent],picked=testBox.querySelector('input[name="test-answer"]:checked'),feedback=document.getElementById("testFeedback");
   if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}
   if(answered.has("test-"+q.id))return;answered.add("test-"+q.id);
   const ok=picked.value===q.answer;testOutcomes[q.id]=ok;solvedQuestionIds.add(q.id);saveSolvedQuestion(q,ok);testBox.querySelectorAll('input[name="test-answer"]').forEach(x=>x.disabled=true);
@@ -429,4 +429,4 @@ testBox.addEventListener("click",e=>{
 });
 
 loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
-</script><script src="db.js?v=20261022-questionfilter1"></script><script>bgysRequireAuth();</script></body></html>
+</script><script src="db.js?v=20261022-questionfilter2"></script><script>bgysRequireAuth();</script></body></html>
