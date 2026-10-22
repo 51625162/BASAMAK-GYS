@@ -701,29 +701,27 @@ mixedTestMode.addEventListener("click",()=>openModeScreen("mixed"));
 partTestMode.addEventListener("click",()=>openModeScreen("part"));
 document.getElementById("modeBack").addEventListener("click",()=>{document.getElementById("modeScreen").hidden=true;document.getElementById("modeLanding").hidden=false;document.body.classList.remove("course-mode-open");testModePanel.hidden=true;testProgress.style.display="none";testBox.style.display="none";});
 partRangeSelect.addEventListener("change",updatePartRange);
-window.bgysStartMiniTestFallback=async function(){
+window.bgysStartMiniTestFallback=function(){
  try{
-  if(!testGroup){
-   const bank=topicGroups.find(g=>g.id==="cmk5271");
-   if(bank){testGroup=bank;selectedCourseTitle.textContent=bank.title;}
-  }
-  if(!testGroup){testProgress.textContent="Önce bir ders seç";testBox.style.display="block";testBox.innerHTML='<div class="result bad">Önce 5271 Sayılı Ceza Muhakemesi Kanunu dersini seç.</div>';return;}
-  document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");
-  testModePanel.hidden=false;partTestSettings.hidden=false;mixedTestSettings.hidden=true;testBox.style.display="block";testProgress.style.display="block";
-  await loadSolvedQuestionIds();
-  activeTestMode="part";activeMiniLimit=0;activeQuestionList=null;
+  if(!testGroup||testGroup.id!=="cmk5271"){const g=topicGroups.find(x=>x.id==="cmk5271");if(g)testGroup=g;}
+  if(!testGroup){testBox.style.display="block";testBox.innerHTML='<div class="result bad">Önce ders seç.</div>';return;}
   const ranges=JSON.parse(partRangeSelect.dataset.ranges||"[]");
-  if(!ranges.length)buildPartRanges();
-  updatePartRange();
-  let list=getQuestions(testGroup);
-  if(!list.length){
-    questionStatusFilter.value="all";updateQuestionFilterNote();activePartRange=JSON.parse(partRangeSelect.dataset.ranges||"[]")[Number(partRangeSelect.value)]||activePartRange;
-    list=getQuestions(testGroup);
-  }
-  activeQuestionList=list;testCurrent=0;testOutcomes={};testProgressSaved=false;
-  renderTest();testBox.style.display="block";testProgress.style.display="block";
-  testBox.scrollIntoView({behavior:"smooth",block:"start"});
- }catch(err){console.error("Mini test başlatma hatası:",err);testBox.style.display="block";testBox.innerHTML='<div class="result bad">Test başlatılırken hata oluştu. Sayfayı yenileyip tekrar deneyin.</div>';}
+  const range=ranges[Number(partRangeSelect.value)]||ranges.find(x=>x.min===162)||{min:162,max:166,label:"14. Parça · Madde 162–166"};
+  activeTestMode="part";activePartRange=range;activeMiniLimit=0;
+  const all=questions.filter(q=>{
+   if((q.pool||"part")!=="part")return false;
+   if(!String(q.topic||"").startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"))return false;
+   const m=String(q.topic).match(/Madde\s+(\d+)/);if(!m)return false;
+   const n=Number(m[1]);return n>=range.min&&n<=range.max;
+  });
+  activeQuestionList=all;testCurrent=0;testOutcomes={};testProgressSaved=false;
+  document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");
+  testModePanel.hidden=false;partTestSettings.hidden=false;mixedTestSettings.hidden=true;
+  selectedCourseTitle.textContent=testGroup.title;
+  testProgress.style.display="block";testBox.style.display="block";
+  if(!all.length){testProgress.textContent=testGroup.title;testBox.innerHTML='<div class="result bad">Bu parçada soru bulunamadı. Seçilen aralık: Madde '+range.min+'–'+range.max+'.</div>';return;}
+  renderTest();testProgress.style.display="block";testBox.style.display="block";testBox.scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(err){console.error("Mini test başlatma hatası:",err);testBox.style.display="block";testBox.innerHTML='<div class="result bad">Test başlatılamadı: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';}
 };
 document.getElementById("startMiniTest").onclick=window.bgysStartMiniTestFallback;
 document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
