@@ -1190,21 +1190,58 @@ window.bgysLaunchCmkMixedTest = function(){
   const box=document.getElementById("testPractice");
   const progress=document.getElementById("testProgress");
   const title=document.getElementById("selectedCourseTitle");
+  const countEl=document.getElementById("mixedQuestionCount");
   if(!box||!progress){alert("Test alanı bulunamadı. Sayfayı yenileyin.");return;}
   try{
-    const pool=questions.filter(q=>(q.pool||"mixed")==="mixed" && String(q.topic||"").startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"));
-    if(!pool.length){box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">CMK karışık soru havuzu yüklenemedi. Sayfayı yenileyip tekrar deneyin.</div>';return;}
-    let index=0,correct=0,answered=false;
-    const list=pool.slice(0,25);
-    if(title)title.textContent="5271 Sayılı Ceza Muhakemesi Kanunu";
+    const statusEl=document.getElementById("mixedQuestionStatus");
+    const status=statusEl?statusEl.value:"unanswered";
+    let pool=questions.filter(q=>(q.pool||"mixed")==="mixed" && q.options && q.answer);
+    if(status==="unanswered"){
+      const solved=JSON.parse(localStorage.getItem("bgysSolvedQuestionIds")||"[]");
+      pool=pool.filter(q=>!solved.includes(q.id));
+    }
+    if(!pool.length){box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Seçtiğin filtrelere uygun soru bulunamadı. Soru havuzu eklendikçe burada görünecek.</div>';return;}
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    const requested=countEl?countEl.value:"25";
+    const list=pool.slice(0,requested==="all"?pool.length:Math.max(1,Number(requested)||25));
+    let index=0,correct=0,answered={},chosen={},saved={};
+    const escMixed=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    if(title)title.textContent="Karışık Test";
     box.style.display="block";progress.style.display="block";
+    if(!document.getElementById("bgysMixedTestStyles")){
+      const st=document.createElement("style");st.id="bgysMixedTestStyles";st.textContent=
+      ".bgys-mixed-shell{background:#f5f8fc;border:1px solid #dce6f0;border-radius:18px;padding:14px;margin:12px 0;color:#17324d}.bgys-mixed-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.bgys-mixed-progress{height:8px;background:#e0e7ef;border-radius:20px;overflow:hidden;margin:12px 0}.bgys-mixed-progress span{display:block;height:100%;background:#1684f8;transition:width .2s}.bgys-mixed-subject{background:#e8f8f1;color:#176d58;border-radius:12px;padding:12px;margin:12px 0;font-size:14px}.bgys-mixed-card{background:white;border:1px solid #e0e8f0;border-radius:16px;padding:16px}.bgys-mixed-card h3{font-size:18px;line-height:1.5;margin:8px 0 16px}.bgys-mixed-option{display:flex;align-items:flex-start;gap:9px;padding:12px;border:1px solid #dbe4ee;border-radius:12px;margin:9px 0;cursor:pointer;line-height:1.45}.bgys-mixed-option:has(input:checked){border-color:#1684f8;background:#eaf3ff}.bgys-mixed-option input{margin-top:4px;accent-color:#1684f8}.bgys-mixed-nav{display:flex;gap:10px;margin-top:14px}.bgys-mixed-nav button{flex:1;border:0;border-radius:10px;padding:13px 8px;font-weight:700;cursor:pointer;background:#087df1;color:white}.bgys-mixed-nav button:disabled{background:#e0e5eb;color:#78899a;cursor:default}.bgys-mixed-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:14px}.bgys-mixed-grid button{padding:9px 0;border:1px solid #d7e1eb;border-radius:9px;background:white;color:#24415d;cursor:pointer}.bgys-mixed-grid button.current{background:#087df1;color:white;border-color:#087df1}.bgys-mixed-grid button.done{background:#e2f6ec;border-color:#9ed9bb}.bgys-mixed-actions{display:flex;gap:8px;align-items:center}.bgys-mixed-plain{border:0;background:transparent;color:#087df1;font-size:20px;cursor:pointer}.bgys-mixed-finish{border:0;border-radius:10px;background:#ef666c;color:white;padding:11px 14px;font-weight:700;cursor:pointer}.bgys-mixed-note{font-size:13px;color:#63778c}";
+      document.head.appendChild(st);
+    }
+    function finish(){
+      progress.textContent="Karışık Test · Tamamlandı";
+      box.innerHTML='<div class="bgys-mixed-shell"><h2>Test tamamlandı</h2><p>Toplam soru: <b>'+list.length+'</b></p><p>Doğru: <b>'+correct+'</b> · Yanlış: <b>'+(Object.keys(answered).length-correct)+'</b></p><p>Başarı oranı: <b>'+Math.round(correct/Math.max(1,Object.keys(answered).length)*100)+'%</b></p><button type="button" class="btn primary" id="bgysMixedRestart">Yeni karışık test</button></div>';
+      document.getElementById("bgysMixedRestart").onclick=()=>window.bgysLaunchCmkMixedTest();
+    }
     function draw(){
-      if(index>=list.length){progress.textContent="CMK Karışık Test · Tamamlandı";box.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış: '+(list.length-correct)+'<br>Başarı: '+Math.round(correct/list.length*100)+'%</div><button type="button" class="btn primary" id="bgysCmkRestart">Yeniden başlat</button>';document.getElementById("bgysCmkRestart").onclick=()=>{index=0;correct=0;draw();};return;}
-      answered=false;const q=list[index];progress.textContent="5271 Sayılı Ceza Muhakemesi Kanunu · Soru "+(index+1)+" / "+list.length;
-      box.innerHTML='<article class="question-card"><h3>'+ (index+1)+'. '+q.question.replace(/\n/g,"<br>")+'</h3><div class="answer-options">'+["A","B","C","D"].map(k=>'<label class="answer-option"><input type="radio" name="bgys-cmk-answer" value="'+k+'"> <b>'+k+'.</b> '+q.options[k]+'</label>').join("")+'</div><div id="bgysCmkFeedback"></div><button type="button" class="btn primary" id="bgysCmkCheck">Cevabı kontrol et</button></article>';
-      document.getElementById("bgysCmkCheck").onclick=()=>{if(answered)return;const picked=box.querySelector('input[name="bgys-cmk-answer"]:checked');const feedback=document.getElementById("bgysCmkFeedback");if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}answered=true;const ok=picked.value===q.answer;if(ok)correct++;feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru cevap: '+q.answer)+ '<br>'+q.explanation+'</div>';const b=document.getElementById("bgysCmkCheck");b.textContent=index===list.length-1?"Sonucu gör":"Sonraki soru";b.onclick=()=>{index++;draw();};};
+      if(index>=list.length){finish();return;}
+      const q=list[index],done=!!answered[index];
+      progress.textContent="Karışık Test · Soru "+(index+1)+" / "+list.length;
+      const chosenLetter=chosen[index]||"";
+      box.innerHTML='<div class="bgys-mixed-shell"><div class="bgys-mixed-head"><b>Soru '+(index+1)+' / '+list.length+'</b><div class="bgys-mixed-actions"><button type="button" class="bgys-mixed-plain" id="bgysMixedSave" aria-label="Soruyu kaydet" title="Soruyu kaydet">'+(saved[index]?'🔖':'♧')+'</button><button type="button" class="bgys-mixed-finish" id="bgysMixedFinish">Testi Bitir</button></div></div><div class="bgys-mixed-progress"><span style="width:'+((index+1)/list.length*100)+'%"></span></div><div class="bgys-mixed-subject">▣ &nbsp;'+escMixed(q.topic||"Karışık Test")+'</div><article class="bgys-mixed-card"><h3>Soru '+(index+1)+'<br>'+escMixed(q.question).replace(/\n/g,"<br>")+'</h3>'+["A","B","C","D","E"].filter(k=>q.options[k]!==undefined).map(k=>'<label class="bgys-mixed-option"><input type="radio" name="bgys-mixed-answer" value="'+k+'" '+(chosenLetter===k?'checked':'')+' '+(done?'disabled':'')+'><b>'+k+'</b><span>'+escMixed(q.options[k])+'</span></label>').join("")+'<div id="bgysMixedFeedback">'+(done?'<div class="result '+(chosenLetter===q.answer?'good':'bad')+'">'+(chosenLetter===q.answer?'Doğru cevap!':'Yanlış cevap. Doğru cevap: '+escMixed(q.answer))+'<br>'+escMixed(q.explanation||"")+'</div>':'')+'</div><div class="bgys-mixed-nav"><button type="button" id="bgysMixedPrev" '+(index===0?'disabled':'')+'>← Önceki</button><button type="button" id="bgysMixedNext">'+(index===list.length-1?'Son soru':'Sonraki →')+'</button></div></article><div class="bgys-mixed-grid">'+list.map((_,n)=>'<button type="button" data-q="'+n+'" class="'+(n===index?'current ': '')+(answered[n]?'done':'')+'">'+(n+1)+'</button>').join("")+'</div><p class="bgys-mixed-note">Süre sınırı yoktur. Cevaplarını istediğin hızda çözebilirsin.</p></div>';
+      box.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{index=Number(b.dataset.q);draw();});
+      box.querySelectorAll('input[name="bgys-mixed-answer"]').forEach(inp=>inp.onchange=()=>{chosen[index]=inp.value;});
+      document.getElementById("bgysMixedSave").onclick=()=>{saved[index]=!saved[index];draw();};
+      document.getElementById("bgysMixedFinish").onclick=finish;
+      document.getElementById("bgysMixedPrev").onclick=()=>{if(index>0){index--;draw();}};
+      document.getElementById("bgysMixedNext").onclick=()=>{
+        if(!answered[index]){
+          const picked=box.querySelector('input[name="bgys-mixed-answer"]:checked');
+          if(!picked){const f=document.getElementById("bgysMixedFeedback");f.innerHTML='<div class="result bad">Devam etmeden önce bir seçenek işaretle.</div>';return;}
+          chosen[index]=picked.value;answered[index]=true;if(picked.value===q.answer)correct++;
+          try{const ids=JSON.parse(localStorage.getItem("bgysSolvedQuestionIds")||"[]");if(q.id&&!ids.includes(q.id)){ids.push(q.id);localStorage.setItem("bgysSolvedQuestionIds",JSON.stringify(ids));}}catch(e){}
+          draw();
+          return;
+        }
+        if(index<list.length-1){index++;draw();}else finish();
+      };
     }
     draw();box.scrollIntoView({behavior:"smooth",block:"start"});
-  }catch(e){console.error("CMK test fallback:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı: '+String(e.message||e)+'</div>';}
+  }catch(e){console.error("Mixed test:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı. Sayfayı yenileyip tekrar deneyin.</div>';}
 };
 </script></body></html>
