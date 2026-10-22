@@ -263,6 +263,23 @@ function bgysInjectUserBadge(user) {
   });
 }
 
+
+function bgysLocalPracticeKey(storeName) {
+  const user = bgysCurrentUser();
+  if (!user) throw new Error("Giriş yapılmamış");
+  return "bgys-local-" + user.uid + "-" + storeName;
+}
+function bgysGetLocalPracticeRecords(storeName) {
+  try { return JSON.parse(localStorage.getItem(bgysLocalPracticeKey(storeName)) || "[]"); } catch (e) { return []; }
+}
+function bgysSaveLocalPracticeRecord(storeName, record) {
+  const rows = bgysGetLocalPracticeRecords(storeName);
+  const id = record.id || ("local-" + Date.now() + "-" + Math.random().toString(36).slice(2,8));
+  rows.push({ ...record, id, localOnly: true });
+  localStorage.setItem(bgysLocalPracticeKey(storeName), JSON.stringify(rows));
+  return id;
+}
+
 /* ================= Firestore veri işlemleri (eski IndexedDB fonksiyonlarının yerine) ================= */
 const BGYS_MAX_DOC_BYTES = 900000;
 
@@ -297,6 +314,10 @@ async function bgysAdd(storeName, record) {
       if (deneme < 3) await new Promise(r => setTimeout(r, 1500)); // tekrar denemeden önce kısa bekleme
     }
   }
+  if (storeName === "favorilerYanlislar" && sonHata && (sonHata.code === "permission-denied" || /Missing or insufficient permissions/i.test(sonHata.message || ""))) {
+    console.warn("Favoriler/yanlışlar Firestore izni reddedildi; yerel hesaba özel yedek kullanılıyor.", sonHata);
+    return bgysSaveLocalPracticeRecord(storeName, record);
+  }
   throw sonHata;
 }
 
@@ -309,8 +330,22 @@ async function bgysGetAll(storeName) {
   let user = bgysCurrentUser();
   if (!user) user = await bgysWaitForAuth();
   if (!user) return [];
-  const snap = await bgysUserCollection(storeName).get({ source: "server" });
-  return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
+  try {
+    const snap = await bgysUserCollection(storeName).get({ source: "server" });
+    const cloud = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => !r.deleted);
+    if (storeName === "favorilerYanlislar") {
+      const local = bgysGetLocalPracticeRecords(storeName);
+      const known = new Set(cloud.map(r => r.id));
+      return cloud.concat(local.filter(r => !known.has(r.id)));
+    }
+    return cloud;
+  } catch (e) {
+    if (storeName === "favorilerYanlislar" && (e.code === "permission-denied" || /Missing or insufficient permissions/i.test(e.message || ""))) {
+      console.warn("Favoriler/yanlışlar Firestore okunamadı; yerel hesaba özel kayıtlar gösteriliyor.", e);
+      return bgysGetLocalPracticeRecords(storeName);
+    }
+    throw e;
+  }
 }
 
 async function bgysGetAllByModul(storeName) {
