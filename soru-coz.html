@@ -947,7 +947,7 @@ function buildPartRanges(){
 {min:145,max:149,label:"11. Parça · İfade ve Sorgu · Madde 145–149"},
 {min:150,max:156,label:"12. Parça · Müdafi ve Savunma Hakları · Madde 150–156"},
 {min:157,max:161,label:"13. Parça · Soruşturmanın Gizliliği, İhbar ve Savcının Görevleri · Madde 157–161"},
-{min:162,max:166,label:"14. Parça · Hâkim Kararı, Sulh Ceza Hâkimi ve Adli Kolluk · Madde 162–166"},{min:167,max:184,label:"15. Parça · İddianame, Kovuşturmaya Yer Olmadığı ve Duruşma Usulleri · Madde 167–184"});}
+{min:162,max:166,label:"14. Parça · Hâkim Kararı, Sulh Ceza Hâkimi ve Adli Kolluk · Madde 162–166"},{min:167,max:184,label:"15. Parça · İddianame, Kovuşturmaya Yer Olmadığı ve Duruşma Usulleri · Madde 167–184"},{min:185,max:204,label:"16. Parça · Madde 185–204"},{min:205,max:224,label:"17. Parça · Madde 205–224"},{min:225,max:247,label:"18. Parça · Madde 225–247"},{min:248,max:266,label:"19. Parça · Madde 248–266"},{min:267,max:286,label:"20. Parça · Madde 267–286"},{min:287,max:308,label:"21. Parça · Madde 287–308/A"},{min:309,max:323,label:"22. Parça · Madde 309–323"});}
   else {for(let start=testGroup.min;start<=max;start+=10){const end=Math.min(start+9,max);ranges.push({min:start,max:end,label:"Madde "+start+"–"+end});}}
   partRangeSelect.innerHTML=ranges.map((r,i)=>'<option value="'+i+'">'+r.label+'</option>').join("");
   partRangeSelect.dataset.ranges=JSON.stringify(ranges);
