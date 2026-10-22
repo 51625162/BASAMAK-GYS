@@ -944,7 +944,7 @@ loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");ren
  root.addEventListener("click",function(ev){
    const card=ev.target.closest("[data-course]"); if(!card||!card.dataset.bank)return;
    const bankId=card.dataset.bank;
-   const meta=({cmk5271:["5271 Sayılı Ceza Muhakemesi Kanunu",247],kanun5402:["5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu",30],anayasa:["1982 Türkiye Cumhuriyeti Anayasası",56],yonetmelik:["Denetimli Serbestlik Hizmetleri Yönetmeliği",104]})[bankId];
+   const meta=({cmk5271:["5271 Sayılı Ceza Muhakemesi Kanunu",266],kanun5402:["5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu",30],anayasa:["1982 Türkiye Cumhuriyeti Anayasası",56],yonetmelik:["Denetimli Serbestlik Hizmetleri Yönetmeliği",104]})[bankId];
    if(!meta)return;
    const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");
    if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");
