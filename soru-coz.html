@@ -729,4 +729,22 @@ testBox.addEventListener("click",e=>{
 
 loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
 
+</script><script>
+/* Güvenli görünürlük yedeği: ders kartları boş kalırsa kategori listelerini yeniden çiz. */
+(function(){
+ const area=["Kamu Ön Malî Kontrol Yönetmeliği","Kamu İç Kontrol Yönetmeliği","3071 Sayılı Dilekçe Hakkının Kullanılmasına Dair Kanun","5018 Sayılı Kamu Malî Yönetimi ve Kontrol Kanunu","4735 Sayılı Kamu İhale Sözleşmeleri Kanunu","4734 Sayılı Kamu İhale Kanunu","Kamu Zararlarının Tahsili Yönetmeliği","Merkezî Yönetim Harcama Belgeleri Yönetmeliği","Kamu İhale Genel Tebliği","Adalet Bakanlığı Disiplin Yönetmeliği","5395 Sayılı Çocuk Koruma Kanunu","Çocuk Koruma Kanununun Uygulanmasına İlişkin Usûl ve Esaslar Hakkında Yönetmelik","Çocuk Koruma Tedbirleri Yönetmeliği","5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu","5275 Sayılı Ceza ve Güvenlik Tedbirlerinin İnfazı Hakkında Kanun","6331 Sayılı İş Sağlığı ve Güvenliği Kanunu","5271 Sayılı Ceza Muhakemesi Kanunu","5237 Sayılı Türk Ceza Kanunu","657 Sayılı Devlet Memurları Kanunu","5510 Sayılı Sosyal Sigortalar ve Genel Sağlık Sigortası Kanunu","7201 Sayılı Tebligat Kanunu","4675 Sayılı İnfaz Hâkimliği Kanunu","Ceza İnfaz Kurumlarının Yönetimi ile Ceza ve Güvenlik Tedbirlerinin İnfazı Hakkında Yönetmelik","Denetimli Serbestlik Tedavi Hizmetleri","Denetimli Serbestlik Yönetmeliği","Taşınır Mal Yönetmeliği","Cinsel Dokunulmazlığa Karşı Suçlar Yönetmeliği"];
+ const common=["2709 Sayılı Türkiye Cumhuriyeti Anayasası","Türkçe ve Dil Bilgisi","Atatürk İlkeleri ve İnkılap Tarihi","İnsan Hakları ve Demokrasi","Yazışma Kuralları","Etik Davranış İlkeleri","Matematik, Sayısal Mantık ve Geometri","Genel Kültür ve Güncel Konular"];
+ const root=document.getElementById("courseCards"),search=document.getElementById("courseSearch"),sort=document.getElementById("courseSort");
+ const a=document.getElementById("areaCourseTab"),b=document.getElementById("commonCourseTab");
+ if(!root||!search||!sort||!a||!b)return;
+ let cat="area";
+ function draw(){
+   const names=(cat==="area"?area:common).map((name,i)=>({name,n:i+1})).filter(x=>x.name.toLocaleLowerCase("tr").includes(search.value.trim().toLocaleLowerCase("tr")));
+   if(sort.value==="az")names.sort((x,y)=>x.name.localeCompare(y.name,"tr"));
+   root.innerHTML=names.map(x=>'<button type="button" class="course-card" data-course="'+x.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" data-bank="'+(x.name.startsWith("5271 Sayılı")?"cmk5271":x.name.startsWith("5402 Sayılı")?"kanun5402":x.name.includes("Anayasası")?"anayasa":x.name==="Denetimli Serbestlik Yönetmeliği"?"yonetmelik":"")+'"><div class="course-card-top"><span class="course-number">'+x.n+'</span><span class="course-card-title">'+x.name+'</span></div><p class="course-card-desc">Konu anlatımı · Örnek sorular · Testler</p><div class="course-card-bottom"><span class="course-status">'+(["5271 Sayılı Ceza Muhakemesi Kanunu","5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu","2709 Sayılı Türkiye Cumhuriyeti Anayasası","Denetimli Serbestlik Yönetmeliği"].includes(x.name)?"Soru bankası hazır":"Ders içeriği mevcut · Test soruları bağlanacak")+'</span><span class="course-arrow">›</span></div></button>').join("");
+   a.classList.toggle("active",cat==="area");b.classList.toggle("active",cat==="common");
+ }
+ a.addEventListener("click",()=>{cat="area";draw()});b.addEventListener("click",()=>{cat="common";draw()});search.addEventListener("input",draw);sort.addEventListener("change",draw);
+ if(!root.children.length)draw();
+})();
 </script><script src="db.js?v=20261022-independent-pools2"></script><script>bgysRequireAuth();</script></body></html>
