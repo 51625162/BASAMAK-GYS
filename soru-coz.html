@@ -1221,7 +1221,7 @@ window.bgysLaunchCmkMixedTest = function(){
   try{
     const statusEl=document.getElementById("mixedQuestionStatus");
     const status=statusEl?statusEl.value:"unanswered";
-    let pool=questions.filter(q=>(q.pool||"mixed")==="mixed" && q.options && q.answer);
+    let pool=questions.filter(q=>String(q.id||"").startsWith("cmk5271-mixed-") && (q.pool||"mixed")==="mixed" && q.options && q.answer);
     if(status==="unanswered"){
       const solved=JSON.parse(localStorage.getItem("bgysSolvedQuestionIds")||"[]");
       pool=pool.filter(q=>!solved.includes(q.id));
