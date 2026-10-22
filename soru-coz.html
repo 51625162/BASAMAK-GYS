@@ -706,7 +706,7 @@ window.bgysStartMiniTestFallback=function(){
   const selected=JSON.parse(document.getElementById("partRangeSelect").dataset.ranges||"[]");
   const range=selected[Number(document.getElementById("partRangeSelect").value)]||{min:162,max:166,label:"14. Parça · Madde 162–166"};
   const list=questions.filter(q=>(q.pool||"part")==="part"&&String(q.topic||"").startsWith("5271 Sayılı Ceza Muhakemesi Kanunu")&&Number((String(q.topic).match(/Madde\s+(\d+)/)||[])[1])>=range.min&&Number((String(q.topic).match(/Madde\s+(\d+)/)||[])[1])<=range.max);
-  const root=document.getElementById("testBox"),progress=document.getElementById("testProgress");
+  const root=document.getElementById("testPractice"),progress=document.getElementById("testProgress");
   if(!root||!progress)throw new Error("Test alanı HTML içinde bulunamadı.");
   document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");
   document.getElementById("testModePanel").hidden=false;document.getElementById("partTestSettings").hidden=false;
@@ -722,7 +722,7 @@ window.bgysStartMiniTestFallback=function(){
    root.querySelector("#directNext").onclick=()=>{if(idx<list.length-1){idx++;paint();}else{const correct=list.filter((q,i)=>answers[i]===q.answer).length;root.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış/boş: '+(list.length-correct)+'</div><button class="btn primary" id="directRestart" type="button">Testi yeniden başlat</button>';progress.textContent="5271 CMK · Test tamamlandı";root.querySelector("#directRestart").onclick=()=>{idx=0;answers={};paint();};}};
   }
   paint();root.scrollIntoView({behavior:"smooth",block:"start"});
- }catch(err){console.error("Mini test başlatma hatası:",err);const root=document.getElementById("testBox");if(root){root.style.display="block";root.innerHTML='<div class="result bad">Test başlatma hatası: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';}}
+ }catch(err){console.error("Mini test başlatma hatası:",err);const root=document.getElementById("testPractice");if(root){root.style.display="block";root.innerHTML='<div class="result bad">Test başlatma hatası: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';}}
 };
 document.getElementById("startMiniTest").onclick=window.bgysStartMiniTestFallback;
 document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
