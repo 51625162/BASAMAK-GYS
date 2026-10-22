@@ -702,27 +702,30 @@ partTestMode.addEventListener("click",()=>openModeScreen("part"));
 document.getElementById("modeBack").addEventListener("click",()=>{document.getElementById("modeScreen").hidden=true;document.getElementById("modeLanding").hidden=false;document.body.classList.remove("course-mode-open");testModePanel.hidden=true;testProgress.style.display="none";testBox.style.display="none";});
 partRangeSelect.addEventListener("change",updatePartRange);
 window.bgysStartMiniTestFallback=function(){
- try{
-  const selected=JSON.parse(document.getElementById("partRangeSelect").dataset.ranges||"[]");
-  const range=selected[Number(document.getElementById("partRangeSelect").value)]||{min:162,max:166,label:"14. Parça · Madde 162–166"};
-  const list=questions.filter(q=>(q.pool||"part")==="part"&&String(q.topic||"").startsWith("5271 Sayılı Ceza Muhakemesi Kanunu")&&Number((String(q.topic).match(/Madde\s+(\d+)/)||[])[1])>=range.min&&Number((String(q.topic).match(/Madde\s+(\d+)/)||[])[1])<=range.max);
-  const root=document.getElementById("testPractice"),progress=document.getElementById("testProgress");
-  if(!root||!progress)throw new Error("Test alanı HTML içinde bulunamadı.");
-  document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");
-  document.getElementById("testModePanel").hidden=false;document.getElementById("partTestSettings").hidden=false;
-  root.style.display="block";progress.style.display="block";
-  if(!list.length){root.innerHTML='<div class="result bad">Seçilen aralıkta soru bulunamadı ('+range.min+'–'+range.max+').</div>';return;}
-  let idx=0,answers={};
-  function paint(){
-   const q=list[idx];progress.textContent="5271 Sayılı Ceza Muhakemesi Kanunu · "+range.label+" · Soru "+(idx+1)+"/"+list.length;
-   root.innerHTML='<article class="question"><div class="tiny">'+esc(q.topic)+'</div><p class="qtitle">'+esc(q.question)+'</p>'+["A","B","C","D"].map(k=>'<label class="choice"><input type="radio" name="direct-answer" value="'+k+'" '+(answers[idx]===k?'checked':'')+'><span><b>'+k+')</b> '+esc(q.options[k])+'</span></label>').join("")+'<div id="directFeedback"></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn" id="directPrev" type="button" '+(idx===0?'disabled':'')+'>Önceki</button><button class="btn primary" id="directCheck" type="button">Cevabı Kontrol Et</button><button class="btn primary" id="directNext" type="button">'+(idx===list.length-1?'Testi Bitir':'Sonraki Soru')+'</button></div></article>';
-   root.querySelectorAll('input[name="direct-answer"]').forEach(el=>el.addEventListener("change",()=>{answers[idx]=el.value;}));
-   root.querySelector("#directPrev").onclick=()=>{if(idx>0){idx--;paint();}};
-   root.querySelector("#directCheck").onclick=()=>{const chosen=answers[idx];const fb=root.querySelector("#directFeedback");fb.innerHTML=chosen?'<div class="result '+(chosen===q.answer?'good':'bad')+'"><b>'+(chosen===q.answer?'Doğru cevap!':'Yanlış cevap.')+'</b> Doğru seçenek: '+q.answer+'<br>'+esc(q.explanation)+'</div>':'<div class="result bad">Önce bir seçenek işaretle.</div>';};
-   root.querySelector("#directNext").onclick=()=>{if(idx<list.length-1){idx++;paint();}else{const correct=list.filter((q,i)=>answers[i]===q.answer).length;root.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış/boş: '+(list.length-correct)+'</div><button class="btn primary" id="directRestart" type="button">Testi yeniden başlat</button>';progress.textContent="5271 CMK · Test tamamlandı";root.querySelector("#directRestart").onclick=()=>{idx=0;answers={};paint();};}};
+  try{
+    if(!testGroup)throw new Error("Önce bir ders seçmelisin.");
+    updatePartRange();
+    selectTestMode("part");
+    testCurrent=0;
+    activeMiniLimit=0;
+    activeQuestionList=null;
+    testOutcomes={};
+    testProgressSaved=false;
+    document.getElementById("modeLanding").hidden=true;
+    document.getElementById("modeScreen").hidden=false;
+    document.body.classList.add("course-mode-open");
+    testModePanel.hidden=false;
+    partTestSettings.hidden=false;
+    mixedTestSettings.hidden=true;
+    testProgress.style.display="block";
+    testBox.style.display="block";
+    renderTest();
+    testBox.scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(err){
+    console.error("Mini test başlatma hatası:",err);
+    testBox.style.display="block";
+    testBox.innerHTML='<div class="result bad">Test başlatma hatası: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';
   }
-  paint();root.scrollIntoView({behavior:"smooth",block:"start"});
- }catch(err){console.error("Mini test başlatma hatası:",err);const root=document.getElementById("testPractice");if(root){root.style.display="block";root.innerHTML='<div class="result bad">Test başlatma hatası: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';}}
 };
 document.getElementById("startMiniTest").onclick=window.bgysStartMiniTestFallback;
 document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
