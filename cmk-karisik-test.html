@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10243e"><title>CMK 5271 · Karışık Test | Basamak GYS</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#18324d;background:#f3f7fb}*{box-sizing:border-box}body{margin:0}.top{background:#10243e;color:white;padding:16px max(16px,calc((100% - 760px)/2));font-weight:800}.wrap{max-width:760px;margin:auto;padding:22px 14px 48px}.panel{background:#fff;border:1px solid #d8e3ee;border-radius:18px;padding:22px;box-shadow:0 6px 24px #16395b0a}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:#087f78}.muted{color:#60758a}.bar{height:7px;background:#e6edf5;border-radius:10px;overflow:hidden;margin:16px 0}.bar span{display:block;height:100%;background:#109b91;width:0}.question{font-size:20px;line-height:1.5;margin:18px 0}.option{display:flex;align-items:flex-start;gap:10px;padding:14px;margin:10px 0;border:1px solid #cfdae6;border-radius:12px;cursor:pointer;line-height:1.45}.option:has(input:checked){border-color:#0e9e97;background:#eaf8f6}.option input{margin-top:4px;accent-color:#0e9e97}.btn{display:block;width:100%;border:0;border-radius:12px;background:#109b91;color:#fff;font-size:16px;font-weight:800;padding:16px;margin-top:18px;cursor:pointer}.btn.secondary{background:#e7f1fa;color:#17466c}.feedback{padding:14px;border-radius:12px;margin-top:14px;line-height:1.6}.good{background:#e6f7ed;color:#175a38}.bad{background:#fff0ed;color:#8b2f23}.hidden{display:none!important}small{color:#61758a}@media(max-width:520px){.panel{padding:17px}.question{font-size:18px}}
+</style></head><body><header class="top">Basamak GYS · 5271 Sayılı CMK</header><main class="wrap"><section class="panel"><div class="eyebrow">KARIŞIK SORU ÇÖZ</div><h1>5271 Sayılı Ceza Muhakemesi Kanunu</h1><p class="muted">25 soruluk karışık test · Dört seçenekli sınav pratiği</p><div class="bar"><span id="bar"></span></div><div id="quiz"></div><div id="feedback" class="feedback hidden"></div><button id="action" class="btn">Teste başla</button><button id="restart" class="btn secondary hidden">Testi yeniden başlat</button></section></main>
+<script>
+const questions=[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}];
+const quiz=document.getElementById("quiz"),feedback=document.getElementById("feedback"),action=document.getElementById("action"),restart=document.getElementById("restart"),bar=document.getElementById("bar");
+let index=0,correct=0,answered=false,started=false;
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function render(){
+ feedback.className="feedback hidden";feedback.innerHTML="";
+ if(index>=questions.length){quiz.innerHTML='<h2>Test tamamlandı</h2><p>Doğru: <b>'+correct+'</b> · Yanlış: <b>'+(questions.length-correct)+'</b></p><p>Başarı oranı: <b>'+Math.round(correct/questions.length*100)+'%</b></p>';bar.style.width="100%";action.classList.add("hidden");restart.classList.remove("hidden");return;}
+ const q=questions[index];answered=false;bar.style.width=(index/questions.length*100)+"%";
+ quiz.innerHTML='<small>Soru '+(index+1)+' / '+questions.length+' · '+esc(q.topic)+'</small><div class="question">'+esc(q.question).replace(/\n/g,"<br>")+'</div>'+["A","B","C","D"].map(k=>'<label class="option"><input type="radio" name="answer" value="'+k+'"><span><b>'+k+'.</b> '+esc(q.options[k])+'</span></label>').join("");
+ action.textContent="Cevabı kontrol et";action.classList.remove("hidden");
+}
+action.addEventListener("click",()=>{
+ if(index>=questions.length)return;
+ if(!started){started=true;render();return;}
+ if(!answered){const pick=quiz.querySelector('input[name="answer"]:checked');if(!pick){feedback.className="feedback bad";feedback.textContent="Devam etmeden önce bir seçenek işaretle.";return;}
+ const q=questions[index],ok=pick.value===q.answer;answered=true;if(ok)correct++;
+ feedback.className="feedback "+(ok?"good":"bad");feedback.innerHTML=(ok?"Doğru cevap!":"Yanlış cevap. Doğru cevap: "+q.answer)+"<br>"+esc(q.explanation);
+ action.textContent=index===questions.length-1?"Sonucu gör":"Sonraki soru";return;}
+ index++;render();
+});
+restart.addEventListener("click",()=>{index=0;correct=0;answered=false;started=true;restart.classList.add("hidden");action.classList.remove("hidden");render();});
+</script></body></html>
