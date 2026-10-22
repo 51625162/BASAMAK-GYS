@@ -87,6 +87,21 @@
 .part-only-hint{display:none}#modeScreen.mixed-mode-active .part-only-hint{display:none}#modeScreen.mixed-mode-active .mixed-only-hint{display:block}
 #modeScreen.part-mode-active .mixed-course-card,#modeScreen.part-mode-active .mixed-feature-strip,#modeScreen.part-mode-active .mixed-only-hint{display:none!important}#modeScreen.part-mode-active .part-only-hint{display:block}#modeScreen.part-mode-active .mixed-settings-card{display:none!important}
 @media(max-width:600px){.mixed-course-card{padding:13px;gap:10px}.mixed-course-icon{flex-basis:48px;height:48px}.mixed-course-card h3{font-size:16px}.mixed-feature-strip{gap:4px;padding:12px 5px}.mixed-feature-strip span{width:46px;height:44px;font-size:23px}.mixed-feature-strip small{font-size:11px}.mixed-settings-heading strong{font-size:17px}}
+
+/* Kesin mod ayrımı: testModePanel, modeScreen'in dışında bulunduğundan ayrıca sınıflandırılır */
+#testModePanel.mixed-mode-active #partTestSettings{display:none!important}
+#testModePanel.mixed-mode-active #mixedTestSettings{display:block!important}
+#testModePanel.part-mode-active #mixedTestSettings{display:none!important}
+#testModePanel.part-mode-active #partTestSettings{display:block}
+#testModePanel.mixed-mode-active .part-only-hint{display:none!important}
+#testModePanel.mixed-mode-active .mixed-only-hint{display:block!important}
+#testModePanel.part-mode-active .mixed-only-hint{display:none!important}
+#testModePanel.part-mode-active .part-only-hint{display:block!important}
+#testModePanel.mixed-mode-active .mixed-course-card,#testModePanel.mixed-mode-active .mixed-feature-strip{display:none!important}
+#testModePanel.mixed-mode-active #selectedCourseTitle{margin-top:0}
+#testModePanel.mixed-mode-active + .divider + #testProgress{display:none!important}
+#testModePanel.mixed-mode-active + .divider + #testProgress + #testPractice{display:none!important}
+#testModePanel.part-mode-active + .divider + #testProgress{display:block}
 </style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
@@ -1039,7 +1054,7 @@ function selectTestMode(mode){
   activeTestMode=mode;activeMiniLimit=0;activeQuestionList=null;testCurrent=0;testOutcomes={};testProgressSaved=false;
   mixedTestMode.classList.toggle("active",mode==="mixed");partTestMode.classList.toggle("active",mode==="part");
   mixedTestSettings.hidden=mode!=="mixed";partTestSettings.hidden=mode!=="part";
-  const screen=document.getElementById("modeScreen");if(screen){screen.classList.toggle("mixed-mode-active",mode==="mixed");screen.classList.toggle("part-mode-active",mode==="part");}
+  const screen=document.getElementById("modeScreen"),panel=document.getElementById("testModePanel");if(screen){screen.classList.toggle("mixed-mode-active",mode==="mixed");screen.classList.toggle("part-mode-active",mode==="part");}if(panel){panel.classList.toggle("mixed-mode-active",mode==="mixed");panel.classList.toggle("part-mode-active",mode==="part");}
   const view={mixed:{icon:"⇄",kicker:"KONU KARIŞIMI",title:"Karışık Soru Çöz",description:"Seçtiğin dersin farklı konularından sorular çöz. Parça seçmeden genel tekrar yap."},part:{icon:"☷",kicker:"HEDEFLİ ÇALIŞMA",title:"Parça / Konu Testi",description:"Yalnızca seçtiğin parça veya konuya ait sorularla çalış."}}[mode]||{};
   ["modeViewIcon","modeViewKicker","modeViewTitle","modeViewDescription"].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=[view.icon,view.kicker,view.title,view.description][i]||"";});
   const filterHeading=document.querySelector(".question-filter-heading strong"),filterDesc=document.querySelector(".question-filter-heading small");if(filterHeading)filterHeading.textContent=mode==="mixed"?"Karışık test filtresi":"Soru filtresi";if(filterDesc)filterDesc.textContent=mode==="mixed"?"Karışık testte hangi sorularla karşılaşacağını seç.":"Seçtiğin parça testinde hangi sorularla karşılaşacağını seç.";
