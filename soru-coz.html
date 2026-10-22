@@ -1270,25 +1270,16 @@ window.bgysLaunchCmkMixedTest = function(){
     draw();box.scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){console.error("Mixed test:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı. Sayfayı yenileyip tekrar deneyin.</div>';}
 };
- // Tek ve açık bir tıklama bağlantısı kur; eski/inline bağları temizle.
+ // Karışık testi bağımsız, doğrudan açılan test sayfasında çalıştır.
  (function(){
    const oldButton=document.getElementById("startMixedTest");
    if(!oldButton) return;
    const newButton=oldButton.cloneNode(true);
    newButton.removeAttribute("onclick");
    oldButton.replaceWith(newButton);
-   newButton.addEventListener("click", function(event){
+   newButton.addEventListener("click",function(event){
      event.preventDefault();
-     try {
-       if(typeof window.bgysLaunchCmkMixedTest!=="function") throw new Error("Test başlatma kodu yüklenmedi.");
-       window.bgysLaunchCmkMixedTest();
-     } catch(err) {
-       console.error("Karışık test başlatma:",err);
-       const box=document.getElementById("testPractice");
-       const progress=document.getElementById("testProgress");
-       if(progress) progress.style.display="block";
-       if(box){box.style.display="block";box.innerHTML='<div class="result bad">Test başlatılamadı: '+String(err&&err.message||err)+'</div>';}
-     }
+     window.location.href=new URL("cmk-karisik-test.html?v=20261022-3",window.location.href).href;
    });
  })();
 </script></body></html>
