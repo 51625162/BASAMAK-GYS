@@ -71,6 +71,23 @@
 #modeScreen.part-mode-active .filter-icon{background:#d9f1eb;color:#08776e}
 @media(max-width:600px){.mode-view-banner{align-items:flex-start;padding:16px 14px;gap:12px}.mode-view-icon{flex-basis:46px;width:46px;height:46px;border-radius:14px;font-size:25px}.mode-view-copy h2{font-size:19px}.mode-view-copy p{font-size:12px}}
 
+
+/* Gerçek test paneli modeScreen dışında olduğu için görünürlük kuralları panelde de uygulanır */
+#testModePanel.mixed-mode-active #partTestSettings{display:none!important}
+#testModePanel.mixed-mode-active #mixedTestSettings{display:block!important}
+#testModePanel.part-mode-active #mixedTestSettings{display:none!important}
+#testModePanel.part-mode-active #partTestSettings{display:block!important}
+#testModePanel.mixed-mode-active .mixed-course-card,
+#testModePanel.mixed-mode-active .mixed-feature-strip,
+#testModePanel.mixed-mode-active .mixed-only-hint{display:block}
+#testModePanel.part-mode-active .mixed-course-card,
+#testModePanel.part-mode-active .mixed-feature-strip,
+#testModePanel.part-mode-active .mixed-only-hint{display:none!important}
+#testModePanel.mixed-mode-active .part-only-hint{display:none!important}
+#testModePanel.part-mode-active .part-only-hint{display:block}
+#testModePanel.mixed-mode-active .question-filter{border-color:#cce4ff;background:linear-gradient(135deg,#f1f8ff,#eaf5ff)}
+#testModePanel.part-mode-active .question-filter{border-color:#d4ebe5;background:linear-gradient(135deg,#f2fbf9,#eaf7f4)}
+
 /* Karışık Soru Çöz için özel arayüz; parça/konu ekranından bağımsız */
 .mixed-course-card{display:flex;align-items:center;gap:14px;margin:18px 0;padding:17px;border:1px solid #ffe4bf;border-radius:18px;background:linear-gradient(120deg,#fffaf0,#fff5e4)}
 .mixed-course-icon{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:16px;background:#ff9418;color:white;font-size:30px}
@@ -995,7 +1012,7 @@ function renderCourseCards(){const areaTab=document.getElementById("areaCourseTa
 window.bgysSelectCourseCategory=function(category){selectedCourseCategory=category==="common"?"common":"area";renderCourseCards();};document.getElementById("areaCourseTab").addEventListener("click",()=>window.bgysSelectCourseCategory("area"));
 document.getElementById("commonCourseTab").addEventListener("click",()=>window.bgysSelectCourseCategory("common"));
 courseSearch.addEventListener("input",renderCourseCards);courseSort.addEventListener("change",renderCourseCards);
-courseCards.addEventListener("click",e=>{const card=e.target.closest("[data-course]");if(!card)return;if(card.dataset.course==="Matematik, Sayısal Mantık ve Geometri"){window.location.href=new URL("matematik.html",window.location.href).href;return;}const bank=topicGroups.find(g=>g.id===card.dataset.bank);if(!bank){testProgress.textContent=card.dataset.course;testBox.innerHTML='<div class="result bad">Bu dersin soru havuzu henüz Soru Çöz bölümüne bağlanmadı. Ders kartı hazır; soru bankası eklendiğinde buradan test başlatılabilecek.</div>';return;}const chosenMode=selectedStudyMode==="mixed"?"mixed":"part";testGroup=bank;testCurrent=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;selectedCourseTitle.textContent=bank.title;testModePanel.hidden=false;renderTopicButtons(testTopics,testGroup,"test");testTopics.style.display="none";buildPartRanges();selectTestMode(chosenMode);document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");testBox.innerHTML=chosenMode==="mixed"?'<p class="muted">Karışık Soru Çöz için Karışık Testi Başlat düğmesine bas.</p>':'<p class="muted">Parça / konu seçip Mini Testi Başlat düğmesine bas.</p>';testProgress.textContent=bank.title+(chosenMode==="mixed"?" · Karışık Soru Çöz":" · Parça / Konu Testi");testProgress.style.display="block";testBox.style.display="block";document.querySelectorAll(".course-card").forEach(c=>c.classList.toggle("active",c===card));(chosenMode==="mixed"?document.getElementById("mixedTestSettings"):document.getElementById("partTestSettings")).scrollIntoView({behavior:"smooth",block:"center"});});
+courseCards.addEventListener("click",e=>{const card=e.target.closest("[data-course]");if(!card)return;if(card.dataset.course==="Matematik, Sayısal Mantık ve Geometri"){window.location.href=new URL("matematik.html",window.location.href).href;return;}const bank=topicGroups.find(g=>g.id===card.dataset.bank);if(!bank){testProgress.textContent=card.dataset.course;testBox.innerHTML='<div class="result bad">Bu dersin soru havuzu henüz Soru Çöz bölümüne bağlanmadı. Ders kartı hazır; soru bankası eklendiğinde buradan test başlatılabilecek.</div>';return;}const chosenMode=selectedStudyMode==="mixed"?"mixed":"part";testGroup=bank;testCurrent=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;selectedCourseTitle.textContent=bank.title;testModePanel.hidden=false;renderTopicButtons(testTopics,testGroup,"test");testTopics.style.display="none";buildPartRanges();selectTestMode(chosenMode);testModePanel.classList.toggle("mixed-mode-active",chosenMode==="mixed");testModePanel.classList.toggle("part-mode-active",chosenMode==="part");partTestSettings.hidden=chosenMode!=="part";mixedTestSettings.hidden=chosenMode!=="mixed";document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");testBox.innerHTML=chosenMode==="mixed"?'<p class="muted">Karışık Soru Çöz için Karışık Testi Başlat düğmesine bas.</p>':'<p class="muted">Parça / konu seçip Mini Testi Başlat düğmesine bas.</p>';testProgress.textContent=bank.title+(chosenMode==="mixed"?" · Karışık Soru Çöz":" · Parça / Konu Testi");testProgress.style.display="block";testBox.style.display="block";document.querySelectorAll(".course-card").forEach(c=>c.classList.toggle("active",c===card));(chosenMode==="mixed"?document.getElementById("mixedTestSettings"):document.getElementById("partTestSettings")).scrollIntoView({behavior:"smooth",block:"center"});});
 // Mode buttons are handled once by openModeScreen below.
 // Mode buttons are handled once by openModeScreen below.
 try{renderCourseCards();}catch(e){console.error("İlk ders listesi oluşturulamadı:",e);const cards=document.getElementById("courseCards");if(cards)cards.innerHTML="<p class=\"result bad\">Ders listesi yüklenirken hata oluştu. Sayfayı yenileyip tekrar deneyin.</p>";}
