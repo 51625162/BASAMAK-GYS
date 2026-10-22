@@ -49,6 +49,27 @@
 .question-status-select{width:100%;min-height:46px;padding:10px 13px;border:1px solid #b7c9dc;border-radius:10px;background:#fff;color:#173655;font:700 14px Arial,sans-serif;cursor:pointer}
 .filter-note{grid-column:1/-1;margin:0;color:#61768c;font-size:12px}
 @media(max-width:600px){.question-filter{grid-template-columns:1fr;padding:15px}.question-filter-heading{grid-column:1}.filter-note{grid-column:1}}
+
+/* Karışık Soru Çöz ve Parça/Konu Testi için birbirinden bağımsız görsel kimlik */
+.mode-view-banner{display:flex;align-items:center;gap:15px;margin:8px 0 22px;padding:20px 18px;border:1px solid #d5e5f7;border-radius:20px;background:linear-gradient(135deg,#edf5ff 0%,#f8fbff 60%,#eef4ff 100%);box-shadow:0 8px 22px #18385c0c}
+.mode-view-icon{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:17px;background:#d9eaff;color:#1859a9;font-size:29px;font-weight:900}
+.mode-view-copy{min-width:0}.mode-view-kicker{display:block;margin-bottom:5px;color:#2868b5;font-size:10px;font-weight:900;letter-spacing:1.5px}
+.mode-view-copy h2{margin:0;color:#173655;font-size:22px;line-height:1.2}.mode-view-copy p{margin:7px 0 0;color:#62768b;font-size:13px;line-height:1.5}
+#modeScreen.mixed-mode-active .mode-view-banner{border-color:#cbdcfb;background:linear-gradient(135deg,#eaf2ff,#f6f8ff 65%,#e8efff)}
+#modeScreen.mixed-mode-active .mode-view-icon{background:#d5e4ff;color:#234db4}
+#modeScreen.mixed-mode-active .mode-view-kicker{color:#3158bb}
+#modeScreen.part-mode-active .mode-view-banner{border-color:#bde8df;background:linear-gradient(135deg,#e8f8f4,#f8fcfb 65%,#e4f6f1)}
+#modeScreen.part-mode-active .mode-view-icon{background:#ccefe7;color:#08776e}
+#modeScreen.part-mode-active .mode-view-kicker{color:#08776e}
+#modeScreen.mixed-mode-active #partTestSettings{display:none!important}
+#modeScreen.mixed-mode-active #mixedTestSettings{display:block!important}
+#modeScreen.part-mode-active #mixedTestSettings{display:none!important}
+#modeScreen.part-mode-active #partTestSettings{display:block}
+#modeScreen.mixed-mode-active .question-filter{background:linear-gradient(135deg,#f6f8ff,#edf2ff);border-color:#d9e1f7}
+#modeScreen.mixed-mode-active .filter-icon{background:#e0e7ff;color:#4558b8}
+#modeScreen.part-mode-active .question-filter{background:linear-gradient(135deg,#f2fbf9,#eaf7f4);border-color:#d4ebe5}
+#modeScreen.part-mode-active .filter-icon{background:#d9f1eb;color:#08776e}
+@media(max-width:600px){.mode-view-banner{align-items:flex-start;padding:16px 14px;gap:12px}.mode-view-icon{flex-basis:46px;width:46px;height:46px;border-radius:14px;font-size:25px}.mode-view-copy h2{font-size:19px}.mode-view-copy p{font-size:12px}}
 </style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
@@ -82,7 +103,8 @@
 <div class="course-library">
  <div class="course-library-head"><div class="eyebrow">BASAMAK GYS · KİŞİSEL ÇALIŞMA ALANI</div><h2>🎯 Soru Çöz</h2><p>Dersini seç, hedefini belirle ve bilgini adım adım pekiştir.</p></div>
  <div class="mode-landing" id="modeLanding"><button type="button" class="study-mode" id="mixedTestMode" onclick="document.getElementById('modeLanding').hidden=true;document.getElementById('modeScreen').hidden=false;document.body.classList.add('course-mode-open');document.getElementById('mixedTestSettings').hidden=false;document.getElementById('partTestSettings').hidden=true"><span class="mode-symbol">⇄</span><span><strong>Karışık Soru Çöz</strong><small>Seçtiğin dersin farklı konularından sorular.</small></span></button><button type="button" class="study-mode topic" id="partTestMode" onclick="document.getElementById('modeLanding').hidden=true;document.getElementById('modeScreen').hidden=false;document.body.classList.add('course-mode-open');document.getElementById('partTestSettings').hidden=false;document.getElementById('mixedTestSettings').hidden=true"><span class="mode-symbol">☷</span><span><strong>Parça / Konu Testi</strong><small>Belirli bir parça veya konuya odaklan.</small></span></button></div>
- <div id="modeScreen" class="mode-screen" hidden><button class="mode-back" type="button" id="modeBack" onclick="document.getElementById('modeScreen').hidden=true;document.getElementById('modeLanding').hidden=false;document.body.classList.remove('course-mode-open')">← Test türlerine dön</button><div class="course-tabs" style="position:relative;z-index:5;pointer-events:auto"><button type="button" class="course-tab active" id="areaCourseTab" aria-pressed="true" onclick="window.bgysSelectCourseCategory(\'area\')">▤ Alan Dersleri (27)</button><button type="button" class="course-tab" id="commonCourseTab" aria-pressed="false" onclick="window.bgysSelectCourseCategory(\'common\')">♟ Ortak Dersler (8)</button></div>
+ <div id="modeScreen" class="mode-screen" hidden><button class="mode-back" type="button" id="modeBack" onclick="document.getElementById('modeScreen').hidden=true;document.getElementById('modeLanding').hidden=false;document.body.classList.remove('course-mode-open')">← Test türlerine dön</button><div class="mode-view-banner" id="modeViewBanner"><div class="mode-view-icon" id="modeViewIcon">⇄</div><div class="mode-view-copy"><span class="mode-view-kicker" id="modeViewKicker">KONU KARIŞIMI</span><h2 id="modeViewTitle">Karışık Soru Çöz</h2><p id="modeViewDescription">Seçtiğin dersin farklı konularından sorular çöz. Parça seçmeden genel tekrar yap.</p></div></div>
+ <div class="course-tabs" style="position:relative;z-index:5;pointer-events:auto"><button type="button" class="course-tab active" id="areaCourseTab" aria-pressed="true" onclick="window.bgysSelectCourseCategory(\'area\')">▤ Alan Dersleri (27)</button><button type="button" class="course-tab" id="commonCourseTab" aria-pressed="false" onclick="window.bgysSelectCourseCategory(\'common\')">♟ Ortak Dersler (8)</button></div>
  <div class="course-tools"><input id="courseSearch" type="search" placeholder="Ders adı, kanun numarası veya konu ara…"><select id="courseSort" aria-label="Dersleri sırala"><option value="number">Numaraya göre</option><option value="az">A–Z sıralaması</option></select></div>
  <div id="courseCards" class="course-cards"></div>
 </div></div>
@@ -995,6 +1017,10 @@ function selectTestMode(mode){
   activeTestMode=mode;activeMiniLimit=0;activeQuestionList=null;testCurrent=0;testOutcomes={};testProgressSaved=false;
   mixedTestMode.classList.toggle("active",mode==="mixed");partTestMode.classList.toggle("active",mode==="part");
   mixedTestSettings.hidden=mode!=="mixed";partTestSettings.hidden=mode!=="part";
+  const screen=document.getElementById("modeScreen");if(screen){screen.classList.toggle("mixed-mode-active",mode==="mixed");screen.classList.toggle("part-mode-active",mode==="part");}
+  const view={mixed:{icon:"⇄",kicker:"KONU KARIŞIMI",title:"Karışık Soru Çöz",description:"Seçtiğin dersin farklı konularından sorular çöz. Parça seçmeden genel tekrar yap."},part:{icon:"☷",kicker:"HEDEFLİ ÇALIŞMA",title:"Parça / Konu Testi",description:"Yalnızca seçtiğin parça veya konuya ait sorularla çalış."}}[mode]||{};
+  ["modeViewIcon","modeViewKicker","modeViewTitle","modeViewDescription"].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=[view.icon,view.kicker,view.title,view.description][i]||"";});
+  const filterHeading=document.querySelector(".question-filter-heading strong"),filterDesc=document.querySelector(".question-filter-heading small");if(filterHeading)filterHeading.textContent=mode==="mixed"?"Karışık test filtresi":"Soru filtresi";if(filterDesc)filterDesc.textContent=mode==="mixed"?"Karışık testte hangi sorularla karşılaşacağını seç.":"Seçtiğin parça testinde hangi sorularla karşılaşacağını seç.";
   if(mode==="mixed")activePartRange=null;else updatePartRange();
 }
 function updatePartRange(){const ranges=JSON.parse(partRangeSelect.dataset.ranges||"[]");activePartRange=ranges[Number(partRangeSelect.value)]||ranges[0]||null;}
