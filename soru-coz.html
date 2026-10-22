@@ -701,7 +701,31 @@ mixedTestMode.addEventListener("click",()=>openModeScreen("mixed"));
 partTestMode.addEventListener("click",()=>openModeScreen("part"));
 document.getElementById("modeBack").addEventListener("click",()=>{document.getElementById("modeScreen").hidden=true;document.getElementById("modeLanding").hidden=false;document.body.classList.remove("course-mode-open");testModePanel.hidden=true;testProgress.style.display="none";testBox.style.display="none";});
 partRangeSelect.addEventListener("change",updatePartRange);
-document.getElementById("startMiniTest").addEventListener("click",async()=>{if(!testGroup){testProgress.textContent="Önce bir ders seç";return;}await loadSolvedQuestionIds();selectTestMode("part");updatePartRange();activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
+window.bgysStartMiniTestFallback=async function(){
+ try{
+  if(!testGroup){
+   const bank=topicGroups.find(g=>g.id==="cmk5271");
+   if(bank){testGroup=bank;selectedCourseTitle.textContent=bank.title;}
+  }
+  if(!testGroup){testProgress.textContent="Önce bir ders seç";testBox.style.display="block";testBox.innerHTML='<div class="result bad">Önce 5271 Sayılı Ceza Muhakemesi Kanunu dersini seç.</div>';return;}
+  document.getElementById("modeLanding").hidden=true;document.getElementById("modeScreen").hidden=false;document.body.classList.add("course-mode-open");
+  testModePanel.hidden=false;partTestSettings.hidden=false;mixedTestSettings.hidden=true;testBox.style.display="block";testProgress.style.display="block";
+  await loadSolvedQuestionIds();
+  activeTestMode="part";activeMiniLimit=0;activeQuestionList=null;
+  const ranges=JSON.parse(partRangeSelect.dataset.ranges||"[]");
+  if(!ranges.length)buildPartRanges();
+  updatePartRange();
+  let list=getQuestions(testGroup);
+  if(!list.length){
+    questionStatusFilter.value="all";updateQuestionFilterNote();activePartRange=JSON.parse(partRangeSelect.dataset.ranges||"[]")[Number(partRangeSelect.value)]||activePartRange;
+    list=getQuestions(testGroup);
+  }
+  activeQuestionList=list;testCurrent=0;testOutcomes={};testProgressSaved=false;
+  renderTest();testBox.style.display="block";testProgress.style.display="block";
+  testBox.scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(err){console.error("Mini test başlatma hatası:",err);testBox.style.display="block";testBox.innerHTML='<div class="result bad">Test başlatılırken hata oluştu. Sayfayı yenileyip tekrar deneyin.</div>';}
+};
+document.getElementById("startMiniTest").onclick=window.bgysStartMiniTestFallback;
 document.getElementById("startMixedTest").addEventListener("click",async()=>{if(!testGroup)return;await loadSolvedQuestionIds();selectTestMode("mixed");activeMiniLimit=0;activeQuestionList=getQuestions(testGroup);testCurrent=0;testOutcomes={};testProgressSaved=false;renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});});
 testTopics.addEventListener("click",e=>{const b=e.target.closest("[data-test-topic]");if(!b)return;testGroup=topicGroups.find(g=>g.id===b.dataset.testTopic);testCurrent=0;activeMiniLimit=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;renderTopicButtons(testTopics,testGroup,"test");testModePanel.hidden=false;selectedCourseTitle.textContent=testGroup.title;partTestSettings.hidden=true;mixedTestSettings.hidden=true;mixedTestMode.classList.remove("active");partTestMode.classList.remove("active");buildPartRanges();testModePanel.scrollIntoView({behavior:"smooth",block:"start"});});
 testBox.addEventListener("click",e=>{
