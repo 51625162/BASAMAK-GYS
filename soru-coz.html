@@ -29,6 +29,16 @@
 .mode-screen[hidden],.mode-landing[hidden]{display:none!important}
 #testProgress,#testPractice{display:none} body.course-mode-open #testProgress,body.course-mode-open #testPractice{display:block}
 @media(max-width:600px){.mode-landing{grid-template-columns:1fr;min-height:0;padding:18px 0}.mode-landing .study-mode{min-height:120px}}
+
+/* Test cevapları ve seçim kontrolleri daha belirgin */
+.question .choice{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;margin:9px 0;border:1px solid #a9bfd3;border-radius:11px;background:#fff;color:#10243e;font-size:14px;line-height:1.55;font-weight:500;opacity:1}
+.question .choice:has(input:checked){border:2px solid #0878f9;background:#eaf4ff;box-shadow:0 0 0 2px #0878f922}
+.question .choice input[type=radio]{appearance:auto;-webkit-appearance:radio;display:inline-block;flex:0 0 18px;width:18px;height:18px;min-width:18px;margin:2px 0 0;accent-color:#075fe4;opacity:1;cursor:pointer}
+.question .choice input[type=radio]:disabled{opacity:1;filter:none}
+#partRangeSelect{display:block!important;visibility:visible!important;opacity:1!important;color:#10243e!important;background:#fff!important;min-height:44px;border:1px solid #829bb5!important;cursor:pointer}
+#partTestSettings[hidden],#mixedTestSettings[hidden]{display:none!important}
+#toggleFavorite,#saveWrong{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border:1px solid #0b827b;border-radius:10px;background:#e8f7f5;color:#075f5b;font-weight:800;cursor:pointer;opacity:1}
+#toggleFavorite:active,#saveWrong:active{transform:scale(.98)}
 </style></head><body>
 <header class="top"><a class="brand" href="index.html"><span class="logo">B</span>Basamak GYS</a><small>CTE · Soru Çöz</small></header>
 <main class="wrap"><a class="back" href="ds-sefligi.html">← Çalışma alanlarına dön</a>
@@ -316,7 +326,7 @@ function renderCourseCards(){let names=(selectedCourseCategory==="area"?areaCour
 document.getElementById("areaCourseTab").addEventListener("click",()=>{selectedCourseCategory="area";document.getElementById("areaCourseTab").classList.add("active");document.getElementById("commonCourseTab").classList.remove("active");renderCourseCards();});
 document.getElementById("commonCourseTab").addEventListener("click",()=>{selectedCourseCategory="common";document.getElementById("commonCourseTab").classList.add("active");document.getElementById("areaCourseTab").classList.remove("active");renderCourseCards();});
 courseSearch.addEventListener("input",renderCourseCards);courseSort.addEventListener("change",renderCourseCards);
-courseCards.addEventListener("click",e=>{const card=e.target.closest("[data-course]");if(!card)return;if(card.dataset.course==="Matematik, Sayısal Mantık ve Geometri"){window.location.href=new URL("matematik.html",window.location.href).href;return;}const bank=topicGroups.find(g=>g.id===card.dataset.bank);if(!bank){testProgress.textContent=card.dataset.course;testBox.innerHTML='<div class="result bad">Bu dersin soru havuzu henüz Soru Çöz bölümüne bağlanmadı. Ders kartı hazır; soru bankası eklendiğinde buradan test başlatılabilecek.</div>';return;}testGroup=bank;testCurrent=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;selectedCourseTitle.textContent=bank.title;testModePanel.hidden=false;renderTopicButtons(testTopics,testGroup,"test");testTopics.style.display="none";testBox.innerHTML='<p class="muted">Test türünü seçip başlat.</p>';testProgress.textContent=bank.title;testProgress.style.display="block";testBox.style.display="block";document.querySelectorAll(".course-card").forEach(c=>c.classList.toggle("active",c===card));testModePanel.scrollIntoView({behavior:"smooth",block:"center"});});
+courseCards.addEventListener("click",e=>{const card=e.target.closest("[data-course]");if(!card)return;if(card.dataset.course==="Matematik, Sayısal Mantık ve Geometri"){window.location.href=new URL("matematik.html",window.location.href).href;return;}const bank=topicGroups.find(g=>g.id===card.dataset.bank);if(!bank){testProgress.textContent=card.dataset.course;testBox.innerHTML='<div class="result bad">Bu dersin soru havuzu henüz Soru Çöz bölümüne bağlanmadı. Ders kartı hazır; soru bankası eklendiğinde buradan test başlatılabilecek.</div>';return;}testGroup=bank;testCurrent=0;activeQuestionList=null;activePartRange=null;testOutcomes={};testProgressSaved=false;selectedCourseTitle.textContent=bank.title;testModePanel.hidden=false;renderTopicButtons(testTopics,testGroup,"test");testTopics.style.display="none";buildPartRanges();selectTestMode(activeTestMode);testBox.innerHTML='<p class="muted">Test türünü seçip başlat.</p>';testProgress.textContent=bank.title;testProgress.style.display="block";testBox.style.display="block";document.querySelectorAll(".course-card").forEach(c=>c.classList.toggle("active",c===card));testModePanel.scrollIntoView({behavior:"smooth",block:"center"});});
 // Mode buttons are handled once by openModeScreen below.
 // Mode buttons are handled once by openModeScreen below.
 renderCourseCards();
