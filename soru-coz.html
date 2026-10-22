@@ -188,7 +188,7 @@
     <div class="mixed-settings-heading"><span>⚙</span><div><strong>Soru filtreleri</strong><small>Karışık test için filtreleri seç.</small></div></div>
     <label for="mixedQuestionCount">Soru sayısı</label>
     <select id="mixedQuestionCount" class="question-status-select"><option value="10">10 soru</option><option value="20">20 soru</option><option value="25" selected>25 soru</option><option value="30">30 soru</option><option value="50">50 soru</option><option value="all">Tüm uygun sorular</option></select>
-    <button class="btn primary" id="startMixedTest" type="button"><span class="mixed-shuffle">⇄</span> Karışık Testi Başlat</button>
+    <button class="btn primary" id="startMixedTest" type="button" onclick="window.bgysLaunchCmkMixedTest()"><span class="mixed-shuffle">⇄</span> Karışık Testi Başlat</button>
     <div class="mixed-info-note"><span>i</span><p>Seçtiğin kriterlere göre tüm konulardan karışık sorular getirilir. Bu bölüm, Parça / Konu Testi’nden bağımsızdır.</p></div>
   </div>
 </div>
@@ -1209,4 +1209,26 @@ loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");ren
  });
  draw();
 })();
-</script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script></body></html>
+</script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script><script>
+window.bgysLaunchCmkMixedTest = function(){
+  const box=document.getElementById("testPractice");
+  const progress=document.getElementById("testProgress");
+  const title=document.getElementById("selectedCourseTitle");
+  if(!box||!progress){alert("Test alanı bulunamadı. Sayfayı yenileyin.");return;}
+  try{
+    const pool=questions.filter(q=>(q.pool||"mixed")==="mixed" && String(q.topic||"").startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"));
+    if(!pool.length){box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">CMK karışık soru havuzu yüklenemedi. Sayfayı yenileyip tekrar deneyin.</div>';return;}
+    let index=0,correct=0,answered=false;
+    const list=pool.slice(0,25);
+    if(title)title.textContent="5271 Sayılı Ceza Muhakemesi Kanunu";
+    box.style.display="block";progress.style.display="block";
+    function draw(){
+      if(index>=list.length){progress.textContent="CMK Karışık Test · Tamamlandı";box.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış: '+(list.length-correct)+'<br>Başarı: '+Math.round(correct/list.length*100)+'%</div><button type="button" class="btn primary" id="bgysCmkRestart">Yeniden başlat</button>';document.getElementById("bgysCmkRestart").onclick=()=>{index=0;correct=0;draw();};return;}
+      answered=false;const q=list[index];progress.textContent="5271 Sayılı Ceza Muhakemesi Kanunu · Soru "+(index+1)+" / "+list.length;
+      box.innerHTML='<article class="question-card"><h3>'+ (index+1)+'. '+q.question.replace(/\n/g,"<br>")+'</h3><div class="answer-options">'+["A","B","C","D"].map(k=>'<label class="answer-option"><input type="radio" name="bgys-cmk-answer" value="'+k+'"> <b>'+k+'.</b> '+q.options[k]+'</label>').join("")+'</div><div id="bgysCmkFeedback"></div><button type="button" class="btn primary" id="bgysCmkCheck">Cevabı kontrol et</button></article>';
+      document.getElementById("bgysCmkCheck").onclick=()=>{if(answered)return;const picked=box.querySelector('input[name="bgys-cmk-answer"]:checked');const feedback=document.getElementById("bgysCmkFeedback");if(!picked){feedback.innerHTML='<div class="result bad">Önce bir şık seç.</div>';return;}answered=true;const ok=picked.value===q.answer;if(ok)correct++;feedback.innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'Doğru cevap!':'Yanlış cevap. Doğru cevap: '+q.answer)+ '<br>'+q.explanation+'</div>';const b=document.getElementById("bgysCmkCheck");b.textContent=index===list.length-1?"Sonucu gör":"Sonraki soru";b.onclick=()=>{index++;draw();};};
+    }
+    draw();box.scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){console.error("CMK test fallback:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı: '+String(e.message||e)+'</div>';}
+};
+</script></body></html>
