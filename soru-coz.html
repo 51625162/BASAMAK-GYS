@@ -103,7 +103,7 @@
   <div id="partTestSettings" hidden class="part-test-settings">
     <label for="partRangeSelect">Parça / konu seç</label>
     <select id="partRangeSelect"></select>
-    <button class="btn primary" id="startMiniTest" type="button">Mini Testi Başlat</button>
+    <button class="btn primary" id="startMiniTest" type="button" onclick="if(window.bgysStartMiniTestFallback){window.bgysStartMiniTestFallback()}else{document.getElementById(\'testBox\').style.display=\'block\';document.getElementById(\'testBox\').innerHTML=\'<p class=&quot;result bad&quot;>Test kodu yüklenmedi. Sayfayı yenileyin.</p>\';}">Mini Testi Başlat</button>
   </div>
   <div id="mixedTestSettings" hidden class="part-test-settings">
     <button class="btn primary" id="startMixedTest" type="button">Karışık Testi Başlat</button>
@@ -790,4 +790,4 @@ loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");ren
  });
  draw();
 })();
-</script><script src="db.js?v=20261022-independent-pools2"></script><script>bgysRequireAuth();</script></body></html>
+</script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script></body></html>
