@@ -374,7 +374,7 @@ function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map
 function renderTest(){
  const list=activeQuestionList||getQuestions(testGroup);
  if(!testGroup){testProgress.textContent="Test için konu seç";testBox.innerHTML='<p class="muted">Test alanından bir konu seç.</p>';return;}
- if(!list.length){testProgress.textContent=testGroup.title;const statusLabel=questionStatusFilter.value==="solved"?"çözdüğün":questionStatusFilter.value==="unsolved"?"henüz çözmediğin":"seçilen";testBox.innerHTML='<div class="result bad">Bu testte filtreye uygun '+statusLabel+' soru bulunamadı. Soru filtresini değiştirerek tekrar deneyebilirsin.</div>';return;}
+ if(!list.length){testProgress.textContent=testGroup.title;if(activeTestMode==="mixed"){testBox.innerHTML='<div class="result bad"><b>Karışık Soru Çöz havuzu henüz boş.</b><br>Mevcut sorular Parça / Konu Testi bölümünde korunuyor. Karışık Soru Çöz için bu havuza ayrıca soru eklenmesi gerekiyor.</div>';return;}const statusLabel=questionStatusFilter.value==="solved"?"çözdüğün":questionStatusFilter.value==="unsolved"?"henüz çözmediğin":"seçilen";testBox.innerHTML='<div class="result bad">Bu testte filtreye uygun '+statusLabel+' soru bulunamadı. Soru filtresini değiştirerek tekrar deneyebilirsin.</div>';return;}
  if(testCurrent>=list.length){testProgress.textContent=testGroup.title+' · Tamamlandı';const done=list.filter(q=>Object.prototype.hasOwnProperty.call(testOutcomes,q.id));const correct=done.filter(q=>testOutcomes[q.id]===true).length,wrong=done.filter(q=>testOutcomes[q.id]===false).length,blank=list.length-done.length;testBox.innerHTML='<div class="result good">Test tamamlandı: '+list.length+' soru.<br>Doğru: '+correct+' · Yanlış: '+wrong+' · Cevaplanmayan: '+blank+'<br>Başarı: '+Math.round(correct/list.length*100)+'%</div><button class="btn primary" id="testRestart">Testi yeniden başlat</button>';if(!testProgressSaved){testProgressSaved=true;saveTopicTestProgress(testGroup,list,correct,wrong,blank);}return;}
  const q=list[testCurrent];
  testProgress.textContent=testGroup.title+' · Soru '+(testCurrent+1)+' / '+list.length;
@@ -429,4 +429,4 @@ testBox.addEventListener("click",e=>{
 });
 
 loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
-</script><script src="db.js?v=20261022-independent-pools1"></script><script>bgysRequireAuth();</script></body></html>
+</script><script src="db.js?v=20261022-independent-pools2"></script><script>bgysRequireAuth();</script></body></html>
