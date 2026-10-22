@@ -88,6 +88,13 @@
 #testModePanel.mixed-mode-active .question-filter{border-color:#cce4ff;background:linear-gradient(135deg,#f1f8ff,#eaf5ff)}
 #testModePanel.part-mode-active .question-filter{border-color:#d4ebe5;background:linear-gradient(135deg,#f2fbf9,#eaf7f4)}
 
+/* Düzeltme: .part-test-settings display kuralı hidden özniteliğini eziyordu; modlar için görünürlüğü zorla ayır. */
+#modeScreen.mixed-mode-active #partTestSettings{display:none!important}
+#modeScreen.mixed-mode-active #mixedTestSettings{display:block!important}
+#modeScreen.part-mode-active #partTestSettings{display:block!important}
+#modeScreen.part-mode-active #mixedTestSettings{display:none!important}
+#modeScreen.mixed-mode-active .part-only-hint{display:none!important}
+#modeScreen.part-mode-active .mixed-only-hint{display:none!important}
 /* Karışık Soru Çöz için özel arayüz; parça/konu ekranından bağımsız */
 .mixed-course-card{display:flex;align-items:center;gap:14px;margin:18px 0;padding:17px;border:1px solid #ffe4bf;border-radius:18px;background:linear-gradient(120deg,#fffaf0,#fff5e4)}
 .mixed-course-icon{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:16px;background:#ff9418;color:white;font-size:30px}
