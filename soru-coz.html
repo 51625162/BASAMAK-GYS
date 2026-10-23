@@ -1545,7 +1545,14 @@ window.bgysLaunchCmkMixedTest = function(){
     activeQuestionList=null;
    }else{
     activePartRange=null;
-    activeQuestionList=getQuestions(group);
+    activeQuestionList=getMixedQuestionsForGroup(group);
+    if(!activeQuestionList.length&&questionStatusFilter.value!=="all"){
+     activeQuestionList=getMixedQuestionsForGroup(group,true);
+     if(activeQuestionList.length){
+      const note=document.getElementById("questionFilterNote");
+      if(note)note.textContent="Seçili filtrede soru bulunamadığı için bu dersin tüm uygun soruları gösteriliyor.";
+     }
+    }
     const count=document.getElementById("mixedQuestionCount");
     if(count&&count.value!=="all")activeQuestionList=activeQuestionList.slice(0,Math.max(1,Number(count.value)||25));
    }
