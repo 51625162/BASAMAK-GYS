@@ -1260,6 +1260,9 @@ loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");ren
 })();
 </script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script><script>
 window.bgysOpenModeDirect=function(mode){try{const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");if(typeof selectTestMode==="function")selectTestMode(mode==="mixed"?"mixed":"part");if(typeof renderCourseCards==="function")renderCourseCards();const settings=document.getElementById(mode==="mixed"?"mixedTestSettings":"partTestSettings");if(settings){settings.hidden=false;settings.style.display="block";}const other=document.getElementById(mode==="mixed"?"partTestSettings":"mixedTestSettings");if(other)other.hidden=true;if(screen)screen.scrollIntoView({behavior:"smooth",block:"start"});}catch(err){console.error("Mod seçimi:",err);alert("Test ekranı açılamadı. Sayfayı yenileyip tekrar deneyin.");}};
+/* Mobilde mod kartı tıklamasını yakala; inline onclick'e bağımlı kalma. */
+document.addEventListener("click",function(ev){const btn=ev.target.closest("#partTestMode,#mixedTestMode");if(!btn)return;ev.preventDefault();ev.stopPropagation();window.bgysOpenModeDirect(btn.id==="partTestMode"?"part":"mixed");},true);
+
 window.bgysLaunchCmkMixedTest = function(){
   const box=document.getElementById("testPractice");
   const progress=document.getElementById("testProgress");
