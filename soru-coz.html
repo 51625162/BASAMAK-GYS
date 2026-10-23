@@ -1240,6 +1240,33 @@ testBox.addEventListener("click",e=>{
 loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
 
 </script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script><script>
+/* Sağlam ders seçimi: tüm ders kartlarını aynı test akışına bağla. */
+(function(){
+ const root=document.getElementById("courseCards");
+ if(!root||root.dataset.bgysRobustHandler==="1")return;
+ root.dataset.bgysRobustHandler="1";
+ root.addEventListener("click",function(ev){
+  const card=ev.target.closest(".course-card[data-course]");
+  if(!card)return;
+  const group=topicGroups.find(g=>g.id===card.dataset.bank);
+  if(!group)return;
+  ev.preventDefault();
+  try{
+   testGroup=group;
+   const title=document.getElementById("selectedCourseTitle"),panel=document.getElementById("testModePanel"),landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen"),part=document.getElementById("partTestSettings"),mixed=document.getElementById("mixedTestSettings"),box=document.getElementById("testPractice"),progress=document.getElementById("testProgress");
+   if(title)title.textContent=group.title;
+   if(panel)panel.hidden=false;if(landing)landing.hidden=true;if(screen)screen.hidden=false;
+   document.body.classList.add("course-mode-open");
+   renderTopicButtons(testTopics,group,"test");
+   const mode=selectedStudyMode==="part"?"part":"mixed";
+   selectTestMode(mode);buildPartRanges();
+   if(part)part.hidden=mode!=="part";if(mixed)mixed.hidden=mode!=="mixed";
+   if(progress){progress.textContent=group.title+(mode==="part"?" · Parça / Konu Testi":" · Karışık Soru Çöz");progress.style.display="block";}
+   if(box){box.style.display="block";box.innerHTML=mode==="part"?'<p class="muted">Parçayı seçip Mini Testi Başlat düğmesine bas.</p>':'<p class="muted">Karışık testi başlatmak için Karışık Testi Başlat düğmesine bas.</p>';}
+   (mode==="part"?part:mixed)?.scrollIntoView({behavior:"smooth",block:"center"});
+  }catch(err){console.error("Ders seçimi:",err);alert("Ders seçilirken hata oluştu. Sayfayı yenileyip tekrar deneyin.");}
+ },true);
+})();
 window.bgysOpenModeDirect=function(mode){try{selectedStudyMode=mode==="mixed"?"mixed":"part";const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");if(typeof selectTestMode==="function")selectTestMode(mode==="mixed"?"mixed":"part");if(typeof renderCourseCards==="function")renderCourseCards();const settings=document.getElementById(mode==="mixed"?"mixedTestSettings":"partTestSettings");if(settings){settings.hidden=false;settings.style.display="block";}const other=document.getElementById(mode==="mixed"?"partTestSettings":"mixedTestSettings");if(other)other.hidden=true;if(screen)screen.scrollIntoView({behavior:"smooth",block:"start"});}catch(err){console.error("Mod seçimi:",err);alert("Test ekranı açılamadı. Sayfayı yenileyip tekrar deneyin.");}};
 /* Mobilde mod kartı tıklamasını yakala; inline onclick'e bağımlı kalma. */
 document.addEventListener("click",function(ev){const btn=ev.target.closest("#partTestMode,#mixedTestMode");if(!btn)return;ev.preventDefault();ev.stopPropagation();window.bgysOpenModeDirect(btn.id==="partTestMode"?"part":"mixed");},true);
