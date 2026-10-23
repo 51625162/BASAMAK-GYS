@@ -1281,6 +1281,28 @@ async function saveSolvedQuestion(q,correct){try{if(typeof bgysAdd==="function")
 const answered=new Set();let testOutcomes={},testProgressSaved=false;
 function getQuestionArticleNumber(q){const topic=String(q&&q.topic||"");const matches=[...topic.matchAll(/(?:·\s*|\s)Madde\s+(\d+)/g)];if(matches.length)return Number(matches[matches.length-1][1]);const m=topic.match(/Geçici\s+Madde\s+(\d+)/);return m?Number(m[1]):null;}
 function getQuestions(group){if(!group)return [];const matched=questions.filter(q=>{const pool=q.pool||"part";if(activeTestMode==="mixed"&&pool!=="mixed"&&pool!=="part")return false;if(activeTestMode==="part"&&pool!=="part"&&group.id!=="cmk5271")return false;const isSolved=solvedQuestionIds.has(String(q.id));if(questionStatusFilter.value==="solved"&&!isSolved)return false;if(questionStatusFilter.value==="unsolved"&&isSolved)return false;if(group.id==="komk"&&!String(q.topic).startsWith("Kamu Ön Malî Kontrol Yönetmeliği"))return false;if(group.id==="anayasa"&&!String(q.topic).startsWith("1982 Anayasası"))return false;if(group.id==="kanun5402"&&!String(q.topic).startsWith("5402 Sayılı"))return false;if(group.id==="cmk5271"&&!String(q.topic).startsWith("5271 Sayılı Ceza Muhakemesi Kanunu"))return false;if(group.id==="yonetmelik"&&!String(q.topic).startsWith("Denetimli Serbestlik Hizmetleri Yönetmeliği"))return false;const n=getQuestionArticleNumber(q);if(n===null)return false;if(activeTestMode==="part"&&activePartRange){if(group.id==="komk"){const isTemp=String(q.topic||"").includes("Geçici Madde");const isTempRange=String(activePartRange.label||"").startsWith("Geçici Madde");if(isTempRange&&!isTemp)return false;if(!isTempRange&&isTemp)return false;if(!isTemp&&String(activePartRange.label||"").startsWith("4. Parça")&&!String(q.topic||"").includes("4. Parça"))return false;}if(group.id==="cmk5271"){const isPart24=String(activePartRange.label||"").startsWith("24. Parça");const isQuestionPart24=String(q.topic).includes("24. Parça");if(isPart24&&!isQuestionPart24)return false;if(!isPart24&&isQuestionPart24)return false;}return n>=activePartRange.min&&n<=activePartRange.max;}return n>=group.min&&n<=group.max;});return activeMiniLimit?matched.slice(0,activeMiniLimit):matched;}
+function getMixedQuestionsForGroup(group,includeSolvedFallback=false){
+ if(!group)return [];
+ const prefixes={
+  komk:["Kamu Ön Malî Kontrol Yönetmeliği"],
+  anayasa:["1982 Anayasası"],
+  kanun5402:["5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu","5402 Sayılı Kanun"],
+  cmk5271:["5271 Sayılı Ceza Muhakemesi Kanunu"],
+  yonetmelik:["Denetimli Serbestlik Hizmetleri Yönetmeliği"]
+ };
+ const allowed=prefixes[group.id]||[group.title];
+ const status=questionStatusFilter.value;
+ const filtered=questions.filter(q=>{
+  const pool=q.pool||"part";
+  if(pool!=="mixed"&&pool!=="part")return false;
+  if(!allowed.some(prefix=>String(q.topic||"").startsWith(prefix)))return false;
+  const solved=solvedQuestionIds.has(String(q.id));
+  if(!includeSolvedFallback&&status==="solved"&&!solved)return false;
+  if(!includeSolvedFallback&&status==="unsolved"&&solved)return false;
+  return true;
+ });
+ return filtered;
+}
 function renderTopicButtons(target,active,mode){target.innerHTML=topicGroups.map(g=>'<button class="topic-btn '+(active&&active.id===g.id?'active':'')+'" type="button" data-'+mode+'-topic="'+g.id+'">'+g.title+'<div class="tiny">'+(mode==='qa'?getQAQuestions(g).length:getQuestions(g).length)+' soru</div></button>').join("");}
 function renderTest(){
  const list=activeQuestionList||getQuestions(testGroup);
@@ -1367,12 +1389,11 @@ document.getElementById("startMixedTest").addEventListener("click",async(event)=
   activeTestMode="mixed";activePartRange=null;activeMiniLimit=0;
   selectTestMode("mixed");
   const count=document.getElementById("mixedQuestionCount")?.value||"25";
-  let pool=getQuestions(testGroup);
-  /* Çözülen-soru kayıtları eski sürümden hatalı/uyumsuz gelmişse test ekranını boş bırakma: önce tüm uygun soruları dene. */
-  if(!pool.length&&questionStatusFilter.value==="unsolved"){
-   const previousFilter=questionStatusFilter.value;questionStatusFilter.value="all";
-   const allPool=getQuestions(testGroup);questionStatusFilter.value=previousFilter;
-   if(allPool.length){pool=allPool;const note=document.getElementById("questionFilterNote");if(note)note.textContent="Çözülmemiş soru bulunamadığı için test tüm uygun sorularla açıldı."}
+  let pool=getMixedQuestionsForGroup(testGroup);
+  /* Karma testte parça aralığı ayrıştırmasına bağımlı kalma; dersin kendi soru havuzunu doğrudan kullan. */
+  if(!pool.length&&questionStatusFilter.value!=="all"){
+   const allPool=getMixedQuestionsForGroup(testGroup,true);
+   if(allPool.length){pool=allPool;const note=document.getElementById("questionFilterNote");if(note)note.textContent="Seçili filtrede soru bulunamadığı için bu dersin tüm uygun soruları gösteriliyor."}
   }
   activeQuestionList=count==="all"?pool:pool.slice(0,Math.max(1,Number(count)||25));
   testCurrent=0;testOutcomes={};testProgressSaved=false;
