@@ -1239,45 +1239,6 @@ testBox.addEventListener("click",e=>{
 
 loadSolvedQuestionIds().then(()=>{renderTopicButtons(testTopics,null,"test");renderTest();});
 
-</script><script>
-/* Güvenli görünürlük yedeği: ders kartları boş kalırsa kategori listelerini yeniden çiz. */
-(function(){
- const area=["Kamu Ön Malî Kontrol Yönetmeliği","Kamu İç Kontrol Yönetmeliği","3071 Sayılı Dilekçe Hakkının Kullanılmasına Dair Kanun","5018 Sayılı Kamu Malî Yönetimi ve Kontrol Kanunu","4735 Sayılı Kamu İhale Sözleşmeleri Kanunu","4734 Sayılı Kamu İhale Kanunu","Kamu Zararlarının Tahsili Yönetmeliği","Merkezî Yönetim Harcama Belgeleri Yönetmeliği","Kamu İhale Genel Tebliği","Adalet Bakanlığı Disiplin Yönetmeliği","5395 Sayılı Çocuk Koruma Kanunu","Çocuk Koruma Kanununun Uygulanmasına İlişkin Usûl ve Esaslar Hakkında Yönetmelik","Çocuk Koruma Tedbirleri Yönetmeliği","5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu","5275 Sayılı Ceza ve Güvenlik Tedbirlerinin İnfazı Hakkında Kanun","6331 Sayılı İş Sağlığı ve Güvenliği Kanunu","5271 Sayılı Ceza Muhakemesi Kanunu","5237 Sayılı Türk Ceza Kanunu","657 Sayılı Devlet Memurları Kanunu","5510 Sayılı Sosyal Sigortalar ve Genel Sağlık Sigortası Kanunu","7201 Sayılı Tebligat Kanunu","4675 Sayılı İnfaz Hâkimliği Kanunu","Ceza İnfaz Kurumlarının Yönetimi ile Ceza ve Güvenlik Tedbirlerinin İnfazı Hakkında Yönetmelik","Denetimli Serbestlik Tedavi Hizmetleri","Denetimli Serbestlik Yönetmeliği","Taşınır Mal Yönetmeliği","Cinsel Dokunulmazlığa Karşı Suçlar Yönetmeliği"];
- const common=["2709 Sayılı Türkiye Cumhuriyeti Anayasası","Türkçe ve Dil Bilgisi","Atatürk İlkeleri ve İnkılap Tarihi","İnsan Hakları ve Demokrasi","Yazışma Kuralları","Etik Davranış İlkeleri","Matematik, Sayısal Mantık ve Geometri","Genel Kültür ve Güncel Konular"];
- const root=document.getElementById("courseCards"),search=document.getElementById("courseSearch"),sort=document.getElementById("courseSort");
- const a=document.getElementById("areaCourseTab"),b=document.getElementById("commonCourseTab");
- if(!root||!search||!sort||!a||!b)return;
- let cat="area";
- function draw(){
-   const names=(cat==="area"?area:common).map((name,i)=>({name,n:i+1})).filter(x=>x.name.toLocaleLowerCase("tr").includes(search.value.trim().toLocaleLowerCase("tr")));
-   if(sort.value==="az")names.sort((x,y)=>x.name.localeCompare(y.name,"tr"));
-   root.innerHTML=names.map(x=>'<button type="button" class="course-card" data-course="'+x.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" data-bank="'+(x.name==="Kamu Ön Malî Kontrol Yönetmeliği"?"komk":x.name.startsWith("5271 Sayılı")?"cmk5271":x.name.startsWith("5402 Sayılı")?"kanun5402":x.name.includes("Anayasası")?"anayasa":x.name==="Denetimli Serbestlik Yönetmeliği"?"yonetmelik":"")+'"><div class="course-card-top"><span class="course-number">'+x.n+'</span><span class="course-card-title">'+x.name+'</span></div><p class="course-card-desc">Konu anlatımı · Örnek sorular · Testler</p><div class="course-card-bottom"><span class="course-status">'+(["Kamu Ön Malî Kontrol Yönetmeliği","5271 Sayılı Ceza Muhakemesi Kanunu","5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu","2709 Sayılı Türkiye Cumhuriyeti Anayasası","Denetimli Serbestlik Yönetmeliği"].includes(x.name)?"Soru bankası hazır":"Ders içeriği mevcut · Test soruları bağlanacak")+'</span><span class="course-arrow">›</span></div></button>').join("");
-   a.classList.toggle("active",cat==="area");b.classList.toggle("active",cat==="common");
- }
- a.addEventListener("click",()=>{cat="area";draw()});b.addEventListener("click",()=>{cat="common";draw()});search.addEventListener("input",draw);sort.addEventListener("change",draw);
- root.addEventListener("click",function(ev){
-   const card=ev.target.closest("[data-course]"); if(!card||!card.dataset.bank)return;
-   const bankId=card.dataset.bank;
-   const meta=({cmk5271:["5271 Sayılı Ceza Muhakemesi Kanunu",335],kanun5402:["5402 Sayılı Denetimli Serbestlik Hizmetleri Kanunu",30],anayasa:["1982 Türkiye Cumhuriyeti Anayasası",56],yonetmelik:["Denetimli Serbestlik Hizmetleri Yönetmeliği",104]})[bankId];
-   if(!meta)return;
-   const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");
-   if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");
-   const panel=document.getElementById("testModePanel"),part=document.getElementById("partTestSettings"),mixed=document.getElementById("mixedTestSettings");
-   if(panel)panel.hidden=false;if(part)part.hidden=false;if(mixed)mixed.hidden=true;
-   const title=document.getElementById("selectedCourseTitle"),progress=document.getElementById("testProgress"),practice=document.getElementById("testPractice");
-   if(title)title.textContent=meta[0];if(progress){progress.textContent=meta[0]+" — Parça / Konu Testi";progress.style.display="block";}if(practice){practice.textContent="Parçayı seçip Mini Testi Başlat düğmesine bas.";practice.style.display="block";}
-   const select=document.getElementById("partRangeSelect");
-   if(select){
-    const rr=bankId==="cmk5271"?[[1,32,"1. Parça · Madde 1–32"],[33,42,"2. Parça · Madde 33–42"],[43,61,"3. Parça · Madde 43–61"],[62,73,"4. Parça · Madde 62–73"],[74,89,"5. Parça · Madde 74–89"],[90,99,"6. Parça · Madde 90–99"],[100,115,"7. Parça · Madde 100–115"],[116,134,"8. Parça · Madde 116–134"],[135,140,"9. Parça · Madde 135–140"],[141,144,"10. Parça · Madde 141–144"],[145,149,"11. Parça · Madde 145–149"],[150,156,"12. Parça · Madde 150–156"],[157,161,"13. Parça · Madde 157–161"],[162,166,"14. Parça · Madde 162–166"],[167,184,"15. Parça · Madde 167–184"],[185,204,"16. Parça · Madde 185–204"],[205,224,"17. Parça · Madde 205–224"],[225,247,"18. Parça · Madde 225–247"],[248,266,"19. Parça · Madde 248–266"],[267,286,"20. Parça · Madde 267–286"],[287,308,"21. Parça · Madde 287–308/A"],
-[309,323,"22. Parça · Madde 309–323"]]:Array.from({length:Math.ceil(meta[1]/10)},(_,i)=>[i*10+1,Math.min((i+1)*10,meta[1]),"Madde "+(i*10+1)+"–"+Math.min((i+1)*10,meta[1])]);
-    select.innerHTML=rr.map((r,i)=>'<option value="'+i+'">'+r[2]+'</option>').join("");
-    select.dataset.ranges=JSON.stringify(rr.map(r=>({min:r[0],max:r[1],label:r[2]})));
-   }
-   if(typeof window.buildPartRanges==="function"){try{window.buildPartRanges();}catch(err){console.error(err);}}
-   if(part)part.scrollIntoView({behavior:"smooth",block:"center"});
- });
- draw();
-})();
 </script><script src="db.js?v=20261022-mini-test-fix3"></script><script>bgysRequireAuth();</script><script>
 window.bgysOpenModeDirect=function(mode){try{const landing=document.getElementById("modeLanding"),screen=document.getElementById("modeScreen");if(landing)landing.hidden=true;if(screen)screen.hidden=false;document.body.classList.add("course-mode-open");if(typeof selectTestMode==="function")selectTestMode(mode==="mixed"?"mixed":"part");if(typeof renderCourseCards==="function")renderCourseCards();const settings=document.getElementById(mode==="mixed"?"mixedTestSettings":"partTestSettings");if(settings){settings.hidden=false;settings.style.display="block";}const other=document.getElementById(mode==="mixed"?"partTestSettings":"mixedTestSettings");if(other)other.hidden=true;if(screen)screen.scrollIntoView({behavior:"smooth",block:"start"});}catch(err){console.error("Mod seçimi:",err);alert("Test ekranı açılamadı. Sayfayı yenileyip tekrar deneyin.");}};
 /* Mobilde mod kartı tıklamasını yakala; inline onclick'e bağımlı kalma. */
