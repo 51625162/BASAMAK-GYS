@@ -1367,11 +1367,17 @@ document.getElementById("startMixedTest").addEventListener("click",async(event)=
   activeTestMode="mixed";activePartRange=null;activeMiniLimit=0;
   selectTestMode("mixed");
   const count=document.getElementById("mixedQuestionCount")?.value||"25";
-  const pool=getQuestions(testGroup);
+  let pool=getQuestions(testGroup);
+  /* Çözülen-soru kayıtları eski sürümden hatalı/uyumsuz gelmişse test ekranını boş bırakma: önce tüm uygun soruları dene. */
+  if(!pool.length&&questionStatusFilter.value==="unsolved"){
+   const previousFilter=questionStatusFilter.value;questionStatusFilter.value="all";
+   const allPool=getQuestions(testGroup);questionStatusFilter.value=previousFilter;
+   if(allPool.length){pool=allPool;const note=document.getElementById("questionFilterNote");if(note)note.textContent="Çözülmemiş soru bulunamadığı için test tüm uygun sorularla açıldı."}
+  }
   activeQuestionList=count==="all"?pool:pool.slice(0,Math.max(1,Number(count)||25));
   testCurrent=0;testOutcomes={};testProgressSaved=false;
   testBox.style.display="block";testProgress.style.display="block";
-  if(!activeQuestionList.length){testBox.innerHTML='<div class="result bad"><b>Bu ders için uygun soru bulunamadı.</b><br>Soru filtresini “Tüm sorular” yapıp tekrar dene.</div>';return;}
+  if(!activeQuestionList.length){testBox.innerHTML='<div class="result bad"><b>Bu ders için henüz uygun soru bulunamadı.</b><br>Bu dersin soru bankası boş olabilir veya konu/madde aralığı eşleşmiyor. Başka bir desteklenen ders seçebilir ya da eksik soru havuzunun tamamlanmasını bekleyebilirsin.</div>';return;}
   renderTest();testBox.scrollIntoView({behavior:"smooth",block:"start"});
  }catch(err){console.error("Karışık test başlatma hatası:",err);testBox.style.display="block";testProgress.style.display="block";testBox.innerHTML='<div class="result bad">Test başlatılamadı: '+esc(err&&err.message?err.message:"Bilinmeyen hata")+'</div>';}
 });
