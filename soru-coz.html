@@ -1355,4 +1355,47 @@ window.bgysLaunchCmkMixedTest = function(){
     draw();box.scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){console.error("Mixed test:",e);box.style.display="block";progress.style.display="block";box.innerHTML='<div class="result bad">Test açılamadı. Sayfayı yenileyip tekrar deneyin.</div>';}
 };
+
+/* Son sağlamlaştırma: ders kartı seçildiğinde test sorularını doğrudan aç. */
+(function(){
+ if(window.__bgysDirectCourseLaunchInstalled)return;
+ window.__bgysDirectCourseLaunchInstalled=true;
+ document.addEventListener("click",function(ev){
+  const card=ev.target.closest("#courseCards .course-card[data-course]");
+  if(!card)return;
+  const group=topicGroups.find(g=>g.id===card.dataset.bank);
+  if(!group)return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();
+  try{
+   testGroup=group;
+   const mode=selectedStudyMode==="mixed"?"mixed":"part";
+   selectedCourseTitle.textContent=group.title;
+   document.getElementById("modeLanding").hidden=true;
+   document.getElementById("modeScreen").hidden=false;
+   document.body.classList.add("course-mode-open");
+   testModePanel.hidden=false;
+   selectTestMode(mode);
+   buildPartRanges();
+   if(mode==="part"){
+    updatePartRange();
+    activeQuestionList=null;
+   }else{
+    activePartRange=null;
+    activeQuestionList=getQuestions(group);
+    const count=document.getElementById("mixedQuestionCount");
+    if(count&&count.value!=="all")activeQuestionList=activeQuestionList.slice(0,Math.max(1,Number(count.value)||25));
+   }
+   testCurrent=0;activeMiniLimit=0;testOutcomes={};testProgressSaved=false;
+   testProgress.style.display="block";testBox.style.display="block";
+   renderTest();
+   testBox.scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(err){
+   console.error("Ders testi açılamadı:",err);
+   testProgress.style.display="block";testBox.style.display="block";
+   testBox.innerHTML='<div class="result bad">Test açılamadı. Sayfayı yenileyip tekrar deneyin.</div>';
+  }
+ },true);
+})();
+
 </script></body></html>
