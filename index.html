@@ -71,43 +71,38 @@ footer{padding:22px 0 32px;border-top:1px solid #d8e2ec;color:#8291a3;font-size:
   </div>
 </section>
 
+<section id="reminders" style="width:min(1320px,calc(100% - 44px));margin:0 auto 32px;background:#fff;border:1px solid #d8e2ec;border-radius:18px;padding:24px;box-shadow:0 8px 24px #102c4808">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div style="font-size:11px;letter-spacing:.12em;color:#087f82;font-weight:800">PLANLAMA</div><h2 style="margin:8px 0;color:#102b4a">Hatırlatmalar ve Alarmlar</h2><p style="margin:0;color:#64778d">Tarih ve saat ekle; zamanı gelince uyarı verilsin. Bildirim, sen açıp gördüğünü işaretleyene kadar okunmamış kalır.</p></div><span id="reminderUnreadBadge" style="display:none;background:#b92e37;color:white;border-radius:30px;padding:8px 13px;font-size:13px;font-weight:800">🔔 Bildiriminiz var</span></div>
+  <form id="reminderForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px">
+    <label style="font-size:13px;font-weight:700;color:#425b79">Hatırlatma başlığı<input id="reminderTitle" required maxlength="100" placeholder="Örn. Kanun tekrarı" style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid #cbd7e4;border-radius:9px;font:inherit"></label>
+    <label style="font-size:13px;font-weight:700;color:#425b79">Tarih<input id="reminderDate" type="date" required style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid #cbd7e4;border-radius:9px;font:inherit"></label>
+    <label style="font-size:13px;font-weight:700;color:#425b79">Saat<input id="reminderTime" type="time" required style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid #cbd7e4;border-radius:9px;font:inherit"></label>
+    <label style="font-size:13px;font-weight:700;color:#425b79">Not (isteğe bağlı)<input id="reminderNote" maxlength="250" placeholder="Hatırlatma notu" style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid #cbd7e4;border-radius:9px;font:inherit"></label>
+    <button type="submit" style="align-self:end;border:0;border-radius:10px;background:#f7b93e;color:#102849;font-weight:800;padding:13px 18px;cursor:pointer">＋ Hatırlatma Ekle</button>
+  </form>
+  <div id="reminderAlert" role="alert" style="display:none;margin-top:18px;padding:16px;border-radius:12px;background:#fff0f0;border:1px solid #f2b6b6;color:#9f2028;font-weight:800">🔔 Bildiriminiz var! Hatırlatmayı açıp gördüğünüzü işaretleyin.</div>
+  <h3 style="margin:24px 0 10px;color:#102b4a">Hatırlatma listem</h3><div id="reminderList"><p style="color:#64778d">Hatırlatmalar yükleniyor…</p></div>
+  <p id="reminderHelp" style="font-size:12px;color:#64778d;margin-bottom:0">Not: Alarm sesi, sayfa açıkken ve tarayıcı ses çalmaya izin verdiğinde çalışır. Sayfa kapalıyken sürekli ses garantisi verilemez.</p>
+</section>
+<style>@keyframes reminderPulse{0%,100%{box-shadow:0 0 0 0 #b92e3740}50%{box-shadow:0 0 0 8px #b92e3700}}#reminderUnreadBadge{animation:reminderPulse 1.5s infinite}@media(max-width:600px){#reminders{width:calc(100% - 28px)!important;padding:17px!important}}</style>
 <footer>Basamak GYS — kişisel kullanım için hazırlanmaktadır.</footer>
 
 <script src="db.js?v=1786350782"></script>
 <script>bgysRequireAuth();</script>
 <script>
-  async function loadDueReminders() {
-    try {
-      const due = await bgysGetDueReminders();
-      const badge = document.getElementById('bellBadge');
-      const box = document.getElementById('dueRemindersBox');
-      const list = document.getElementById('dueRemindersList');
-      if (due.length === 0) {
-        badge.style.display = 'none';
-        box.style.display = 'none';
-        return;
-      }
-      badge.style.display = 'flex';
-      badge.textContent = due.length;
-      box.style.display = 'block';
-      document.getElementById('dueRemindersTitle').textContent = `${due.length} hatırlatmanın zamanı geldi`;
-      list.innerHTML = due.map(r => `
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#102840;border:1px solid #294760;border-radius:12px;padding:10px 14px;margin-bottom:8px;">
-          <div>
-            <div style="font-weight:700;font-size:0.9rem;color:var(--ink,#10243E);">${r.baslik}</div>
-            <div style="font-size:0.78rem;color:#a9bdd3;">${r.tarih} · ${r.saat}${r.not ? ' — ' + r.not : ''}</div>
-          </div>
-          <button onclick="dismissReminder('${r.id}')" style="background:#EF4444;color:white;border:none;padding:7px 14px;border-radius:100px;font-size:0.78rem;font-weight:700;cursor:pointer;">Tamamlandı</button>
-        </div>
-      `).join('');
-    } catch (e) { console.warn('Hatırlatmalar yüklenemedi', e); }
-  }
-  window.dismissReminder = async (id) => {
-    await bgysMarkReminderDone(id);
-    loadDueReminders();
-  };
-  loadDueReminders();
-  bgysAutoRefresh(loadDueReminders);
+let reminderAlarmInterval=null,reminderAudioContext=null;
+const reminderDismissedThisView=new Set();
+function playReminderTone(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!reminderAudioContext)reminderAudioContext=new AC();if(reminderAudioContext.state==="suspended")reminderAudioContext.resume();const now=reminderAudioContext.currentTime;[0,.35,.7].forEach((offset,i)=>{const osc=reminderAudioContext.createOscillator(),gain=reminderAudioContext.createGain();osc.type="sine";osc.frequency.value=i===1?990:790;gain.gain.setValueAtTime(.001,now+offset);gain.gain.exponentialRampToValueAtTime(.18,now+offset+.025);gain.gain.exponentialRampToValueAtTime(.001,now+offset+.22);osc.connect(gain);gain.connect(reminderAudioContext.destination);osc.start(now+offset);osc.stop(now+offset+.24)})}catch(e){console.warn("Alarm sesi tarayıcı tarafından engellendi",e)}}
+async function loadReminders(){try{const all=await bgysGetAll("hatirlatmalar");const now=Date.now();const due=all.filter(r=>!r.tamamlandi&&Number(r.zamanTs)<=now).sort((a,b)=>Number(a.zamanTs)-Number(b.zamanTs));const upcoming=all.filter(r=>!r.tamamlandi&&Number(r.zamanTs)>now).sort((a,b)=>Number(a.zamanTs)-Number(b.zamanTs));const badge=document.getElementById("reminderUnreadBadge"),alert=document.getElementById("reminderAlert");badge.style.display=due.length?"inline-flex":"none";alert.style.display=due.length?"block":"none";alert.textContent=due.length?"🔔 Bildiriminiz var! "+due.length+" hatırlatma okunmamış durumda. Gördüğünüzde “Gördüm” düğmesine basın.":"";
+const rows=[...due.map(r=>({...r,_due:true})),...upcoming.map(r=>({...r,_due:false}))];const list=document.getElementById("reminderList");if(!rows.length){list.innerHTML='<div style="padding:16px;border:1px dashed #cbd7e4;border-radius:10px;color:#64778d">Henüz hatırlatma eklemedin.</div>'}else{list.innerHTML=rows.map(r=>'<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px;margin:8px 0;border-radius:12px;border:1px solid '+(r._due?'#efb6b6':'#d8e2ec')+';background:'+(r._due?'#fff6f6':'#f8fafc')+'"><div style="flex:1;min-width:180px"><strong style="color:#102b4a">'+escapeReminderText(r.baslik||"Hatırlatma")+'</strong><div style="font-size:13px;color:#64778d;margin-top:5px">'+escapeReminderText(r.tarih||"")+' · '+escapeReminderText(r.saat||"")+(r.not?' — '+escapeReminderText(r.not):"")+'</div><span style="display:inline-block;margin-top:7px;color:'+(r._due?'#b92e37':'#087f82')+';font-size:11px;font-weight:800">'+(r._due?'● OKUNMADI':'○ BEKLENİYOR')+'</span></div>'+(r._due?'<button onclick="markReminderSeen(\''+String(r.id).replace(/'/g,"")+'\')" style="border:0;border-radius:9px;padding:10px 15px;background:#b92e37;color:white;font-weight:800;cursor:pointer">Gördüm</button>':'<button onclick="deleteReminder(\''+String(r.id).replace(/'/g,"")+'\')" style="border:1px solid #d8e2ec;border-radius:9px;padding:10px 15px;background:white;color:#425b79;font-weight:700;cursor:pointer">Sil</button>')+'</div>').join("")}
+if(due.length){if(!reminderAlarmInterval){playReminderTone();reminderAlarmInterval=setInterval(()=>{if(document.visibilityState==="visible")playReminderTone()},30000)}}else if(reminderAlarmInterval){clearInterval(reminderAlarmInterval);reminderAlarmInterval=null}
+}catch(e){console.warn("Hatırlatmalar yüklenemedi",e);document.getElementById("reminderList").innerHTML='<p style="color:#b92e37">Hatırlatmalar yüklenemedi. Hesabına giriş yaptığını kontrol et.</p>'}}
+function escapeReminderText(v){return String(v).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+document.getElementById("reminderForm").addEventListener("submit",async e=>{e.preventDefault();try{const baslik=document.getElementById("reminderTitle").value.trim(),tarih=document.getElementById("reminderDate").value,saat=document.getElementById("reminderTime").value,not=document.getElementById("reminderNote").value.trim();const zamanTs=new Date(tarih+"T"+saat+":00").getTime();if(!Number.isFinite(zamanTs)){alert("Tarih ve saati kontrol et.");return}await bgysAdd("hatirlatmalar",{baslik,tarih,saat,not,zamanTs,tamamlandi:false});e.target.reset();await loadReminders();alert("Hatırlatma kaydedildi.");}catch(err){alert("Hatırlatma kaydedilemedi. Giriş yaptığını kontrol et ve tekrar dene.");console.error(err)}});
+window.markReminderSeen=async id=>{try{await bgysMarkReminderDone(id);await loadReminders()}catch(e){alert("Hatırlatma güncellenemedi.");}};
+window.deleteReminder=async id=>{if(!confirm("Bu hatırlatmayı silmek istiyor musun?"))return;try{await bgysDelete("hatirlatmalar",id);await loadReminders()}catch(e){alert("Hatırlatma silinemedi.")}};
+document.addEventListener("click",()=>{try{const AC=window.AudioContext||window.webkitAudioContext;if(AC&&!reminderAudioContext)reminderAudioContext=new AC();if(reminderAudioContext&&reminderAudioContext.state==="suspended")reminderAudioContext.resume()}catch(e)},{once:true});
+loadReminders();setInterval(loadReminders,15000);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")loadReminders()});
 </script>
 
 </body>
